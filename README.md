@@ -2,7 +2,7 @@
 
 **CivicClean** is a full-stack community cleanliness platform that helps people report local issues, view issue locations, track clean-up progress, and support resolutions through contributions.
 
-**Live site:** https://your-netlify-site.netlify.app  
+**Live site:** https://civic-clean-oslo.netlify.app/
 **Backend API:** https://civic-clean-olive.vercel.app
 
 ## Features
@@ -182,9 +182,4 @@ The server includes `server/vercel.json`, which routes requests to `index.js`.
 - `GET /api/users/leaderboard` - get leaderboard users
 - `GET /api/stats` - get platform stats
 
-## Notes
 
-- Do not commit real `.env` files.
-- Use MongoDB Atlas for deployed database access.
-- Redeploy Netlify after changing frontend environment variables.
-- Firebase authorized domains must include the final Netlify domain for login to work in production.
