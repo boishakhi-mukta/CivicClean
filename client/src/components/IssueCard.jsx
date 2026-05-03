@@ -28,6 +28,7 @@ const IssueCard = ({ issue }) => {
       <div className="relative h-[160px] overflow-hidden">
         <img 
           src={issue.image || placeholderImage} 
+          onError={(e) => { e.target.onerror = null; e.target.src = placeholderImage; }}
           alt={issue.title} 
           className="w-full h-[160px] object-cover transition-transform duration-500 hover:scale-105"
         />

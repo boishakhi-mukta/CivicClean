@@ -1,36 +1,14 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { ThemeContext } from '../context/ThemeContext';
 import { FiSun, FiMoon, FiMenu, FiX, FiLogOut } from 'react-icons/fi';
 
 const Navbar = () => {
   const { currentUser, logout } = useContext(AuthContext);
+  const { isDarkMode, toggleDarkMode } = useContext(ThemeContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  // Initialize dark mode from local storage or system preference
-  useEffect(() => {
-    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
-      setIsDarkMode(true);
-    } else {
-      document.documentElement.classList.remove('dark');
-      setIsDarkMode(false);
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    if (isDarkMode) {
-      document.documentElement.classList.remove('dark');
-      localStorage.theme = 'light';
-      setIsDarkMode(false);
-    } else {
-      document.documentElement.classList.add('dark');
-      localStorage.theme = 'dark';
-      setIsDarkMode(true);
-    }
-  };
 
   const navLinkClass = ({ isActive }) =>
     isActive
@@ -58,12 +36,13 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-8">
             <NavLink to="/" className={navLinkClass}>Home</NavLink>
             <NavLink to="/issues" className={navLinkClass}>Issues</NavLink>
+            <NavLink to="/map" className={navLinkClass}>Map</NavLink>
             
             {currentUser && (
               <>
                 <NavLink to="/add-issue" className={navLinkClass}>Add Issue</NavLink>
                 <NavLink to="/my-issues" className={navLinkClass}>My Issues</NavLink>
-                <NavLink to="/my-contributions" className={navLinkClass}>My Contributions</NavLink>
+                <NavLink to="/my-contributions" className={navLinkClass}>Donations</NavLink>
               </>
             )}
           </div>
@@ -123,6 +102,9 @@ const Navbar = () => {
                         {currentUser.email}
                       </p>
                     </div>
+                    <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700" onClick={() => setIsDropdownOpen(false)}>
+                      My Profile
+                    </Link>
                     <button
                       onClick={() => {
                         setIsDropdownOpen(false);
@@ -163,12 +145,14 @@ const Navbar = () => {
           <div className="px-2 pt-2 pb-3 space-y-1">
             <NavLink to="/" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Home</NavLink>
             <NavLink to="/issues" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Issues</NavLink>
+            <NavLink to="/map" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Map</NavLink>
             
             {currentUser && (
               <>
                 <NavLink to="/add-issue" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Add Issue</NavLink>
                 <NavLink to="/my-issues" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>My Issues</NavLink>
-                <NavLink to="/my-contributions" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>My Contributions</NavLink>
+                <NavLink to="/my-contributions" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Donations</NavLink>
+                <NavLink to="/profile" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>My Profile</NavLink>
               </>
             )}
 

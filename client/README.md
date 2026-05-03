@@ -1,70 +1,112 @@
-# Getting Started with Create React App
+# CivicClean
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**Live site:** https://your-netlify-site.netlify.app
 
-## Available Scripts
+CivicClean is a community cleanliness platform for reporting local issues, tracking clean-up progress, and supporting issue resolution through contributions.
 
-In the project directory, you can run:
+## Key Features
 
-### `npm start`
+- Report local cleanliness issues with title, category, description, image, and location details.
+- Browse all reported issues and view detailed issue status information.
+- Explore issue locations through an interactive map experience.
+- Authenticate users with Firebase email/password and Google sign-in.
+- Let logged-in users manage their own reported issues.
+- Collect clean-up contributions and track funding progress for issues.
+- Download PDF receipts for contribution records.
+- Use responsive light and dark mode styling across the app.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Tech Stack
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Frontend:** React, React Router, Tailwind CSS
+- **Authentication:** Firebase Authentication
+- **HTTP Client:** Axios
+- **Maps:** Leaflet, React Leaflet
+- **PDF Receipts:** jsPDF, jsPDF AutoTable
+- **UI Feedback:** React Hot Toast, SweetAlert2, React Awesome Reveal
+- **Backend:** Node.js, Express
+- **Database:** MongoDB, Mongoose
+- **Deployment:** Netlify for the client, Vercel for the server
 
-### `npm test`
+## Deployment Notes
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The client is prepared for Netlify deployment with `netlify.toml` and `public/_redirects`, so route reloads resolve to `index.html`.
 
-### `npm run build`
+After deploying to Netlify, manually add your Netlify domain to Firebase:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. Open Firebase Console.
+2. Go to **Authentication**.
+3. Open **Settings**.
+4. Add your Netlify domain under **Authorized domains**.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Example domain:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```txt
+your-netlify-site.netlify.app
+```
 
-### `npm run eject`
+## Run Locally
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 1. Clone the repository
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+git clone https://github.com/your-username/CivicClean.git
+cd CivicClean
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 2. Run the server
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+cd server
+npm install
+cp .env.example .env
+npm run dev
+```
 
-## Learn More
+Update `server/.env` with your MongoDB connection string:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```env
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/civicclean
+PORT=5000
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The server runs at:
 
-### Code Splitting
+```txt
+http://localhost:5000
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 3. Run the client
 
-### Analyzing the Bundle Size
+Open a second terminal:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```bash
+cd client
+npm install
+cp .env.example .env
+npm start
+```
 
-### Making a Progressive Web App
+Update `client/.env` with your Firebase project values:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```env
+REACT_APP_API_URL=http://localhost:5000/api
+REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+REACT_APP_FIREBASE_PROJECT_ID=your-project-id
+REACT_APP_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+REACT_APP_FIREBASE_APP_ID=your_firebase_app_id
+REACT_APP_FIREBASE_MEASUREMENT_ID=your_firebase_measurement_id
+```
 
-### Advanced Configuration
+The client runs at:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```txt
+http://localhost:3000
+```
 
-### Deployment
+## Production Environment Variables
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+For Netlify, add every variable from `client/.env.example` in the Netlify site environment settings. Set `REACT_APP_API_URL` to your deployed Vercel API URL, ending in `/api`.
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+For Vercel, add every variable from `server/.env.example` in the Vercel project environment settings.
