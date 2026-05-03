@@ -2,6 +2,9 @@
   command = "npm run build"
   publish = "build"
 
+[build.environment]
+  REACT_APP_API_URL = "https://civic-clean-olive.vercel.app/api"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
