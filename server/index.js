@@ -13,9 +13,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/civicclean')
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+const connectDB = async () => {
+  try {
+    if (mongoose.connection.readyState >= 1) {
+      return;
+    }
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/civicclean', {
+      serverSelectionTimeoutMS: 5000 // Add a timeout to fail fast if DB is unreachable
+    });
+    console.log('MongoDB connected successfully');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+  }
+};
+
+// Initialize connection
+connectDB();
 
 // Models for stats
 const Issue = require('./models/Issue');
@@ -27,6 +40,12 @@ const issueRoutes = require('./routes/issueRoutes');
 const donationRoutes = require('./routes/donationRoutes');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+
+// Add a middleware to ensure DB is connected before handling requests
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
 app.use('/api/issues', issueRoutes);
 app.use('/api/donations', donationRoutes);
@@ -59,7 +78,11 @@ app.get('/api/stats', async (req, res) => {
 
 // Health check route
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'Server is running normally' });
+  res.status(200).json({ 
+    status: 'ok', 
+    message: 'Server is running normally',
+    dbStatus: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
 });
 
 // Basic route
@@ -67,7 +90,12 @@ app.get('/', (req, res) => {
   res.send('CivicClean API is running');
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Start server if running locally (not in serverless environment)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
+// Export for Vercel
+module.exports = app;
