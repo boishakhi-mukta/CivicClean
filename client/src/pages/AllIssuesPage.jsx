@@ -100,8 +100,9 @@ const AllIssuesPage = () => {
                 className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-[#d4ff00] focus:border-transparent outline-none transition-all dark:text-white"
               >
                 <option value="">All Statuses</option>
-                <option value="ongoing">Ongoing</option>
-                <option value="ended">Ended</option>
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Resolved">Resolved</option>
               </select>
             </div>
             

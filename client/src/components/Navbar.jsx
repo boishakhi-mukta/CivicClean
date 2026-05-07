@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
 import { FiSun, FiMoon, FiMenu, FiX, FiLogOut } from 'react-icons/fi';
@@ -9,6 +9,7 @@ const Navbar = () => {
   const { isDarkMode, toggleDarkMode } = useContext(ThemeContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navLinkClass = ({ isActive }) =>
     isActive
@@ -108,7 +109,7 @@ const Navbar = () => {
                     <button
                       onClick={() => {
                         setIsDropdownOpen(false);
-                        logout();
+                        logout().then(() => navigate('/'));
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
                     >
@@ -177,7 +178,7 @@ const Navbar = () => {
               <button
                 onClick={() => {
                   setIsMenuOpen(false);
-                  logout();
+                  logout().then(() => navigate('/'));
                 }}
                 className="w-full text-left block px-3 py-2 mt-4 rounded-md text-base font-medium text-red-400 hover:bg-white/5 flex items-center space-x-2"
               >
