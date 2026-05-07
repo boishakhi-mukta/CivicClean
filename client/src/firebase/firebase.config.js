@@ -14,6 +14,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+// eslint-disable-next-line no-unused-vars
 const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 
 export default auth;
