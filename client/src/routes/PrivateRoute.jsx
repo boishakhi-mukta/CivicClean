@@ -20,7 +20,7 @@ const PrivateRoute = ({ children }) => {
   }
 
   // Redirect to the login page (or auth page) and preserve the intended destination
-  return <Navigate to="/auth" state={{ from: location }} replace />;
+  return <Navigate to="/login" state={{ from: location }} replace />;
 };
 
 export default PrivateRoute;
