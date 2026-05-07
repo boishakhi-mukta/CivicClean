@@ -9,7 +9,6 @@ const AllIssuesPage = () => {
   
   // Filters state
   const [category, setCategory] = useState('');
-  const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
   
   // Debounced search state
@@ -32,7 +31,6 @@ const AllIssuesPage = () => {
       try {
         const params = {};
         if (category) params.category = category;
-        if (status) params.status = status;
         if (debouncedSearch) params.search = debouncedSearch;
         
         const response = await axiosInstance.get('/issues', { params });
@@ -45,7 +43,7 @@ const AllIssuesPage = () => {
     };
 
     fetchIssues();
-  }, [category, status, debouncedSearch]);
+  }, [category, debouncedSearch]);
 
   const categories = ['Garbage', 'Illegal Construction', 'Broken Public Property', 'Road Damage'];
 
@@ -62,7 +60,7 @@ const AllIssuesPage = () => {
 
         {/* Filters Toolbar */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Search */}
             <div>
@@ -91,21 +89,8 @@ const AllIssuesPage = () => {
               </select>
             </div>
 
-            {/* Status Filter */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Status</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-[#d4ff00] focus:border-transparent outline-none transition-all dark:text-white"
-              >
-                <option value="">All Statuses</option>
-                <option value="Open">Open</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Resolved">Resolved</option>
-              </select>
-            </div>
             
+
           </div>
         </div>
 
