@@ -72,7 +72,7 @@ const HomePage = () => {
 
       try {
         const issuesRes = await axiosInstance.get('/issues?limit=6');
-        setRecentIssues(issuesRes.data);
+        setRecentIssues(issuesRes.data.issues);
         setLoadingIssues(false);
       } catch (error) {
         console.error("Failed to fetch recent issues:", error);

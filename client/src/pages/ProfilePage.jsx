@@ -1,20 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import axiosInstance from '../api/axiosInstance';
 import { Fade } from 'react-awesome-reveal';
 
 const ProfilePage = () => {
-  const { currentUser, logout } = useContext(AuthContext);
-  const [userStats, setUserStats] = useState(null);
+  const { currentUser, dbUser, logout } = useContext(AuthContext);
 
   useEffect(() => {
     document.title = "CivicClean | Profile";
-    if (currentUser?.mongoId) {
-      axiosInstance.get(`/users/${currentUser.mongoId}`).then(res => {
-        setUserStats(res.data);
-      });
-    }
-  }, [currentUser]);
+  }, []);
 
   if (!currentUser) return <div>Please login.</div>;
 
@@ -39,12 +32,12 @@ const ProfilePage = () => {
               
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-4">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider mb-1">Total Points</p>
-                  <p className="text-2xl font-black text-[#1a3a2a] dark:text-[#d4ff00]">{userStats?.total_points || 0}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider mb-1">Issues Reported</p>
+                  <p className="text-2xl font-black text-[#1a3a2a] dark:text-[#d4ff00]">{dbUser?.issueCount || 0}</p>
                 </div>
                 <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-4">
                   <p className="text-sm text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider mb-1">Role</p>
-                  <p className="text-2xl font-black text-[#1a3a2a] dark:text-[#d4ff00]">{userStats?.role || 'User'}</p>
+                  <p className="text-2xl font-black text-[#1a3a2a] dark:text-[#d4ff00] capitalize">{dbUser?.role || 'citizen'}</p>
                 </div>
               </div>
               

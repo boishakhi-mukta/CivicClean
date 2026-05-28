@@ -30,7 +30,7 @@ const MyIssuesPage = () => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(`/issues?email=${encodeURIComponent(currentUser.email)}`);
-      setIssues(response.data);
+      setIssues(response.data.issues);
     } catch (error) {
       console.error('Failed to fetch issues:', error);
       toast.error('Failed to load your issues.');

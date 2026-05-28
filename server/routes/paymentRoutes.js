@@ -1,0 +1,96 @@
+const express = require('express');
+const router = express.Router();
+const Payment = require('../models/Payment');
+const Issue   = require('../models/Issue');
+const User    = require('../models/User');
+const verifyToken = require('../middlewares/verifyToken');
+const verifyAdmin = require('../middlewares/verifyAdmin');
+
+// ── GET /api/payments/mine ────────────────────────────────────────────────────
+// Must be defined before GET / to avoid route-order ambiguity
+router.get('/mine', verifyToken, async (req, res) => {
+  try {
+    const payments = await Payment.find({ userEmail: req.user.email })
+      .sort({ date: -1 });
+    res.json(payments);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ── GET /api/payments ─────────────────────────────────────────────────────────
+router.get('/', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const { type } = req.query;
+    const query = type ? { type } : {};
+
+    const [payments, total] = await Promise.all([
+      Payment.find(query).sort({ date: -1 }),
+      Payment.countDocuments(query)
+    ]);
+
+    res.json({ payments, total });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ── POST /api/payments ────────────────────────────────────────────────────────
+router.post('/', verifyToken, async (req, res) => {
+  try {
+    const { amount, type, issueId, issueTitle } = req.body;
+
+    if (!amount || !type) {
+      return res.status(400).json({ message: 'amount and type are required' });
+    }
+
+    const transactionId =
+      'TXN-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+
+    const payment = new Payment({
+      userEmail: req.user.email,
+      amount,
+      type,
+      issueId,
+      issueTitle,
+      transactionId
+    });
+
+    await payment.save();
+
+    if (type === 'boost') {
+      const issue = await Issue.findById(issueId);
+      if (!issue) {
+        return res.status(404).json({ message: 'Issue not found for boost' });
+      }
+
+      issue.isBoosted = true;
+      issue.priority  = 'high';
+      issue.timeline.push({
+        message:   'Issue priority boosted to High via payment',
+        updatedBy: req.user.email,
+        role:      'citizen',
+        status:    issue.status,
+        createdAt: new Date()
+      });
+
+      await issue.save();
+    }
+
+    if (type === 'subscription') {
+      const user = await User.findOne({ email: req.user.email });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found for subscription' });
+      }
+
+      user.isPremium = true;
+      await user.save();
+    }
+
+    res.status(201).json({ success: true, payment, transactionId });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+module.exports = router;

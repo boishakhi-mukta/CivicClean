@@ -34,7 +34,7 @@ const AllIssuesPage = () => {
         if (debouncedSearch) params.search = debouncedSearch;
         
         const response = await axiosInstance.get('/issues', { params });
-        setIssues(response.data);
+        setIssues(response.data.issues);
       } catch (error) {
         console.error('Error fetching issues:', error);
       } finally {

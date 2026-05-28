@@ -40,6 +40,7 @@ const issueRoutes = require('./routes/issueRoutes');
 const donationRoutes = require('./routes/donationRoutes');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 // Add a middleware to ensure DB is connected before handling requests
 app.use(async (req, res, next) => {
@@ -51,6 +52,7 @@ app.use('/api/issues', issueRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // GET /api/stats (Explicitly mapped as requested)
 app.get('/api/stats', async (req, res) => {

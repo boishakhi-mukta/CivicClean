@@ -1,11 +1,11 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
-import { FiSun, FiMoon, FiMenu, FiX, FiLogOut } from 'react-icons/fi';
+import { FiSun, FiMoon, FiMenu, FiX, FiLogOut, FiGrid } from 'react-icons/fi';
 
 const Navbar = () => {
-  const { currentUser, logout } = useContext(AuthContext);
+  const { currentUser, dbUser, logout } = useContext(AuthContext);
   const { isDarkMode, toggleDarkMode } = useContext(ThemeContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -21,11 +21,22 @@ const Navbar = () => {
     return name.charAt(0).toUpperCase();
   };
 
+  const getDashboardPath = () => {
+    if (dbUser?.role === 'admin') return '/dashboard/admin';
+    if (dbUser?.role === 'staff') return '/dashboard/staff';
+    return '/dashboard/citizen';
+  };
+
+  const handleLogout = (closeFn) => {
+    closeFn();
+    logout().then(() => navigate('/'));
+  };
+
   return (
     <nav className="sticky top-0 z-50 bg-[#1a3a2a] shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo Section */}
+          {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <span className="text-2xl">🌿</span>
             <span className="text-[#d4ff00] font-bold text-xl tracking-wide">
@@ -38,7 +49,7 @@ const Navbar = () => {
             <NavLink to="/" className={navLinkClass}>Home</NavLink>
             <NavLink to="/issues" className={navLinkClass}>Issues</NavLink>
             <NavLink to="/map" className={navLinkClass}>Map</NavLink>
-            
+
             {currentUser && (
               <>
                 <NavLink to="/add-issue" className={navLinkClass}>Add Issue</NavLink>
@@ -48,7 +59,7 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Right Section (Auth + Theme Toggle) */}
+          {/* Right Section */}
           <div className="hidden md:flex items-center space-x-4">
             <button
               onClick={toggleDarkMode}
@@ -92,28 +103,39 @@ const Navbar = () => {
                   )}
                 </button>
 
-                {/* Profile Dropdown */}
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-xl py-1 z-50 border dark:border-gray-700">
+                  <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-800 rounded-md shadow-xl py-1 z-50 border dark:border-gray-700">
+                    {/* User info header */}
                     <div className="px-4 py-2 border-b dark:border-gray-700">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                         {currentUser.displayName || 'User'}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                         {currentUser.email}
                       </p>
+                      {dbUser?.role && (
+                        <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-[#d4ff00] text-[#1a3a2a] font-medium capitalize">
+                          {dbUser.role}
+                        </span>
+                      )}
                     </div>
-                    <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700" onClick={() => setIsDropdownOpen(false)}>
-                      My Profile
+
+                    {/* Dashboard link */}
+                    <Link
+                      to={getDashboardPath()}
+                      className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <FiGrid size={14} />
+                      <span>Dashboard</span>
                     </Link>
+
+                    {/* Logout */}
                     <button
-                      onClick={() => {
-                        setIsDropdownOpen(false);
-                        logout().then(() => navigate('/'));
-                      }}
+                      onClick={() => handleLogout(() => setIsDropdownOpen(false))}
                       className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
                     >
-                      <FiLogOut />
+                      <FiLogOut size={14} />
                       <span>Logout</span>
                     </button>
                   </div>
@@ -147,13 +169,20 @@ const Navbar = () => {
             <NavLink to="/" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Home</NavLink>
             <NavLink to="/issues" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Issues</NavLink>
             <NavLink to="/map" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Map</NavLink>
-            
+
             {currentUser && (
               <>
                 <NavLink to="/add-issue" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Add Issue</NavLink>
                 <NavLink to="/my-issues" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>My Issues</NavLink>
                 <NavLink to="/my-contributions" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Donations</NavLink>
-                <NavLink to="/profile" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>My Profile</NavLink>
+                <Link
+                  to={getDashboardPath()}
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <FiGrid size={16} />
+                  <span>Dashboard</span>
+                </Link>
               </>
             )}
 
@@ -176,13 +205,10 @@ const Navbar = () => {
               </div>
             ) : (
               <button
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  logout().then(() => navigate('/'));
-                }}
-                className="w-full text-left block px-3 py-2 mt-4 rounded-md text-base font-medium text-red-400 hover:bg-white/5 flex items-center space-x-2"
+                onClick={() => handleLogout(() => setIsMenuOpen(false))}
+                className="w-full text-left flex items-center space-x-2 px-3 py-2 mt-4 rounded-md text-base font-medium text-red-400 hover:bg-white/5"
               >
-                <FiLogOut />
+                <FiLogOut size={16} />
                 <span>Logout</span>
               </button>
             )}

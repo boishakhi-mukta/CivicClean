@@ -52,7 +52,7 @@ const IssueDetailPage = () => {
       return;
     }
     try {
-      const res = await axiosInstance.post(`/issues/${id}/upvote`, { userId: currentUser.mongoId });
+      const res = await axiosInstance.patch(`/issues/${id}/upvote`);
       setIssue(res.data);
     } catch (error) {
       console.error('Failed to upvote:', error);
@@ -123,7 +123,7 @@ const IssueDetailPage = () => {
                       onClick={handleUpvote}
                       className="px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded-md text-sm font-bold shadow-sm flex items-center hover:bg-blue-200 transition-colors"
                     >
-                      <FiThumbsUp className="mr-1" /> {issue.upvotes || 0} Upvotes
+                      <FiThumbsUp className="mr-1" /> {issue.upvoteCount || 0} Upvotes
                     </button>
                   </div>
 

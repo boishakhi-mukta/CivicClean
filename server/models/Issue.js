@@ -11,19 +11,45 @@ const issueSchema = new mongoose.Schema({
   image: String,
   amount: Number,
   email: String,
-  status: { 
-    type: String, 
-    enum: ['Open', 'In Progress', 'Resolved'],
-    default: 'Open' 
+  status: {
+    type: String,
+    enum: ['pending', 'in-progress', 'working', 'resolved', 'closed', 'rejected'],
+    default: 'pending'
   },
   reported_by: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
   upvotes: {
+    type: [String],
+    default: []
+  },
+  upvoteCount: {
     type: Number,
     default: 0
   },
+  priority: {
+    type: String,
+    enum: ['normal', 'high'],
+    default: 'normal'
+  },
+  isBoosted: {
+    type: Boolean,
+    default: false
+  },
+  assignedStaff: {
+    staffId: String,
+    staffName: String,
+    staffEmail: String
+  },
+  timeline: [{
+    message: String,
+    updatedBy: String,
+    role: String,
+    status: String,
+    createdAt: { type: Date, default: Date.now }
+  }],
+  rejectedReason: { type: String },
   date: { type: Date, default: Date.now }
 });
 

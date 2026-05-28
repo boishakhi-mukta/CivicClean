@@ -15,8 +15,20 @@ const userSchema = new mongoose.Schema({
   avatar_url: String,
   role: {
     type: String,
-    enum: ['User', 'Admin'],
-    default: 'User'
+    enum: ['citizen', 'staff', 'admin'],
+    default: 'citizen'
+  },
+  isBlocked: {
+    type: Boolean,
+    default: false
+  },
+  isPremium: {
+    type: Boolean,
+    default: false
+  },
+  issueCount: {
+    type: Number,
+    default: 0
   },
   total_points: {
     type: Number,

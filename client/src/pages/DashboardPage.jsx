@@ -1,30 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import axiosInstance from '../api/axiosInstance';
 import { Fade } from 'react-awesome-reveal';
 
 const DashboardPage = () => {
-  const { currentUser } = useContext(AuthContext);
-  const [userStats, setUserStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { currentUser, dbUser, loading } = useContext(AuthContext);
 
   useEffect(() => {
     document.title = "CivicClean | Dashboard";
-    if (currentUser?.mongoId) {
-      axiosInstance.get(`/users/${currentUser.mongoId}`)
-        .then(res => {
-          setUserStats(res.data);
-          setLoading(false);
-        })
-        .catch(err => {
-          console.error(err);
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
-    }
-  }, [currentUser]);
+  }, []);
 
   if (loading) {
     return (
@@ -55,8 +39,8 @@ const DashboardPage = () => {
               <p className="text-gray-500 dark:text-gray-400 mb-6">{currentUser?.email}</p>
               
               <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-xl p-4 mb-4">
-                <p className="text-sm text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider mb-1">Total Points</p>
-                <p className="text-4xl font-black text-[#1a3a2a] dark:text-[#d4ff00]">{userStats?.total_points || 0}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider mb-1">Issues Reported</p>
+                <p className="text-4xl font-black text-[#1a3a2a] dark:text-[#d4ff00]">{dbUser?.issueCount || 0}</p>
               </div>
             </div>
           </Fade>
