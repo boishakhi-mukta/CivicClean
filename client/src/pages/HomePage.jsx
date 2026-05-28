@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosInstance';
 import { Fade, Slide } from 'react-awesome-reveal';
 import { Typewriter } from 'react-simple-typewriter';
@@ -10,8 +11,7 @@ import IssueCard from '../components/IssueCard';
 const HomePage = () => {
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
-  
-  // Section 1: Banner Slider State
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const slides = [
     {
@@ -42,48 +42,23 @@ const HomePage = () => {
 
   useEffect(() => {
     document.title = "CivicClean | Home";
-    
-    // Auto-advance slider
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
     }, 4000);
     return () => clearInterval(interval);
   }, [slides.length]);
 
-  // Section 2: Stats State
-  const [stats, setStats] = useState({ totalUsers: 0, issuesReported: 0, issuesResolved: 0, totalContributions: 0 });
-  const [loadingStats, setLoadingStats] = useState(true);
+  const { data: stats = { totalUsers: 0, issuesReported: 0, issuesResolved: 0, totalContributions: 0 } } = useQuery({
+    queryKey: ['homeStats'],
+    queryFn: async () => (await axiosInstance.get('/stats')).data,
+    staleTime: 5 * 60 * 1000,
+  });
 
-  // Section 4: Recent Complaints State
-  const [recentIssues, setRecentIssues] = useState([]);
-  const [loadingIssues, setLoadingIssues] = useState(true);
+  const { data: recentIssues = [], isLoading: loadingIssues } = useQuery({
+    queryKey: ['homeRecentIssues'],
+    queryFn: async () => (await axiosInstance.get('/issues?limit=6')).data.issues,
+  });
 
-  // Fetch Data
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const statsRes = await axiosInstance.get('/stats');
-        setStats(statsRes.data);
-        setLoadingStats(false);
-      } catch (error) {
-        console.error("Failed to fetch stats:", error);
-        setLoadingStats(false);
-      }
-
-      try {
-        const issuesRes = await axiosInstance.get('/issues?limit=6');
-        setRecentIssues(issuesRes.data.issues);
-        setLoadingIssues(false);
-      } catch (error) {
-        console.error("Failed to fetch recent issues:", error);
-        setLoadingIssues(false);
-      }
-    };
-    
-    fetchData();
-  }, []);
-
-  // Section 3: Categories Data
   const categories = [
     { name: 'Garbage', icon: <FiTrash2 className="text-4xl mb-4 text-[#d4ff00]" />, query: 'Garbage' },
     { name: 'Illegal Construction', icon: <FiPenTool className="text-4xl mb-4 text-[#d4ff00]" />, query: 'Illegal Construction' },
@@ -93,7 +68,7 @@ const HomePage = () => {
 
   return (
     <div className="bg-white dark:bg-gray-900 transition-colors duration-200">
-      
+
       {/* 1. BANNER SECTION */}
       <section className="relative h-[600px] w-full overflow-hidden">
         {slides.map((slide, index) => (
@@ -103,13 +78,13 @@ const HomePage = () => {
               index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
             }`}
           >
-            <div 
+            <div
               className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: `url(${slide.bgImage})` }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-[#1a3a2a]/90 to-black/60"></div>
             </div>
-            
+
             <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-start text-white">
               <Fade direction="up" cascade damping={0.2} triggerOnce={false} key={currentSlide}>
                 <span className="text-6xl md:text-8xl mb-6">{slide.emoji}</span>
@@ -131,7 +106,7 @@ const HomePage = () => {
                 <p className="text-xl md:text-2xl mb-8 max-w-2xl text-gray-200 font-light">
                   {slide.subtitle}
                 </p>
-                <button 
+                <button
                   onClick={() => navigate(slide.ctaLink)}
                   className="px-8 py-4 bg-[#d4ff00] text-[#1a3a2a] text-lg font-bold rounded-lg hover:bg-[#bce600] transition transform hover:-translate-y-1 hover:shadow-xl"
                 >
@@ -141,8 +116,7 @@ const HomePage = () => {
             </div>
           </div>
         ))}
-        
-        {/* Slide Indicators */}
+
         <div className="absolute bottom-8 left-0 right-0 z-20 flex justify-center space-x-3">
           {slides.map((_, idx) => (
             <button
@@ -163,27 +137,19 @@ const HomePage = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <Fade cascade damping={0.1}>
               <div className="flex flex-col items-center">
-                <span className="text-4xl font-extrabold text-[#d4ff00] mb-2">
-                  {loadingStats ? "..." : stats.totalUsers}
-                </span>
+                <span className="text-4xl font-extrabold text-[#d4ff00] mb-2">{stats.totalUsers}</span>
                 <span className="text-white text-sm uppercase tracking-widest">Total Users</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-4xl font-extrabold text-[#d4ff00] mb-2">
-                  {loadingStats ? "..." : stats.issuesReported}
-                </span>
+                <span className="text-4xl font-extrabold text-[#d4ff00] mb-2">{stats.issuesReported}</span>
                 <span className="text-white text-sm uppercase tracking-widest">Issues Reported</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-4xl font-extrabold text-[#d4ff00] mb-2">
-                  {loadingStats ? "..." : stats.issuesResolved}
-                </span>
+                <span className="text-4xl font-extrabold text-[#d4ff00] mb-2">{stats.issuesResolved}</span>
                 <span className="text-white text-sm uppercase tracking-widest">Issues Resolved</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-4xl font-extrabold text-[#d4ff00] mb-2">
-                  {loadingStats ? "..." : stats.totalContributions}
-                </span>
+                <span className="text-4xl font-extrabold text-[#d4ff00] mb-2">{stats.totalContributions}</span>
                 <span className="text-white text-sm uppercase tracking-widest">Total Contributions</span>
               </div>
             </Fade>
@@ -200,12 +166,12 @@ const HomePage = () => {
               <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Select a specific issue category to view related complaints or report a new one in your neighborhood.</p>
             </Fade>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <Fade cascade damping={0.1}>
               {categories.map((cat, idx) => (
-                <Link 
-                  key={idx} 
+                <Link
+                  key={idx}
                   to={`/issues?category=${encodeURIComponent(cat.query)}`}
                   className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition duration-300 flex flex-col items-center text-center group border border-gray-100 dark:border-gray-700"
                 >
@@ -256,7 +222,7 @@ const HomePage = () => {
               </Fade>
             </div>
           )}
-          
+
           <div className="mt-10 text-center md:hidden">
             <Link to="/issues" className="inline-flex px-6 py-3 border-2 border-[#1a3a2a] dark:border-[#d4ff00] text-[#1a3a2a] dark:text-[#d4ff00] font-bold rounded-lg hover:bg-[#1a3a2a] hover:text-white dark:hover:bg-[#d4ff00] dark:hover:text-[#1a3a2a] transition">
               View All Issues
@@ -267,10 +233,9 @@ const HomePage = () => {
 
       {/* 5. CTA SECTION */}
       <section className="bg-[#1a3a2a] py-24 relative overflow-hidden">
-        {/* Decorative background elements */}
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-white/5 blur-3xl"></div>
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-[#d4ff00]/10 blur-3xl"></div>
-        
+
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <Slide direction="up">
             <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6">
@@ -279,7 +244,7 @@ const HomePage = () => {
             <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
               Join thousands of community members actively making their neighborhoods cleaner, safer, and more beautiful. Every report counts.
             </p>
-            
+
             {!currentUser ? (
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <Link to="/register" className="px-8 py-4 w-full sm:w-auto bg-[#d4ff00] text-[#1a3a2a] font-bold rounded-lg hover:bg-[#bce600] transition shadow-lg text-lg">

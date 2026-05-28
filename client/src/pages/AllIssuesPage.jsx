@@ -1,56 +1,40 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosInstance';
 import IssueCard from '../components/IssueCard';
 import { Fade } from 'react-awesome-reveal';
 
 const AllIssuesPage = () => {
-  const [issues, setIssues] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
-  // Filters state
   const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
-  
-  // Debounced search state
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  // Debounce logic
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 400);
+    document.title = "CivicClean | All Issues";
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 400);
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Fetch data
-  useEffect(() => {
-    document.title = "CivicClean | All Issues";
-    
-    const fetchIssues = async () => {
-      setLoading(true);
-      try {
-        const params = {};
-        if (category) params.category = category;
-        if (debouncedSearch) params.search = debouncedSearch;
-        
-        const response = await axiosInstance.get('/issues', { params });
-        setIssues(response.data.issues);
-      } catch (error) {
-        console.error('Error fetching issues:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchIssues();
-  }, [category, debouncedSearch]);
+  const { data: issues = [], isLoading } = useQuery({
+    queryKey: ['issues', category, debouncedSearch],
+    queryFn: async () => {
+      const params = {};
+      if (category) params.category = category;
+      if (debouncedSearch) params.search = debouncedSearch;
+      const res = await axiosInstance.get('/issues', { params });
+      return res.data.issues;
+    },
+  });
 
   const categories = ['Garbage', 'Illegal Construction', 'Broken Public Property', 'Road Damage'];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       <div className="max-w-7xl mx-auto">
-        
+
         <div className="mb-10 text-center">
           <Fade direction="up" triggerOnce>
             <h1 className="text-4xl font-extrabold text-[#1a3a2a] dark:text-white mb-4">Community Issues</h1>
@@ -61,7 +45,7 @@ const AllIssuesPage = () => {
         {/* Filters Toolbar */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
+
             {/* Search */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Search</label>
@@ -88,14 +72,11 @@ const AllIssuesPage = () => {
                 ))}
               </select>
             </div>
-
-            
-
           </div>
         </div>
 
         {/* Loading / Issues Grid */}
-        {loading ? (
+        {isLoading ? (
           <div className="flex flex-col justify-center items-center h-64">
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#1a3a2a] dark:border-[#d4ff00]"></div>
             <p className="mt-4 text-gray-500 dark:text-gray-400 font-medium">Loading issues...</p>

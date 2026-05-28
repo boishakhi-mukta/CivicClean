@@ -1,42 +1,58 @@
 # CivicClean
 
-**CivicClean** is a full-stack community cleanliness platform that helps people report local issues, view issue locations, track clean-up progress, and support resolutions through contributions.
+**CivicClean** is a full-stack civic issue reporting and management platform that empowers citizens to report local problems, track resolutions, and support clean-up efforts through community contributions.
 
 **Live site:** https://civic-clean-oslo.netlify.app/
 **Backend API:** https://civic-clean-olive.vercel.app
 
+---
+
+## Test Credentials
+
+| Role    | Email                      | Password    |
+|---------|----------------------------|-------------|
+| Admin   | admin@civicclean.com       | Admin@123   |
+| Staff   | staff@civicclean.com       | Staff@123   |
+| Citizen | citizen@civicclean.com     | Citizen@123 |
+
+> Create the citizen account via the `/register` page (or Sign in with Google). The admin and staff accounts are pre-seeded.
+
+---
+
 ## Features
 
-- Report local cleanliness issues with title, category, description, image, and location details.
-- Browse all reported issues and open detailed issue pages.
-- View issues on an interactive map powered by Leaflet.
-- Register and log in with Firebase Authentication.
-- Manage personal issue reports from a protected user area.
-- Contribute funding toward clean-up work and track funding progress.
-- Download PDF receipts for contribution records.
-- Use a responsive interface with light and dark mode support.
+- **Role-based dashboards** for Citizens, Staff, and Admins — each with a dedicated sidebar layout and protected routes that redirect on unauthorized access.
+- **Issue reporting** — Citizens submit civic issues (garbage, road damage, illegal construction, broken public property) with title, category, location, description, and an optional image URL.
+- **Staff workflow** — Staff advance issue status in one direction only: pending → in-progress → working → resolved → closed, with a confirmation modal at each step.
+- **Admin controls** — Admins assign staff to issues, reject issues with a reason, block/unblock citizen accounts, and view all platform payments with PDF invoice download.
+- **Upvoting and Priority Boost** — Citizens can upvote issues they care about (own-issue guard enforced); issue owners can pay ৳100 to boost their issue to High Priority via a payment modal.
+- **Premium subscription** — Citizens can pay ৳1,000 for unlimited issue reporting; free accounts are capped at 3 submissions.
+- **Issue timeline** — Every status change, staff assignment, and admin action is recorded in a chronological timeline displayed on the issue detail page.
+- **Contribution funding** — Any logged-in user can contribute NOK amounts toward an issue's clean-up budget; a live progress bar tracks funding vs. the suggested budget.
+- **Interactive issue map** — All reported issues are plotted on a Leaflet map with popups linking to the detail page.
+- **Community leaderboard** — Top contributors ranked by earned points, with PDF receipt download for payment history and contribution records.
+
+---
 
 ## Tech Stack
 
 ### Client
 
-- React
-- React Router
+- React + React Router v6
 - Tailwind CSS
-- Axios
-- Firebase Authentication
-- Leaflet and React Leaflet
-- jsPDF and jsPDF AutoTable
-- React Hot Toast and SweetAlert2
+- TanStack Query v5 (all data fetching)
+- Firebase Authentication + Firebase Storage
+- Recharts (dashboard charts)
+- Leaflet / React Leaflet (issue map)
+- jsPDF + jsPDF AutoTable (PDF generation)
+- React Hook Form + SweetAlert2 + React Hot Toast
 
 ### Server
 
-- Node.js
-- Express
-- MongoDB
-- Mongoose
-- dotenv
-- CORS
+- Node.js + Express
+- MongoDB + Mongoose
+- Firebase Admin SDK (JWT verification)
+- dotenv / CORS
 
 ### Deployment
 
@@ -44,21 +60,34 @@
 - Server: Vercel
 - Database: MongoDB Atlas
 
+---
+
 ## Project Structure
 
-```txt
+```
 CivicClean/
 ├── client/          # React frontend
-├── server/          # Express backend API
-├── GEMINI.md        # Project notes and architecture context
-└── README.md        # GitHub project documentation
+│   └── src/
+│       ├── api/           # axiosInstance
+│       ├── components/    # Shared UI (Navbar, IssueCard, PhotoUploader, IssueTimeline…)
+│       ├── context/       # AuthContext, ThemeContext
+│       ├── pages/
+│       │   └── dashboard/
+│       │       ├── admin/   # AdminDashboardLayout + 6 sub-pages
+│       │       ├── staff/   # StaffDashboardLayout + 3 sub-pages
+│       │       └── citizen/ # CitizenDashboardLayout + 4 sub-pages
+│       └── routes/        # PrivateRoute, AdminRoute, StaffRoute
+└── server/          # Express API
+    ├── middlewares/   # verifyToken, verifyAdmin, verifyStaff
+    ├── models/        # Issue, User, Payment, Donation, Contribution
+    └── routes/        # authRoutes, issueRoutes, userRoutes, paymentRoutes, donationRoutes
 ```
+
+---
 
 ## Environment Variables
 
-### Client
-
-Create `client/.env` from `client/.env.example`:
+### Client (`client/.env`)
 
 ```env
 REACT_APP_API_URL=http://localhost:5000/api
@@ -66,120 +95,83 @@ REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
 REACT_APP_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
 REACT_APP_FIREBASE_PROJECT_ID=your-project-id
 REACT_APP_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
-REACT_APP_FIREBASE_APP_ID=your_firebase_app_id
-REACT_APP_FIREBASE_MEASUREMENT_ID=your_firebase_measurement_id
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+REACT_APP_FIREBASE_APP_ID=your_app_id
+REACT_APP_FIREBASE_MEASUREMENT_ID=your_measurement_id
 ```
 
-For production, set:
+For production set `REACT_APP_API_URL=https://civic-clean-olive.vercel.app/api`.
 
-```env
-REACT_APP_API_URL=https://civic-clean-olive.vercel.app/api
-```
-
-### Server
-
-Create `server/.env` from `server/.env.example`:
+### Server (`server/.env`)
 
 ```env
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/civicclean
 PORT=5000
+FIREBASE_SERVICE_ACCOUNT={"type":"service_account",...}
 ```
+
+---
 
 ## Run Locally
 
-### 1. Clone the repository
-
 ```bash
+# 1. Clone
 git clone https://github.com/Boishakhi11/CivicClean.git
 cd CivicClean
+
+# 2. Server
+cd server && npm install && cp .env.example .env
+npm run dev   # http://localhost:5000
+
+# 3. Client (new terminal)
+cd client && npm install && cp .env.example .env
+npm start     # http://localhost:3000
 ```
 
-### 2. Start the server
-
-```bash
-cd server
-npm install
-cp .env.example .env
-npm run dev
-```
-
-The server runs at:
-
-```txt
-http://localhost:5000
-```
-
-### 3. Start the client
-
-Open a second terminal:
-
-```bash
-cd client
-npm install
-cp .env.example .env
-npm start
-```
-
-The client runs at:
-
-```txt
-http://localhost:3000
-```
+---
 
 ## Deployment
 
-### Client on Netlify
+### Netlify (client)
 
-Use these Netlify settings:
-
-```txt
-Base directory: client
-Build command: npm run build
+```
+Base directory:    client
+Build command:     npm run build
 Publish directory: build
 ```
 
-The client includes:
+Add your Netlify domain to Firebase → Authentication → Authorized domains.
 
-- `client/netlify.toml`
-- `client/public/_redirects`
+### Vercel (server)
 
-These files make React Router route reloads work correctly on Netlify.
-
-After deploying, add your Netlify domain to Firebase:
-
-```txt
-Firebase Console -> Authentication -> Settings -> Authorized domains
 ```
-
-### Server on Vercel
-
-Use these Vercel settings:
-
-```txt
 Root directory: server
 ```
 
-Add the server environment variables in Vercel:
+Set `MONGODB_URI` and `FIREBASE_SERVICE_ACCOUNT` as Vercel environment variables.
 
-```env
-MONGODB_URI=your_mongodb_atlas_connection_string
-PORT=5000
-```
-
-The server includes `server/vercel.json`, which routes requests to `index.js`.
+---
 
 ## API Overview
 
-- `GET /api/issues` - list issues
-- `POST /api/issues` - create an issue
-- `GET /api/issues/:id` - get one issue
-- `PUT /api/issues/:id` - update an issue
-- `DELETE /api/issues/:id` - delete an issue
-- `GET /api/donations` - list donations
-- `POST /api/donations` - create a donation
-- `POST /api/auth/verify` - sync Firebase user with MongoDB
-- `GET /api/users/leaderboard` - get leaderboard users
-- `GET /api/stats` - get platform stats
-
-
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/issues` | List issues (pagination, search, filters) |
+| POST | `/api/issues` | Create issue (auth required) |
+| GET | `/api/issues/:id` | Get single issue |
+| PUT | `/api/issues/:id` | Edit issue (owner only) |
+| DELETE | `/api/issues/:id` | Delete issue (owner only) |
+| PATCH | `/api/issues/:id/upvote` | Upvote issue (auth, own-issue guard) |
+| PATCH | `/api/issues/:id/assign` | Assign staff (admin only) |
+| PATCH | `/api/issues/:id/status` | Advance status (staff only) |
+| PATCH | `/api/issues/:id/reject` | Reject issue (admin only) |
+| GET | `/api/users` | List citizens (admin only) |
+| GET | `/api/users/staff` | List staff (admin only) |
+| GET | `/api/users/leaderboard` | Top contributors by points |
+| PATCH | `/api/users/:id/block` | Block/unblock user (admin only) |
+| GET | `/api/payments` | List payments (admin only) |
+| POST | `/api/payments` | Create payment (boost / subscription) |
+| GET | `/api/donations` | List donations by issue or user |
+| POST | `/api/donations` | Create donation |
+| POST | `/api/auth/verify` | Sync Firebase user with MongoDB |
+| GET | `/api/stats` | Platform-wide stats |

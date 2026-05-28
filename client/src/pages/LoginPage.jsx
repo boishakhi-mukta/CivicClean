@@ -9,7 +9,9 @@ const LoginPage = () => {
   const { loginWithEmail, loginWithGoogle } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
+  // Restore the page the user was trying to reach; fall back to dashboard
+  const from = location.state?.from?.pathname;
+  const destination = from && from !== '/' ? from : '/dashboard';
 
   useEffect(() => {
     document.title = "CivicClean | Login";
@@ -21,7 +23,7 @@ const LoginPage = () => {
     try {
       await loginWithEmail(data.email, data.password);
       toast.success('Successfully logged in!');
-      navigate(from, { replace: true });
+      navigate(destination, { replace: true });
     } catch (error) {
       toast.error(error.message || 'Failed to login. Please check your credentials.');
     }
@@ -31,7 +33,7 @@ const LoginPage = () => {
     try {
       await loginWithGoogle();
       toast.success('Successfully logged in with Google!');
-      navigate(from, { replace: true });
+      navigate(destination, { replace: true });
     } catch (error) {
       toast.error(error.message || 'Failed to login with Google.');
     }

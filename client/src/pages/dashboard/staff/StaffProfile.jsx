@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { AuthContext } from '../../../context/AuthContext';
 import axiosInstance from '../../../api/axiosInstance';
+import PhotoUploader from '../../../components/PhotoUploader';
 
 const inputClass =
   'w-full px-4 py-2.5 rounded-lg border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-[#d4ff00] transition';
@@ -11,7 +12,7 @@ const inputClass =
 const StaffProfile = () => {
   const { currentUser, dbUser, refreshDbUser } = useContext(AuthContext);
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm({
     defaultValues: { name: '', avatar_url: '' },
   });
 
@@ -43,30 +44,25 @@ const StaffProfile = () => {
 
       <div className="max-w-lg">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border dark:border-gray-700 p-6">
-          {/* Avatar + info */}
-          <div className="flex items-center gap-4 mb-6 pb-6 border-b dark:border-gray-700">
-            {photoSrc ? (
-              <img
-                src={photoSrc}
-                alt="avatar"
-                className="w-16 h-16 rounded-full border-4 border-[#d4ff00] object-cover flex-shrink-0"
-              />
-            ) : (
-              <div className="w-16 h-16 rounded-full bg-[#d4ff00] flex items-center justify-center text-[#1a3a2a] font-bold text-2xl flex-shrink-0">
-                {displayName.charAt(0).toUpperCase()}
-              </div>
-            )}
-            <div className="min-w-0">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white truncate">{displayName}</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{currentUser?.email}</p>
-              <span className="mt-1 inline-block px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-semibold">
-                Staff
-              </span>
-            </div>
+          {/* Photo uploader */}
+          <PhotoUploader
+            currentUrl={photoSrc}
+            displayName={displayName}
+            onUploadComplete={(url) => setValue('avatar_url', url)}
+          />
+
+          {/* Name + role */}
+          <div className="mb-6">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">{displayName}</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{currentUser?.email}</p>
+            <span className="mt-1 inline-block px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-semibold">
+              Staff
+            </span>
           </div>
 
           {/* Edit form */}
           <form onSubmit={handleSubmit((data) => updateMutation.mutate(data))} className="space-y-4">
+            <input type="hidden" {...register('avatar_url')} />
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
                 Display Name
@@ -78,16 +74,6 @@ const StaffProfile = () => {
               {errors.name && (
                 <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
               )}
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                Avatar URL
-              </label>
-              <input
-                {...register('avatar_url')}
-                placeholder="https://example.com/photo.jpg"
-                className={inputClass}
-              />
             </div>
             <button
               type="submit"

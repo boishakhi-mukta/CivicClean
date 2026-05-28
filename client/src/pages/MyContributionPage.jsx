@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { AuthContext } from '../context/AuthContext';
 import axiosInstance from '../api/axiosInstance';
 import { Fade } from 'react-awesome-reveal';
@@ -10,29 +11,19 @@ import { autoTable } from 'jspdf-autotable';
 
 const MyContributionPage = () => {
   const { currentUser } = useContext(AuthContext);
-  const [contributions, setContributions] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     document.title = "CivicClean | My Contributions";
-    if (currentUser) {
-      fetchContributions();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser]);
+  }, []);
 
-  const fetchContributions = async () => {
-    setLoading(true);
-    try {
-      const response = await axiosInstance.get(`/donations?email=${encodeURIComponent(currentUser.email)}`);
-      setContributions(response.data);
-    } catch (error) {
-      console.error('Failed to fetch contributions:', error);
-      toast.error('Failed to load your contributions.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: contributions = [], isLoading } = useQuery({
+    queryKey: ['myContributions', currentUser?.email],
+    queryFn: async () => {
+      const res = await axiosInstance.get(`/donations?email=${encodeURIComponent(currentUser.email)}`);
+      return res.data;
+    },
+    enabled: !!currentUser?.email,
+  });
 
   const downloadReceipt = (contribution) => {
     try {
@@ -42,20 +33,17 @@ const MyContributionPage = () => {
         ? new Date(contribution.date).toLocaleDateString()
         : 'N/A';
 
-      // Header
       doc.setFontSize(22);
-      doc.setTextColor(26, 58, 42); // #1a3a2a
+      doc.setTextColor(26, 58, 42);
       doc.text('CivicClean Receipt', 105, 20, { align: 'center' });
-      
+
       doc.setFontSize(10);
       doc.setTextColor(100);
       doc.text('Official clean-up contribution record', 105, 28, { align: 'center' });
 
-      // Separator line
       doc.setDrawColor(200);
       doc.line(20, 35, 190, 35);
 
-      // Contributor Details
       doc.setFontSize(12);
       doc.setTextColor(40);
       doc.text('Contributor Details:', 20, 45);
@@ -65,7 +53,6 @@ const MyContributionPage = () => {
       doc.text(`Date: ${contributionDate}`, 20, 64);
       doc.text(`Receipt ID: ${receiptId}`, 20, 70);
 
-      // AutoTable for Contribution Data
       autoTable(doc, {
         startY: 80,
         head: [['Issue Title', 'Amount (NOK)']],
@@ -76,13 +63,11 @@ const MyContributionPage = () => {
         theme: 'grid',
       });
 
-      // Footer
       const finalY = (doc.lastAutoTable?.finalY || 100) + 30;
       doc.setFontSize(14);
       doc.setTextColor(26, 58, 42);
       doc.text('Thank you for contributing to a cleaner community!', 105, finalY, { align: 'center' });
 
-      // Save
       doc.save(`CivicClean_Receipt_${receiptId.substring(0, 8)}.pdf`);
       toast.success('Receipt downloaded successfully!');
     } catch (error) {
@@ -91,13 +76,12 @@ const MyContributionPage = () => {
     }
   };
 
-  // Calculations
   const totalAmount = contributions.reduce((sum, c) => sum + (c.amount || 0), 0);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       <div className="max-w-7xl mx-auto space-y-8">
-        
+
         <Fade direction="down" triggerOnce>
           <div className="mb-2">
             <h1 className="text-3xl md:text-4xl font-extrabold text-[#1a3a2a] dark:text-white mb-2">My Contributions</h1>
@@ -105,7 +89,7 @@ const MyContributionPage = () => {
           </div>
         </Fade>
 
-        {loading ? (
+        {isLoading ? (
           <div className="flex flex-col justify-center items-center h-64">
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#1a3a2a] dark:border-[#d4ff00]"></div>
           </div>
@@ -117,7 +101,7 @@ const MyContributionPage = () => {
               <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">
                 Help fund community clean-ups and track your receipts here. Every contribution counts!
               </p>
-              <Link 
+              <Link
                 to="/issues"
                 className="inline-block px-8 py-4 bg-[#1a3a2a] text-[#d4ff00] dark:bg-[#d4ff00] dark:text-[#1a3a2a] text-lg font-bold rounded-lg shadow-lg hover:opacity-90 transition-opacity"
               >
@@ -158,7 +142,7 @@ const MyContributionPage = () => {
                             {new Date(c.date).toLocaleDateString()}
                           </td>
                           <td className="py-4 px-6 text-right">
-                            <button 
+                            <button
                               onClick={() => downloadReceipt(c)}
                               className="inline-flex items-center px-4 py-2 bg-[#d4ff00] text-[#1a3a2a] rounded-lg text-sm font-bold hover:bg-[#bce600] transition-colors shadow-sm"
                             >
@@ -182,7 +166,7 @@ const MyContributionPage = () => {
                     <p className="text-green-100 dark:text-gray-400">Your contributions are making the community cleaner and safer.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col sm:flex-row gap-6">
                   <div className="bg-white/10 rounded-xl p-5 backdrop-blur-sm min-w-[150px] text-center border border-white/20">
                     <p className="text-sm text-green-200 dark:text-gray-400 uppercase tracking-widest mb-1 font-semibold">Total Issues</p>

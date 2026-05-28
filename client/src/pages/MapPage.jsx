@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosInstance';
 import { Link } from 'react-router-dom';
 
@@ -13,33 +14,28 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png')
 });
 
-const MapPage = () => {
-  const [issues, setIssues] = useState([]);
-  const [loading, setLoading] = useState(true);
+const defaultCenter = [23.8103, 90.4125]; // Dhaka, Bangladesh
 
+const MapPage = () => {
   useEffect(() => {
     document.title = "CivicClean | Issue Map";
-    axiosInstance.get('/issues')
-      .then(res => {
-        setIssues(res.data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
   }, []);
 
-  if (loading) {
+  const { data: issues = [], isLoading } = useQuery({
+    queryKey: ['mapIssues'],
+    queryFn: async () => {
+      const res = await axiosInstance.get('/issues?limit=1000');
+      return res.data.issues;
+    },
+  });
+
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#1a3a2a] dark:border-[#d4ff00]"></div>
       </div>
     );
   }
-
-  // Define a generic center if no issues have valid coords
-  const defaultCenter = [59.9139, 10.7522]; // Oslo, Norway as default
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 transition-colors">
@@ -55,13 +51,11 @@ const MapPage = () => {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            
+
             {issues.map((issue, i) => {
-              // Mocking lat/lng for demonstration if not present
-              // since current database schema just stores address string.
               const lat = issue.location?.lat || (defaultCenter[0] + (Math.random() - 0.5) * 0.1);
               const lng = issue.location?.lng || (defaultCenter[1] + (Math.random() - 0.5) * 0.1);
-              
+
               return (
                 <Marker position={[lat, lng]} key={issue._id || i}>
                   <Popup>
@@ -78,8 +72,6 @@ const MapPage = () => {
             })}
           </MapContainer>
         </div>
-
-
       </div>
     </div>
   );

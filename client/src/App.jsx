@@ -18,6 +18,7 @@ import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
 
 // Pages — admin dashboard
+import AdminDashboardLayout from './pages/dashboard/admin/layout/AdminDashboardLayout';
 import AdminOverview from './pages/dashboard/admin/AdminOverview';
 import AdminAllIssues from './pages/dashboard/admin/AdminAllIssues';
 import AdminManageUsers from './pages/dashboard/admin/AdminManageUsers';
@@ -115,13 +116,15 @@ function App() {
             {/* Legacy dashboard page kept accessible */}
             <Route path="/dashboard/legacy" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
 
-            {/* Admin Dashboard Routes */}
-            <Route path="/dashboard/admin" element={<AdminRoute><AdminOverview /></AdminRoute>} />
-            <Route path="/dashboard/admin/issues" element={<AdminRoute><AdminAllIssues /></AdminRoute>} />
-            <Route path="/dashboard/admin/users" element={<AdminRoute><AdminManageUsers /></AdminRoute>} />
-            <Route path="/dashboard/admin/staff" element={<AdminRoute><AdminManageStaff /></AdminRoute>} />
-            <Route path="/dashboard/admin/payments" element={<AdminRoute><AdminPayments /></AdminRoute>} />
-            <Route path="/dashboard/admin/profile" element={<AdminRoute><AdminProfile /></AdminRoute>} />
+            {/* Admin Dashboard Routes — nested under shared layout */}
+            <Route path="/dashboard/admin" element={<AdminRoute><AdminDashboardLayout /></AdminRoute>}>
+              <Route index element={<AdminOverview />} />
+              <Route path="issues"   element={<AdminAllIssues />} />
+              <Route path="users"    element={<AdminManageUsers />} />
+              <Route path="staff"    element={<AdminManageStaff />} />
+              <Route path="payments" element={<AdminPayments />} />
+              <Route path="profile"  element={<AdminProfile />} />
+            </Route>
 
             {/* Staff Dashboard Routes — nested under shared layout */}
             <Route path="/dashboard/staff" element={<StaffRoute><StaffDashboardLayout /></StaffRoute>}>

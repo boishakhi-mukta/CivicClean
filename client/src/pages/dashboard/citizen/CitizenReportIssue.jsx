@@ -28,7 +28,8 @@ const CitizenReportIssue = () => {
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
-  const limitReached = (dbUser?.issueCount ?? 0) >= 3 && !dbUser?.isPremium;
+  const isBlocked   = dbUser?.isBlocked === true;
+  const limitReached = !isBlocked && (dbUser?.issueCount ?? 0) >= 3 && !dbUser?.isPremium;
 
   const reportMutation = useMutation({
     mutationFn: async (formData) => {
@@ -59,6 +60,23 @@ const CitizenReportIssue = () => {
       });
     },
   });
+
+  if (isBlocked) {
+    return (
+      <div>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-6">
+          Report Issue
+        </h1>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border dark:border-gray-700 p-14 text-center max-w-lg mx-auto">
+          <span className="text-5xl block mb-4">🚫</span>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Account Blocked</h2>
+          <p className="text-gray-500 dark:text-gray-400">
+            Your account is blocked. Contact admin.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (limitReached) {
     return (

@@ -1,25 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosInstance';
 import { Fade } from 'react-awesome-reveal';
 
 const LeaderboardPage = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     document.title = "CivicClean | Leaderboard";
-    axiosInstance.get('/users/leaderboard?limit=20')
-      .then(res => {
-        setUsers(res.data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Failed to load leaderboard:", err);
-        setLoading(false);
-      });
   }, []);
 
-  if (loading) {
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ['leaderboard'],
+    queryFn: async () => (await axiosInstance.get('/users/leaderboard?limit=20')).data,
+  });
+
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#1a3a2a] dark:border-[#d4ff00]"></div>
@@ -54,8 +48,8 @@ const LeaderboardPage = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                   {users.map((user, index) => (
-                    <tr 
-                      key={user._id} 
+                    <tr
+                      key={user._id}
                       className={`hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${index < 3 ? 'bg-yellow-50/50 dark:bg-yellow-900/10' : ''}`}
                     >
                       <td className="py-5 px-6">
@@ -70,9 +64,9 @@ const LeaderboardPage = () => {
                       </td>
                       <td className="py-5 px-6">
                         <div className="flex items-center">
-                          <img 
-                            src={user.avatar_url || 'https://via.placeholder.com/40'} 
-                            alt={user.name} 
+                          <img
+                            src={user.avatar_url || 'https://via.placeholder.com/40'}
+                            alt={user.name}
                             className="w-10 h-10 rounded-full mr-4 border-2 border-gray-200 dark:border-gray-600"
                           />
                           <div>

@@ -108,7 +108,7 @@ const EditModal = ({ issue, onClose, onSave, isPending }) => {
 };
 
 const CitizenMyIssues = () => {
-  const { currentUser } = useContext(AuthContext);
+  const { currentUser, dbUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -149,6 +149,10 @@ const CitizenMyIssues = () => {
   });
 
   const handleDelete = (issue) => {
+    if (dbUser?.isBlocked) {
+      toast.error('Your account is blocked. Contact admin.');
+      return;
+    }
     Swal.fire({
       title: 'Delete this issue?',
       text: 'This cannot be undone.',
@@ -247,7 +251,10 @@ const CitizenMyIssues = () => {
                         </button>
                         {issue.status === 'pending' && (
                           <button
-                            onClick={() => setEditingIssue(issue)}
+                            onClick={() => {
+                              if (dbUser?.isBlocked) { toast.error('Your account is blocked. Contact admin.'); return; }
+                              setEditingIssue(issue);
+                            }}
                             title="Edit"
                             className="p-1.5 rounded-lg text-green-600 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 transition"
                           >
