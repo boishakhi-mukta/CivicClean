@@ -10,6 +10,7 @@ import {
 } from 'firebase/auth';
 import auth from '../firebase/firebase.config';
 import axiosInstance from '../api/axiosInstance';
+import { uploadPhotoWithFallback } from '../utils/uploadPhoto';
 
 export const AuthContext = createContext();
 
@@ -44,9 +45,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const registerWithEmail = async (name, email, photoURL, password) => {
+  const updateCurrentUserProfile = async ({ name, avatar_url }) => {
+    if (!auth.currentUser) return null;
+
+    try {
+      await updateProfile(auth.currentUser, {
+        displayName: name || '',
+        photoURL: avatar_url || '',
+      });
+
+      await auth.currentUser.reload();
+      setCurrentUser({ ...auth.currentUser });
+      return auth.currentUser;
+    } catch (error) {
+      console.error('Failed to sync Firebase profile:', error);
+      return null;
+    }
+  };
+
+  const registerWithEmail = async (name, email, photoFile, password) => {
     setLoading(true);
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const photoURL = photoFile
+      ? await uploadPhotoWithFallback(photoFile, { folder: 'avatars' })
+      : '';
     await updateProfile(userCredential.user, { displayName: name, photoURL });
     setCurrentUser({ ...userCredential.user, displayName: name, photoURL });
     return userCredential;
@@ -87,6 +109,7 @@ export const AuthProvider = ({ children }) => {
     dbUser,
     loading,
     refreshDbUser,
+    updateCurrentUserProfile,
     registerWithEmail,
     loginWithEmail,
     loginWithGoogle,

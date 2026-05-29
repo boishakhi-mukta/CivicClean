@@ -86,9 +86,9 @@ const UpdateIssueModal = ({ issue, onClose, onUpdateSuccess }) => {
                   {...register("status", { required: "Status is required" })}
                   className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-[#d4ff00] focus:border-transparent outline-none dark:text-white transition-all font-bold"
                 >
-                  <option value="Open">Open</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Resolved">Resolved</option>
+                  <option value="pending">Pending</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="resolved">Resolved</option>
                 </select>
                 {errors.status && <p className="mt-1 text-sm text-red-500">{errors.status.message}</p>}
               </div>
@@ -106,12 +106,12 @@ const UpdateIssueModal = ({ issue, onClose, onUpdateSuccess }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Suggested Budget (NOK) *</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Suggested Budget (kr) *</label>
                 <input
                   type="number"
                   {...register("amount", { 
                     required: "Budget is required",
-                    min: { value: 1, message: "Budget must be at least 1 NOK" }
+                    min: { value: 1, message: "Budget must be at least 1 kr" }
                   })}
                   className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-[#d4ff00] focus:border-transparent outline-none dark:text-white transition-all"
                 />

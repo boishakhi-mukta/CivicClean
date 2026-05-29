@@ -105,21 +105,21 @@ const AdminOverview = () => {
         <StatCard label="Resolved"       value={resolved}       accent="#10b981" />
         <StatCard label="Pending"        value={pending}        accent="#f59e0b" />
         <StatCard label="Rejected"       value={rejected}       accent="#ef4444" />
-        <StatCard label="Total Revenue"  value={`৳${totalPaid}`} accent="#1a3a2a" />
+        <StatCard label="Total Revenue"  value={`kr${totalPaid}`} accent="#1a3a2a" />
       </div>
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Payments BarChart */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-          <SectionTitle>Revenue by Month (৳)</SectionTitle>
+          <SectionTitle>Revenue by Month (kr)</SectionTitle>
           {barData.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={barData} margin={{ top: 4, right: 8, left: -10, bottom: 0 }}>
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6b7280' }} tickLine={false} axisLine={false} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickLine={false} axisLine={false} />
                 <Tooltip
-                  formatter={(v) => [`৳${v}`, 'Revenue']}
+                  formatter={(v) => [`kr${v}`, 'Revenue']}
                   contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.12)' }}
                 />
                 <Bar dataKey="total" fill="#1a3a2a" radius={[6, 6, 0, 0]} />
@@ -188,7 +188,7 @@ const AdminOverview = () => {
             ) : latestPayments.map(p => (
               <div key={p._id} className="flex items-center justify-between gap-2">
                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[60%]">{p.userEmail}</p>
-                <span className="text-sm font-bold text-[#1a3a2a] dark:text-[#d4ff00] shrink-0">৳{p.amount}</span>
+                <span className="text-sm font-bold text-[#1a3a2a] dark:text-[#d4ff00] shrink-0">kr{p.amount}</span>
               </div>
             ))}
           </div>

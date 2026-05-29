@@ -6,21 +6,24 @@ import { AuthContext } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { Fade } from 'react-awesome-reveal';
+import PhotoUploader from '../components/PhotoUploader';
 
 const AddIssuePage = () => {
-  const { currentUser } = useContext(AuthContext);
+  const { currentUser, dbUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "CivicClean | Report Issue";
   }, []);
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm({
     defaultValues: {
       email: currentUser?.email || '',
-      status: 'Open'
+      status: 'pending'
     }
   });
+  const imageUrl = watch('image');
+  const issueTitle = watch('title');
 
   const onSubmit = async (data) => {
     try {
@@ -32,7 +35,7 @@ const AddIssuePage = () => {
         image: data.image,
         amount: Number(data.amount),
         email: data.email,
-        reported_by: currentUser?.mongoId,
+        reported_by: dbUser?._id,
         status: data.status,
         date: new Date()
       };
@@ -99,7 +102,7 @@ const AddIssuePage = () => {
                 </div>
               </div>
 
-              {/* Location & Image URL */}
+              {/* Location & Image */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Location *</label>
@@ -113,17 +116,14 @@ const AddIssuePage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Image URL (Optional)</label>
-                  <input
-                    type="url"
-                    {...register("image", { 
-                      pattern: {
-                        value: /^https?:\/\/.+/i,
-                        message: "Must be a valid URL"
-                      }
-                    })}
-                    className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-[#d4ff00] focus:border-transparent outline-none transition-all dark:text-white"
-                    placeholder="https://example.com/image.jpg"
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Issue Photo <span className="text-red-500">*</span></label>
+                  <input type="hidden" {...register("image", { required: "Photo is required" })} />
+                  <PhotoUploader
+                    currentUrl={imageUrl}
+                    displayName={issueTitle}
+                    folder="issues"
+                    variant="issue"
+                    onUploadComplete={(url) => setValue('image', url, { shouldValidate: true, shouldDirty: true })}
                   />
                   {errors.image && <p className="mt-1 text-sm text-red-500">{errors.image.message}</p>}
                 </div>
@@ -147,12 +147,12 @@ const AddIssuePage = () => {
               {/* Budget, Email, Status */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Suggested Fix Budget (NOK) *</label>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Suggested Fix Budget (kr) *</label>
                   <input
                     type="number"
                     {...register("amount", { 
                       required: "Budget is required",
-                      min: { value: 1, message: "Budget must be at least 1 NOK" }
+                      min: { value: 1, message: "Budget must be at least 1 kr" }
                     })}
                     className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-[#d4ff00] focus:border-transparent outline-none transition-all dark:text-white"
                     placeholder="500"

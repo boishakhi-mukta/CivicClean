@@ -11,6 +11,9 @@ const ProfilePage = () => {
 
   if (!currentUser) return <div>Please login.</div>;
 
+  const displayName = dbUser?.name || currentUser.displayName || 'User';
+  const photoSrc = dbUser?.avatar_url || currentUser.photoURL || 'https://via.placeholder.com/150';
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 transition-colors">
       <div className="max-w-3xl mx-auto">
@@ -21,13 +24,13 @@ const ProfilePage = () => {
         <Fade direction="up" triggerOnce>
           <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row items-center gap-8">
             <img 
-              src={currentUser?.photoURL || 'https://via.placeholder.com/150'} 
+              src={photoSrc}
               alt="Profile" 
               className="w-40 h-40 rounded-full border-4 border-[#d4ff00] shadow-md object-cover"
             />
             
             <div className="flex-grow">
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{currentUser.displayName}</h2>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{displayName}</h2>
               <p className="text-lg text-gray-500 dark:text-gray-400 mb-6">{currentUser.email}</p>
               
               <div className="grid grid-cols-2 gap-4 mb-6">

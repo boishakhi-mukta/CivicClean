@@ -98,7 +98,7 @@ const BoostModal = ({ issue, onClose, onConfirm, isPending }) => (
       </div>
       <div className="text-center mb-8">
         <FiZap className="mx-auto text-amber-400 mb-3" size={44} />
-        <p className="text-3xl font-black text-gray-900 dark:text-white mb-1">৳100</p>
+        <p className="text-3xl font-black text-gray-900 dark:text-white mb-1">100 kr</p>
         <p className="text-sm text-gray-500 dark:text-gray-400">
           One-time payment · Boosts your issue to High Priority
         </p>
@@ -166,7 +166,7 @@ const IssueDetailPage = () => {
 
   const handleUpvote = () => {
     if (!currentUser) {
-      navigate('/login', { state: { from: { pathname: `/issues/${id}` } } });
+      navigate('/login', { state: { from: { pathname: `/all-issues/${id}` } } });
       return;
     }
     if (dbUser?.isBlocked) {
@@ -214,7 +214,7 @@ const IssueDetailPage = () => {
       axiosInstance.delete(`/issues/${id}`, { data: { email: currentUser.email } }),
     onSuccess: () => {
       toast.success('Issue deleted');
-      navigate('/issues');
+      navigate('/all-issues');
     },
     onError: (err) => toast.error(err.response?.data?.error || 'Delete failed'),
   });
@@ -318,7 +318,7 @@ const IssueDetailPage = () => {
                         onClick={() => setShowBoostModal(true)}
                         className="px-3 py-1 bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 rounded-md text-sm font-bold shadow-sm flex items-center gap-1.5 hover:bg-amber-200 transition-colors"
                       >
-                        <FiZap size={13} /> Boost ৳100
+                        <FiZap size={13} /> Boost 100 kr
                       </button>
                     )}
                     {issue.isBoosted && (
@@ -378,11 +378,11 @@ const IssueDetailPage = () => {
                   <div className="flex justify-between items-end mb-3">
                     <div>
                       <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Suggested Budget</p>
-                      <p className="text-2xl font-extrabold text-gray-900 dark:text-white">{suggestedBudget} NOK</p>
+                      <p className="text-2xl font-extrabold text-gray-900 dark:text-white">{suggestedBudget} kr</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Collected</p>
-                      <p className="text-2xl font-extrabold text-[#1a3a2a] dark:text-[#d4ff00]">{totalCollected} NOK</p>
+                      <p className="text-2xl font-extrabold text-[#1a3a2a] dark:text-[#d4ff00]">{totalCollected} kr</p>
                     </div>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3 mb-2 overflow-hidden">
@@ -397,7 +397,7 @@ const IssueDetailPage = () => {
                   <button
                     onClick={() => {
                       if (!currentUser) {
-                        navigate('/login', { state: { from: { pathname: `/issues/${id}` } } });
+                        navigate('/login', { state: { from: { pathname: `/all-issues/${id}` } } });
                         return;
                       }
                       setIsModalOpen(true);
@@ -429,7 +429,7 @@ const IssueDetailPage = () => {
                     <tr className="border-b border-gray-200 dark:border-gray-700">
                       <th className="py-4 px-4 font-semibold text-gray-500 dark:text-gray-400 uppercase text-sm tracking-wider">Contributor</th>
                       <th className="py-4 px-4 font-semibold text-gray-500 dark:text-gray-400 uppercase text-sm tracking-wider">Date</th>
-                      <th className="py-4 px-4 font-semibold text-gray-500 dark:text-gray-400 uppercase text-sm tracking-wider text-right">Amount (NOK)</th>
+                      <th className="py-4 px-4 font-semibold text-gray-500 dark:text-gray-400 uppercase text-sm tracking-wider text-right">Amount (kr)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -447,7 +447,7 @@ const IssueDetailPage = () => {
                           {c.date && !isNaN(new Date(c.date)) ? new Date(c.date).toLocaleDateString() : 'Unknown'}
                         </td>
                         <td className="py-4 px-4 text-right font-bold text-gray-900 dark:text-white">
-                          {c.amount} NOK
+                          {c.amount} kr
                         </td>
                       </tr>
                     ))}

@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
@@ -7,26 +7,65 @@ import { FiX, FiStar, FiAlertTriangle, FiDownload } from 'react-icons/fi';
 import { AuthContext } from '../../../context/AuthContext';
 import axiosInstance from '../../../api/axiosInstance';
 import PhotoUploader from '../../../components/PhotoUploader';
+import { getUploadErrorMessage, uploadPhotoWithFallback } from '../../../utils/uploadPhoto';
 
 const inputClass =
   'w-full px-4 py-2.5 rounded-lg border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-[#d4ff00] transition';
 
-const SubscriptionModal = ({ onClose, onConfirm, isPending }) => (
+const PAYMENT_METHODS = [
+  { value: 'mobile-banking', label: 'Mobile Banking' },
+  { value: 'card', label: 'Card' },
+  { value: 'bank-transfer', label: 'Bank Transfer' },
+];
+
+const SubscriptionModal = ({ onClose, onConfirm, isPending, paymentMethod, onPaymentMethodChange }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
     <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-sm shadow-xl p-8">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-bold text-gray-900 dark:text-white">Premium Subscription</h3>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+        <button
+          onClick={onClose}
+          disabled={isPending}
+          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 disabled:opacity-50"
+        >
           <FiX size={20} />
         </button>
       </div>
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <FiStar className="mx-auto text-amber-400 mb-3" size={44} />
-        <p className="text-3xl font-black text-gray-900 dark:text-white mb-1">৳1,000</p>
+        <p className="text-3xl font-black text-gray-900 dark:text-white mb-1">1,000 kr</p>
         <p className="text-sm text-gray-500 dark:text-gray-400">
           One-time payment · Unlimited issue reporting
         </p>
       </div>
+
+      <div className="mb-6">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Payment Method</p>
+        <div className="grid gap-2">
+          {PAYMENT_METHODS.map(method => (
+            <label
+              key={method.value}
+              className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 cursor-pointer transition ${
+                paymentMethod === method.value
+                  ? 'border-[#1a3a2a] bg-[#d4ff00]/20 dark:border-[#d4ff00]'
+                  : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/60'
+              }`}
+            >
+              <input
+                type="radio"
+                name="paymentMethod"
+                value={method.value}
+                checked={paymentMethod === method.value}
+                onChange={(e) => onPaymentMethodChange(e.target.value)}
+                disabled={isPending}
+                className="accent-[#1a3a2a]"
+              />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{method.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
       <div className="flex gap-3">
         <button
           onClick={onConfirm}
@@ -47,10 +86,13 @@ const SubscriptionModal = ({ onClose, onConfirm, isPending }) => (
 );
 
 const CitizenProfile = () => {
-  const { currentUser, dbUser, refreshDbUser } = useContext(AuthContext);
+  const { currentUser, dbUser, refreshDbUser, updateCurrentUserProfile } = useContext(AuthContext);
+  const queryClient = useQueryClient();
   const [showSubModal, setShowSubModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('mobile-banking');
+  const [photoFile, setPhotoFile] = useState(null);
 
-  const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm({
     defaultValues: { name: '', avatar_url: '' },
   });
 
@@ -73,25 +115,56 @@ const CitizenProfile = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (updates) => axiosInstance.patch(`/users/${dbUser._id}`, updates),
-    onSuccess: async (_, updates) => {
-      await refreshDbUser();
-      reset({ name: updates.name, avatar_url: updates.avatar_url });
+    mutationFn: async (updates) => {
+      if (!dbUser?._id) {
+        throw new Error('Profile is still loading. Please try again.');
+      }
+
+      const avatar_url = photoFile
+        ? await uploadPhotoWithFallback(photoFile, { folder: 'avatars' })
+        : updates.avatar_url || dbUser.avatar_url || '';
+
+      return axiosInstance.patch(`/users/${dbUser._id}`, { ...updates, avatar_url });
+    },
+    onSuccess: async (response) => {
+      const updated = response.data;
+      updateCurrentUserProfile({
+        name: updated.name || '',
+        avatar_url: updated.avatar_url || '',
+      });
+      const refreshed = await refreshDbUser();
+      const latest = refreshed || updated;
+      reset({ name: latest.name || '', avatar_url: latest.avatar_url || '' });
+      setPhotoFile(null);
       toast.success('Profile updated!');
     },
-    onError: (err) => toast.error(err.response?.data?.message || 'Update failed'),
+    onError: (err) => toast.error(err.response?.data?.message || getUploadErrorMessage(err) || 'Update failed'),
   });
 
   const subscriptionMutation = useMutation({
-    mutationFn: () =>
-      axiosInstance.post('/payments', { type: 'subscription', amount: 1000 }),
-    onSuccess: async () => {
+    mutationFn: () => {
+      if (dbUser?.isPremium) {
+        throw new Error('Your account is already premium.');
+      }
+      return axiosInstance.post('/payments', {
+        type: 'subscription',
+        amount: 1000,
+        paymentMethod,
+      });
+    },
+    onSuccess: async (response) => {
       setShowSubModal(false);
+      setPaymentMethod('mobile-banking');
       await refreshDbUser();
+      queryClient.invalidateQueries({ queryKey: ['myPayments'] });
+      queryClient.invalidateQueries({ queryKey: ['adminPayments'] });
       await Swal.fire({
         icon: 'success',
         title: 'Premium Activated!',
-        text: 'You now have unlimited issue reporting.',
+        html: `
+          <p>You now have unlimited issue reporting.</p>
+          <p style="margin-top:8px;font-size:12px;color:#6b7280;">Transaction ID: ${response.data?.transactionId || 'N/A'}</p>
+        `,
         confirmButtonColor: '#1a3a2a',
       });
     },
@@ -117,7 +190,7 @@ const CitizenProfile = () => {
 
       autoTable(doc, {
         startY: 38,
-        head: [['#', 'Type', 'Amount (৳)', 'Transaction ID', 'Issue', 'Date']],
+        head: [['#', 'Type', 'Amount (kr)', 'Transaction ID', 'Issue', 'Date']],
         body: payments.map((p, i) => [
           i + 1,
           p.type,
@@ -136,7 +209,8 @@ const CitizenProfile = () => {
     }
   };
 
-  const photoSrc = dbUser?.avatar_url || currentUser?.photoURL || null;
+  const avatarUrl = watch('avatar_url');
+  const photoSrc = avatarUrl || dbUser?.avatar_url || currentUser?.photoURL || null;
   const displayName = dbUser?.name || currentUser?.displayName || 'User';
 
   return (
@@ -153,14 +227,18 @@ const CitizenProfile = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
         {/* Profile card + edit form */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border dark:border-gray-700 p-6">
           {/* Photo uploader */}
           <PhotoUploader
             currentUrl={photoSrc}
             displayName={displayName}
-            onUploadComplete={(url) => setValue('avatar_url', url)}
+            uploadOnSelect={false}
+            onFileSelected={(file) => {
+              setPhotoFile(file);
+              setValue('avatar_url', avatarUrl || dbUser?.avatar_url || '', { shouldDirty: true });
+            }}
           />
 
           {/* Name + meta */}
@@ -197,7 +275,7 @@ const CitizenProfile = () => {
               disabled={updateMutation.isPending}
               className="w-full py-2.5 bg-[#1a3a2a] text-[#d4ff00] font-bold rounded-lg hover:bg-[#2c5f45] transition disabled:opacity-60"
             >
-              {updateMutation.isPending ? 'Saving…' : 'Save Profile'}
+              {updateMutation.isPending ? 'Uploading and saving…' : 'Save Profile'}
             </button>
           </form>
         </div>
@@ -256,9 +334,11 @@ const CitizenProfile = () => {
 
       {showSubModal && (
         <SubscriptionModal
-          onClose={() => setShowSubModal(false)}
+          onClose={() => !subscriptionMutation.isPending && setShowSubModal(false)}
           onConfirm={() => subscriptionMutation.mutate()}
           isPending={subscriptionMutation.isPending}
+          paymentMethod={paymentMethod}
+          onPaymentMethodChange={setPaymentMethod}
         />
       )}
     </div>

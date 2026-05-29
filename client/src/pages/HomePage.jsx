@@ -33,9 +33,9 @@ const HomePage = () => {
     {
       title: "Build a Greener Community",
       emoji: "🌱",
-      subtitle: "Track issues, earn contribution points, and climb the leaderboard as a local hero.",
+      subtitle: "Track issues, make a difference, and help build a cleaner community.",
       ctaText: "See All Issues",
-      ctaLink: "/issues",
+      ctaLink: "/all-issues",
       bgImage: "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?auto=format&fit=crop&q=80"
     }
   ];
@@ -55,8 +55,8 @@ const HomePage = () => {
   });
 
   const { data: recentIssues = [], isLoading: loadingIssues } = useQuery({
-    queryKey: ['homeRecentIssues'],
-    queryFn: async () => (await axiosInstance.get('/issues?limit=6')).data.issues,
+    queryKey: ['homeResolvedIssues'],
+    queryFn: async () => (await axiosInstance.get('/issues?status=resolved&limit=6')).data.issues,
   });
 
   const categories = [
@@ -172,7 +172,7 @@ const HomePage = () => {
               {categories.map((cat, idx) => (
                 <Link
                   key={idx}
-                  to={`/issues?category=${encodeURIComponent(cat.query)}`}
+                  to={`/all-issues?category=${encodeURIComponent(cat.query)}`}
                   className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition duration-300 flex flex-col items-center text-center group border border-gray-100 dark:border-gray-700"
                 >
                   <div className="p-4 rounded-full bg-[#1a3a2a] group-hover:scale-110 transition-transform duration-300">
@@ -186,18 +186,18 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* 4. RECENT COMPLAINTS */}
+      {/* 4. LATEST RESOLVED ISSUES */}
       <section className="py-20 bg-white dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-12">
             <Fade direction="left">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">Recent Complaints</h2>
-                <p className="text-gray-600 dark:text-gray-400">See what's happening around the community right now.</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">Latest Resolved Issues</h2>
+                <p className="text-gray-600 dark:text-gray-400">Issues our community has successfully resolved.</p>
               </div>
             </Fade>
             <Fade direction="right">
-              <Link to="/issues" className="hidden md:inline-flex items-center text-[#1a3a2a] dark:text-[#d4ff00] font-bold hover:underline">
+              <Link to="/all-issues" className="hidden md:inline-flex items-center text-[#1a3a2a] dark:text-[#d4ff00] font-bold hover:underline">
                 View All Issues &rarr;
               </Link>
             </Fade>
@@ -210,8 +210,8 @@ const HomePage = () => {
           ) : recentIssues.length === 0 ? (
             <div className="text-center py-20 bg-gray-50 dark:bg-gray-800 rounded-2xl">
               <span className="text-5xl mb-4 block">🎉</span>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No Recent Issues!</h3>
-              <p className="text-gray-600 dark:text-gray-400">The community is looking sparkling clean.</p>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No Resolved Issues Yet!</h3>
+              <p className="text-gray-600 dark:text-gray-400">Be the first to report and help resolve a community issue.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -224,14 +224,151 @@ const HomePage = () => {
           )}
 
           <div className="mt-10 text-center md:hidden">
-            <Link to="/issues" className="inline-flex px-6 py-3 border-2 border-[#1a3a2a] dark:border-[#d4ff00] text-[#1a3a2a] dark:text-[#d4ff00] font-bold rounded-lg hover:bg-[#1a3a2a] hover:text-white dark:hover:bg-[#d4ff00] dark:hover:text-[#1a3a2a] transition">
+            <Link to="/all-issues" className="inline-flex px-6 py-3 border-2 border-[#1a3a2a] dark:border-[#d4ff00] text-[#1a3a2a] dark:text-[#d4ff00] font-bold rounded-lg hover:bg-[#1a3a2a] hover:text-white dark:hover:bg-[#d4ff00] dark:hover:text-[#1a3a2a] transition">
               View All Issues
             </Link>
           </div>
         </div>
       </section>
 
-      {/* 5. CTA SECTION */}
+      {/* 5. HOW IT WORKS */}
+      <section className="py-20 bg-gray-50 dark:bg-gray-800/50 transition-colors duration-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <Fade direction="up" triggerOnce>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">How It Works</h2>
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                From report to resolution — a simple, transparent process that keeps everyone in the loop.
+              </p>
+            </Fade>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Fade cascade damping={0.1} triggerOnce>
+              {[
+                {
+                  step: '01',
+                  icon: '📸',
+                  title: 'Submit a Report',
+                  desc: 'Citizens submit an issue with a title, description, photo, and location. Takes less than a minute.',
+                },
+                {
+                  step: '02',
+                  icon: '🔍',
+                  title: 'Admin Reviews & Assigns',
+                  desc: 'An admin reviews the report and assigns it to the right government staff member.',
+                },
+                {
+                  step: '03',
+                  icon: '🛠️',
+                  title: 'Staff Takes Action',
+                  desc: 'The assigned staff verifies the issue on-site and starts working on the fix.',
+                },
+                {
+                  step: '04',
+                  icon: '📊',
+                  title: 'Track Progress',
+                  desc: 'The issue moves through Pending → In-Progress → Resolved → Closed with live timeline updates.',
+                },
+                {
+                  step: '05',
+                  icon: '🔔',
+                  title: 'Stay Updated',
+                  desc: 'Citizens can check the status and full timeline of their reported issue at any time.',
+                },
+                {
+                  step: '06',
+                  icon: '⭐',
+                  title: 'Premium Priority',
+                  desc: 'Premium citizens can boost issue priority for faster resolution and submit unlimited reports.',
+                },
+              ].map(({ step, icon, title, desc }) => (
+                <div
+                  key={step}
+                  className="relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-md border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300"
+                >
+                  <span className="absolute top-4 right-4 text-xs font-bold text-gray-300 dark:text-gray-600 tracking-widest">{step}</span>
+                  <div className="text-4xl mb-4">{icon}</div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{desc}</p>
+                </div>
+              ))}
+            </Fade>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. FEATURES SECTION */}
+      <section className="py-20 bg-white dark:bg-gray-900 transition-colors duration-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <Fade direction="up" triggerOnce>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">Platform Features</h2>
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                Everything you need to report, manage, and resolve public infrastructure issues efficiently.
+              </p>
+            </Fade>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Fade cascade damping={0.1} triggerOnce>
+              {[
+                {
+                  icon: '📝',
+                  title: 'Easy Issue Reporting',
+                  desc: 'Submit reports with photos, title, category, and precise location in under a minute.',
+                  color: 'from-blue-500 to-blue-600',
+                },
+                {
+                  icon: '🗺️',
+                  title: 'Interactive Map View',
+                  desc: 'Visualize all reported issues on an interactive map to understand problem hotspots.',
+                  color: 'from-green-500 to-green-600',
+                },
+                {
+                  icon: '📊',
+                  title: 'Live Status Tracking',
+                  desc: 'Follow every issue through its lifecycle with a full audit timeline — Pending to Closed.',
+                  color: 'from-purple-500 to-purple-600',
+                },
+                {
+                  icon: '👥',
+                  title: 'Role-Based Dashboards',
+                  desc: 'Separate dashboards for Citizens, Staff, and Admins — each tailored to their workflow.',
+                  color: 'from-amber-500 to-amber-600',
+                },
+                {
+                  icon: '⚡',
+                  title: 'Priority Boosting',
+                  desc: 'Citizens can pay 100 kr to boost an issue to high priority for faster government response.',
+                  color: 'from-red-500 to-red-600',
+                },
+                {
+                  icon: '🌟',
+                  title: 'Premium Membership',
+                  desc: 'Unlock unlimited issue reporting and priority support with a one-time 1,000 kr subscription.',
+                  color: 'from-[#1a3a2a] to-[#2c5f45]',
+                },
+              ].map(({ icon, title, desc, color }) => (
+                <div
+                  key={title}
+                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                >
+                  <div className={`bg-gradient-to-r ${color} p-5`}>
+                    <span className="text-3xl">{icon}</span>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </Fade>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. CTA SECTION */}
       <section className="bg-[#1a3a2a] py-24 relative overflow-hidden">
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-white/5 blur-3xl"></div>
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-[#d4ff00]/10 blur-3xl"></div>

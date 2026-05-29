@@ -26,9 +26,9 @@ const Footer = () => {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Links</h3>
             <ul className="space-y-3">
               <li><Link to="/" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Home</Link></li>
-              <li><Link to="/issues" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">All Issues</Link></li>
+              <li><Link to="/all-issues" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">All Issues</Link></li>
               <li><Link to="/add-issue" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Report an Issue</Link></li>
-              <li><Link to="/my-contributions" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Leaderboard</Link></li>
+              <li><Link to="/map" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Map</Link></li>
             </ul>
           </div>
 
@@ -36,10 +36,10 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Categories</h3>
             <ul className="space-y-3">
-              <li><Link to="/issues?category=littering" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Littering</Link></li>
-              <li><Link to="/issues?category=dumping" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Illegal Dumping</Link></li>
-              <li><Link to="/issues?category=infrastructure" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Broken Bins</Link></li>
-              <li><Link to="/issues?category=graffiti" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Graffiti</Link></li>
+              <li><Link to="/all-issues?category=Garbage" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Garbage</Link></li>
+              <li><Link to="/all-issues?category=Road+Damage" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Road Damage</Link></li>
+              <li><Link to="/all-issues?category=Broken+Public+Property" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Broken Public Property</Link></li>
+              <li><Link to="/all-issues?category=Illegal+Construction" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Illegal Construction</Link></li>
             </ul>
           </div>
 

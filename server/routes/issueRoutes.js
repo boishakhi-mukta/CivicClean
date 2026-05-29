@@ -1,25 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const Issue = require('../models/Issue');
-const User = require('../models/User');
-const Contribution = require('../models/Contribution');
 const verifyToken = require('../middlewares/verifyToken');
 const verifyAdmin = require('../middlewares/verifyAdmin');
 const verifyStaff = require('../middlewares/verifyStaff');
 
-// Helper to award points (legacy — kept for backward compatibility)
-const awardPoints = async (userId, points, action, issueId) => {
-  if (!userId) return;
-  try {
-    const contribution = new Contribution({ userId, points, action, issueId });
-    await contribution.save();
-    await User.findByIdAndUpdate(userId, { $inc: { total_points: points } });
-  } catch (error) {
-    console.error('Failed to award points:', error);
-  }
-};
-
 const VALID_STATUSES = ['pending', 'in-progress', 'working', 'resolved', 'closed', 'rejected'];
+const LEGACY_STATUS_MAP = {
+  Open: 'pending',
+  'In Progress': 'in-progress',
+  Resolved: 'resolved'
+};
 
 // ── GET /api/issues ───────────────────────────────────────────────────────────
 // Supports: ?search= ?category= ?status= ?priority= ?email= ?reported_by=
@@ -49,7 +40,7 @@ router.get('/', async (req, res) => {
 
     const [issues, total] = await Promise.all([
       Issue.find(query)
-        .populate('reported_by', 'name avatar_url total_points')
+        .populate('reported_by', 'name avatar_url')
         .sort({ isBoosted: -1, date: -1 })
         .skip(skip)
         .limit(limit),
@@ -71,7 +62,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const issue = await Issue.findById(req.params.id)
-      .populate('reported_by', 'name avatar_url total_points');
+      .populate('reported_by', 'name avatar_url');
     if (!issue) return res.status(404).json({ error: 'Issue not found' });
     res.json(issue);
   } catch (error) {
@@ -102,12 +93,6 @@ router.post('/', verifyToken, async (req, res) => {
     });
 
     await issue.save();
-
-    // Legacy gamification — award 10 points for reporting
-    if (reported_by) {
-      await awardPoints(reported_by, 10, 'Reported Issue', issue._id);
-    }
-
     res.status(201).json(issue);
   } catch (error) {
     console.error('Failed to create issue:', error);
@@ -118,24 +103,18 @@ router.post('/', verifyToken, async (req, res) => {
 // ── PUT /api/issues/:id/status (legacy) ──────────────────────────────────────
 router.put('/:id/status', async (req, res) => {
   try {
-    const { status, userId } = req.body;
+    const { userId } = req.body;
+    const status = LEGACY_STATUS_MAP[req.body.status] || req.body.status;
 
-    const validStatuses = ['Open', 'In Progress', 'Resolved'];
-    if (!validStatuses.includes(status)) {
+    if (!VALID_STATUSES.includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
     }
 
     const issue = await Issue.findById(req.params.id);
     if (!issue) return res.status(404).json({ error: 'Issue not found' });
 
-    const wasResolved = issue.status === 'Resolved';
     issue.status = status;
     await issue.save();
-
-    if (status === 'Resolved' && !wasResolved && userId) {
-      await awardPoints(userId, 20, 'Resolved Issue', issue._id);
-    }
-
     res.json(issue);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -151,11 +130,6 @@ router.post('/:id/upvote', async (req, res) => {
 
     issue.upvotes = (issue.upvotes || 0) + 1;
     await issue.save();
-
-    if (userId) {
-      await awardPoints(userId, 5, 'Upvoted Issue', issue._id);
-    }
-
     res.json(issue);
   } catch (error) {
     res.status(500).json({ error: error.message });

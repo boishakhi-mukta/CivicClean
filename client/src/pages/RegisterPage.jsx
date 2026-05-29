@@ -1,31 +1,33 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { FcGoogle } from 'react-icons/fc';
+import PhotoUploader from '../components/PhotoUploader';
 
 const RegisterPage = () => {
   const { registerWithEmail, loginWithGoogle } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [photoFile, setPhotoFile] = useState(null);
 
   useEffect(() => {
     document.title = "CivicClean | Register";
   }, []);
 
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm();
 
   const onSubmit = async (data) => {
     try {
-      await registerWithEmail(data.name, data.email, data.photoURL, data.password);
+      await registerWithEmail(data.name, data.email, photoFile, data.password);
       Swal.fire({
         title: 'Registration Successful!',
         text: 'Welcome to CivicClean. You are now logged in.',
         icon: 'success',
         confirmButtonColor: '#1a3a2a',
       });
-      navigate('/');
+      navigate('/dashboard', { replace: true });
     } catch (error) {
       toast.error(error.message || 'Failed to register. Please try again.');
     }
@@ -40,7 +42,7 @@ const RegisterPage = () => {
         icon: 'success',
         confirmButtonColor: '#1a3a2a',
       });
-      navigate('/');
+      navigate('/dashboard', { replace: true });
     } catch (error) {
       toast.error(error.message || 'Failed to register with Google.');
     }
@@ -87,13 +89,17 @@ const RegisterPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Photo URL</label>
-              <input
-                type="url"
-                {...register("photoURL", { required: "Photo URL is required" })}
-                className="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-[#1a3a2a] focus:border-[#1a3a2a] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                placeholder="https://example.com/photo.jpg"
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Profile Photo</label>
+              <PhotoUploader
+                currentUrl={watch('photoURL')}
+                displayName={watch('name')}
+                uploadOnSelect={false}
+                onFileSelected={(file) => {
+                  setPhotoFile(file);
+                  setValue('photoURL', file.name, { shouldValidate: true, shouldDirty: true });
+                }}
               />
+              <input type="hidden" {...register("photoURL", { required: "Profile photo is required" })} />
               {errors.photoURL && <p className="mt-1 text-sm text-red-500">{errors.photoURL.message}</p>}
             </div>
 

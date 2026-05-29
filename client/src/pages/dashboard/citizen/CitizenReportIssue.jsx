@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import { AuthContext } from '../../../context/AuthContext';
 import axiosInstance from '../../../api/axiosInstance';
+import PhotoUploader from '../../../components/PhotoUploader';
 
 const CATEGORIES = ['Garbage', 'Illegal Construction', 'Broken Public Property', 'Road Damage'];
 
@@ -26,7 +27,8 @@ const CitizenReportIssue = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm();
+  const imageUrl = watch('image');
 
   const isBlocked   = dbUser?.isBlocked === true;
   const limitReached = !isBlocked && (dbUser?.issueCount ?? 0) >= 3 && !dbUser?.isPremium;
@@ -36,6 +38,8 @@ const CitizenReportIssue = () => {
       await axiosInstance.post('/issues', {
         ...formData,
         email: currentUser.email,
+        reported_by: dbUser?._id,
+        status: 'pending',
         date: new Date().toISOString(),
       });
       await axiosInstance.patch('/users/increment-count');
@@ -147,11 +151,14 @@ const CitizenReportIssue = () => {
             />
           </Field>
 
-          <Field label="Image URL">
-            <input
-              {...register('image')}
-              placeholder="https://example.com/photo.jpg (optional)"
-              className={inputClass}
+          <Field label="Issue Photo" required error={errors.image?.message}>
+            <input type="hidden" {...register('image', { required: 'Photo is required' })} />
+            <PhotoUploader
+              currentUrl={imageUrl}
+              displayName={watch('title')}
+              folder="issues"
+              variant="issue"
+              onUploadComplete={(url) => setValue('image', url, { shouldValidate: true, shouldDirty: true })}
             />
           </Field>
 

@@ -46,7 +46,7 @@ const AdminPayments = () => {
           ['Transaction ID', payment.transactionId || '—'],
           ['User Email',     payment.userEmail],
           ['Payment Type',   payment.type],
-          ['Amount',         `৳${payment.amount}`],
+          ['Amount',         `kr${payment.amount}`],
           ['Issue',          payment.issueTitle || 'N/A'],
           ['Date',           new Date(payment.date).toLocaleString()],
         ],
@@ -125,7 +125,7 @@ const AdminPayments = () => {
                         {p.type}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-sm font-bold text-gray-900 dark:text-white">৳{p.amount}</td>
+                    <td className="px-5 py-4 text-sm font-bold text-gray-900 dark:text-white">kr{p.amount}</td>
                     <td className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-[140px] truncate">
                       {p.issueTitle || '—'}
                     </td>

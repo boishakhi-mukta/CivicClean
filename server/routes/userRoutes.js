@@ -16,11 +16,26 @@ router.post('/', async (req, res) => {
     // Return existing user — never create duplicates
     const existing = await User.findOne({ email });
     if (existing) {
+      let changed = false;
+      // Replace a manual: placeholder with the real Firebase UID when the user registers
+      if (firebase_uid && (!existing.firebase_uid || existing.firebase_uid.startsWith('manual:'))) {
+        existing.firebase_uid = firebase_uid;
+        changed = true;
+      }
+      if (name && !existing.name) {
+        existing.name = name;
+        changed = true;
+      }
+      if (avatar_url && !existing.avatar_url) {
+        existing.avatar_url = avatar_url;
+        changed = true;
+      }
+      if (changed) await existing.save();
       return res.status(200).json(existing);
     }
 
     const user = new User({
-      firebase_uid: firebase_uid || '',
+      firebase_uid: firebase_uid || `manual:${email}`,
       email,
       name: name || '',
       avatar_url: avatar_url || '',
@@ -29,6 +44,63 @@ router.post('/', async (req, res) => {
 
     await user.save();
     res.status(201).json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ── Specific POST routes ──────────────────────────────────────────────────────
+
+// POST /api/users/create-staff — create Firebase auth account + DB user with staff role (admin only)
+router.post('/create-staff', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const firebaseAdmin = require('firebase-admin');
+    const { name, email, password, avatar_url } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    let firebase_uid;
+    let existingFbUser = null;
+
+    // Try to create a new Firebase auth account
+    try {
+      const created = await firebaseAdmin.auth().createUser({
+        email,
+        password,
+        displayName: name || '',
+      });
+      firebase_uid = created.uid;
+    } catch (fbError) {
+      if (fbError.code === 'auth/email-already-exists') {
+        // Firebase account already exists — look up its UID and reuse it
+        existingFbUser = await firebaseAdmin.auth().getUserByEmail(email);
+        firebase_uid = existingFbUser.uid;
+      } else {
+        return res.status(400).json({ message: fbError.message });
+      }
+    }
+
+    // Create or update the DB record
+    let dbUser = await User.findOne({ email });
+    if (dbUser) {
+      dbUser.firebase_uid = firebase_uid;
+      dbUser.role = 'staff';
+      if (name && !dbUser.name) dbUser.name = name;
+      if (avatar_url) dbUser.avatar_url = avatar_url;
+      await dbUser.save();
+    } else {
+      dbUser = await User.create({
+        firebase_uid,
+        email,
+        name: name || '',
+        avatar_url: avatar_url || '',
+        role: 'staff',
+      });
+    }
+
+    res.status(201).json(dbUser);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

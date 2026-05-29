@@ -75,7 +75,7 @@ const ContributionModal = ({ issue, onClose, onContributionSuccess }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Contribution Amount (NOK) *</label>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Contribution Amount (kr) *</label>
                 <input
                   type="number"
                   {...register("amount", { 

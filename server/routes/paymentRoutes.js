@@ -38,19 +38,48 @@ router.get('/', verifyToken, verifyAdmin, async (req, res) => {
 // ── POST /api/payments ────────────────────────────────────────────────────────
 router.post('/', verifyToken, async (req, res) => {
   try {
-    const { amount, type, issueId, issueTitle } = req.body;
+    const { amount, type, issueId, issueTitle, paymentMethod } = req.body;
 
     if (!amount || !type) {
       return res.status(400).json({ message: 'amount and type are required' });
     }
 
+    if (!['boost', 'subscription'].includes(type)) {
+      return res.status(400).json({ message: 'Invalid payment type' });
+    }
+
+    if (paymentMethod && !['mobile-banking', 'card', 'bank-transfer'].includes(paymentMethod)) {
+      return res.status(400).json({ message: 'Invalid payment method' });
+    }
+
     const transactionId =
       'TXN-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+
+    let issue = null;
+    let user = null;
+
+    if (type === 'boost') {
+      issue = await Issue.findById(issueId);
+      if (!issue) {
+        return res.status(404).json({ message: 'Issue not found for boost' });
+      }
+    }
+
+    if (type === 'subscription') {
+      user = await User.findOne({ email: req.user.email });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found for subscription' });
+      }
+      if (user.isPremium) {
+        return res.status(409).json({ message: 'User is already premium' });
+      }
+    }
 
     const payment = new Payment({
       userEmail: req.user.email,
       amount,
       type,
+      paymentMethod,
       issueId,
       issueTitle,
       transactionId
@@ -59,11 +88,6 @@ router.post('/', verifyToken, async (req, res) => {
     await payment.save();
 
     if (type === 'boost') {
-      const issue = await Issue.findById(issueId);
-      if (!issue) {
-        return res.status(404).json({ message: 'Issue not found for boost' });
-      }
-
       issue.isBoosted = true;
       issue.priority  = 'high';
       issue.timeline.push({
@@ -78,11 +102,6 @@ router.post('/', verifyToken, async (req, res) => {
     }
 
     if (type === 'subscription') {
-      const user = await User.findOne({ email: req.user.email });
-      if (!user) {
-        return res.status(404).json({ message: 'User not found for subscription' });
-      }
-
       user.isPremium = true;
       await user.save();
     }

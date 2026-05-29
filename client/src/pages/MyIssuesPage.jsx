@@ -110,7 +110,7 @@ const MyIssuesPage = () => {
               <span className="text-6xl mb-6 block">📝</span>
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">You haven't reported any issues yet.</h3>
               <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">
-                Be a local hero! If you see something wrong in your neighborhood, let us know and start earning contribution points.
+                Be a local hero! If you see something wrong in your neighborhood, let us know and help make it right.
               </p>
               <Link
                 to="/add-issue"
@@ -131,7 +131,7 @@ const MyIssuesPage = () => {
                       <th className="py-4 px-6">Title</th>
                       <th className="py-4 px-6">Category</th>
                       <th className="py-4 px-6">Location</th>
-                      <th className="py-4 px-6">Amount (NOK)</th>
+                      <th className="py-4 px-6">Amount (kr)</th>
                       <th className="py-4 px-6">Status</th>
                       <th className="py-4 px-6">Date</th>
                       <th className="py-4 px-6 text-right">Actions</th>
@@ -169,7 +169,7 @@ const MyIssuesPage = () => {
                         <td className="py-4 px-6 text-right">
                           <div className="flex justify-end gap-2">
                             <button
-                              onClick={() => navigate(`/issues/${issue._id}`)}
+                              onClick={() => navigate(`/all-issues/${issue._id}`)}
                               className="p-2 text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
                               title="View Details"
                             >

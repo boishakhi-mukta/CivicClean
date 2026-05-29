@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
+import { FiAlertCircle } from 'react-icons/fi';
 import axiosInstance from '../../../api/axiosInstance';
 
 const AdminManageUsers = () => {
   const queryClient = useQueryClient();
 
-  const { data: users = [], isLoading } = useQuery({
+  const { data: users = [], isLoading, isError, error } = useQuery({
     queryKey: ['adminUsers'],
     queryFn: async () => (await axiosInstance.get('/users')).data,
   });
@@ -37,6 +38,23 @@ const AdminManageUsers = () => {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#1a3a2a] dark:border-[#d4ff00]" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-6">Manage Users</h1>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 flex items-start gap-3">
+          <FiAlertCircle className="text-red-500 mt-0.5 flex-shrink-0" size={20} />
+          <div>
+            <p className="font-semibold text-red-700 dark:text-red-400">Failed to load users</p>
+            <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+              {error?.response?.data?.message || error?.message || 'Unknown error'}
+            </p>
+          </div>
+        </div>
       </div>
     );
   }

@@ -64,7 +64,7 @@ const CitizenOverview = () => {
     { label: 'Pending',         value: pending,            color: 'bg-amber-500' },
     { label: 'In Progress',     value: inProgress,         color: 'bg-purple-500' },
     { label: 'Resolved',        value: resolved,           color: 'bg-emerald-500' },
-    { label: 'Total Payments',  value: `৳${totalPaid}`,   color: 'bg-[#1a3a2a]' },
+    { label: 'Total Payments',  value: `kr${totalPaid}`,   color: 'bg-[#1a3a2a]' },
   ];
 
   if (issuesLoading || paymentsLoading) {

@@ -58,10 +58,10 @@ const IssueCard = ({ issue }) => {
         
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
           <div className="text-lg font-extrabold text-[#1a3a2a] dark:text-[#d4ff00]">
-            {issue.amount ? `${issue.amount} NOK` : '0 NOK'}
+            {issue.amount ? `${issue.amount} kr` : '0 kr'}
           </div>
           <Link 
-            to={`/issues/${issue._id}`}
+            to={`/all-issues/${issue._id}`}
             className="px-4 py-2 bg-[#1a3a2a] text-white dark:bg-[#d4ff00] dark:text-[#1a3a2a] rounded-lg text-sm font-bold hover:opacity-90 transition-opacity"
           >
             See Details

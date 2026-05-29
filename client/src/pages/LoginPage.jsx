@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { FcGoogle } from 'react-icons/fc';
@@ -8,10 +8,7 @@ import { FcGoogle } from 'react-icons/fc';
 const LoginPage = () => {
   const { loginWithEmail, loginWithGoogle } = useContext(AuthContext);
   const navigate = useNavigate();
-  const location = useLocation();
-  // Restore the page the user was trying to reach; fall back to dashboard
-  const from = location.state?.from?.pathname;
-  const destination = from && from !== '/' ? from : '/dashboard';
+  const destination = '/dashboard';
 
   useEffect(() => {
     document.title = "CivicClean | Login";

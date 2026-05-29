@@ -3,34 +3,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
-import { FiPlus, FiEdit2, FiTrash2, FiX } from 'react-icons/fi';
-import { initializeApp, deleteApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { FiPlus, FiEdit2, FiTrash2, FiX, FiAlertCircle } from 'react-icons/fi';
 import axiosInstance from '../../../api/axiosInstance';
 import PhotoUploader from '../../../components/PhotoUploader';
 
 const inputClass =
   'w-full px-3 py-2.5 rounded-lg border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-[#d4ff00] transition text-sm';
-
-// Creates a Firebase user using a secondary app so the admin session is unaffected
-const createFirebaseStaffUser = async (email, password) => {
-  const config = {
-    apiKey:            process.env.REACT_APP_FIREBASE_API_KEY,
-    authDomain:        process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-    projectId:         process.env.REACT_APP_FIREBASE_PROJECT_ID,
-    storageBucket:     process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-    appId:             process.env.REACT_APP_FIREBASE_APP_ID,
-  };
-  const appName     = `staff-create-${Date.now()}`;
-  const secondaryApp  = initializeApp(config, appName);
-  const secondaryAuth = getAuth(secondaryApp);
-  try {
-    await createUserWithEmailAndPassword(secondaryAuth, email, password);
-  } finally {
-    await deleteApp(secondaryApp);
-  }
-};
 
 const StaffFormModal = ({ title, defaultValues, onClose, onSubmit, isPending }) => {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm({ defaultValues });
@@ -78,6 +56,7 @@ const StaffFormModal = ({ title, defaultValues, onClose, onSubmit, isPending }) 
                 })}
                 type="password"
                 className={inputClass}
+                placeholder="••••••••"
               />
               {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
             </div>
@@ -109,25 +88,17 @@ const AdminManageStaff = () => {
   const [addOpen,  setAddOpen]  = useState(false);
   const [editUser, setEditUser] = useState(null);
 
-  const { data: staffList = [], isLoading } = useQuery({
+  const { data: staffList = [], isLoading, isError, error } = useQuery({
     queryKey: ['staffList'],
     queryFn: async () => (await axiosInstance.get('/users/staff')).data,
   });
 
   const addMutation = useMutation({
-    mutationFn: async ({ name, email, avatar_url, password }) => {
-      // 1. Create Firebase account on secondary app (doesn't sign out admin)
-      await createFirebaseStaffUser(email, password);
-      // 2. Save user in DB (defaults to citizen role)
-      const { data: newUser } = await axiosInstance.post('/users', {
-        name, email, avatar_url: avatar_url || '',
-      });
-      // 3. Promote to staff
-      await axiosInstance.patch(`/users/${newUser._id}/role`, { role: 'staff' });
-    },
+    mutationFn: ({ name, email, avatar_url, password }) =>
+      axiosInstance.post('/users/create-staff', { name, email, password, avatar_url }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['staffList'] });
-      toast.success('Staff member added!');
+      toast.success('Staff member created! They can now log in with their email and password.');
       setAddOpen(false);
     },
     onError: (err) => toast.error(err.response?.data?.message || err.message || 'Failed to add staff'),
@@ -155,7 +126,7 @@ const AdminManageStaff = () => {
   const handleDelete = async (user) => {
     const { isConfirmed } = await Swal.fire({
       title: 'Remove staff member?',
-      text: `${user.name || user.email} will be removed from the database. Their Firebase account will remain active.`,
+      text: `${user.name || user.email} will be removed from the database. Their login account will remain active.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Yes, remove',
@@ -168,6 +139,23 @@ const AdminManageStaff = () => {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#1a3a2a] dark:border-[#d4ff00]" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-6">Manage Staff</h1>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 flex items-start gap-3">
+          <FiAlertCircle className="text-red-500 mt-0.5 flex-shrink-0" size={20} />
+          <div>
+            <p className="font-semibold text-red-700 dark:text-red-400">Failed to load staff list</p>
+            <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+              {error?.response?.data?.message || error?.message || 'Unknown error'}
+            </p>
+          </div>
+        </div>
       </div>
     );
   }

@@ -9,8 +9,8 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 // Allow cross-origin requests for deployment
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Database connection
 const connectDB = async () => {
@@ -58,8 +58,7 @@ app.use('/api/payments', paymentRoutes);
 app.get('/api/stats', async (req, res) => {
   try {
     const totalIssues = await Issue.countDocuments();
-    const resolvedIssues = await Issue.countDocuments({ status: 'Resolved' });
-    const pendingIssues = await Issue.countDocuments({ status: 'Open' }) + await Issue.countDocuments({ status: 'In Progress' });
+    const resolvedIssues = await Issue.countDocuments({ status: 'resolved' });
     
     // Calculate total unique users dynamically
     const totalUsers = await User.countDocuments();

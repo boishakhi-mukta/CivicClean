@@ -205,7 +205,7 @@ const StaffAssignedIssues = () => {
                       <td className="px-5 py-4">
                         <div className="flex justify-end gap-2">
                           <button
-                            onClick={() => navigate(`/issues/${issue._id}`)}
+                            onClick={() => navigate(`/all-issues/${issue._id}`)}
                             title="View"
                             className="p-1.5 rounded-lg text-blue-600 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 transition"
                           >

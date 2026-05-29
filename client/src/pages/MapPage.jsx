@@ -14,7 +14,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png')
 });
 
-const defaultCenter = [23.8103, 90.4125]; // Dhaka, Bangladesh
+const defaultCenter = [59.9139, 10.7522]; // Oslo, Norway
 
 const MapPage = () => {
   useEffect(() => {
@@ -62,7 +62,7 @@ const MapPage = () => {
                     <div className="p-2">
                       <h3 className="font-bold text-lg mb-1">{issue.title}</h3>
                       <p className="text-sm text-gray-600 mb-2">{issue.category}</p>
-                      <Link to={`/issues/${issue._id}`} className="text-blue-600 font-semibold hover:underline">
+                      <Link to={`/all-issues/${issue._id}`} className="text-blue-600 font-semibold hover:underline">
                         View Details &rarr;
                       </Link>
                     </div>

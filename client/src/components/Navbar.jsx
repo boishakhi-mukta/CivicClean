@@ -32,6 +32,9 @@ const Navbar = () => {
     logout().then(() => navigate('/'));
   };
 
+  const displayName = dbUser?.name || currentUser?.displayName || 'User';
+  const photoSrc = dbUser?.avatar_url || currentUser?.photoURL || null;
+
   return (
     <nav className="sticky top-0 z-50 bg-[#1a3a2a] shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,9 +50,8 @@ const Navbar = () => {
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">
             <NavLink to="/" className={navLinkClass}>Home</NavLink>
-            <NavLink to="/issues" className={navLinkClass}>Issues</NavLink>
+            <NavLink to="/all-issues" className={navLinkClass}>All Issues</NavLink>
             <NavLink to="/map" className={navLinkClass}>Map</NavLink>
-
             {currentUser && (
               <>
                 <NavLink to="/add-issue" className={navLinkClass}>Add Issue</NavLink>
@@ -90,15 +92,15 @@ const Navbar = () => {
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="flex items-center space-x-2 focus:outline-none"
                 >
-                  {currentUser.photoURL ? (
+                  {photoSrc ? (
                     <img
-                      src={currentUser.photoURL}
+                      src={photoSrc}
                       alt="User avatar"
                       className="w-10 h-10 rounded-full object-cover border-2 border-[#d4ff00]"
                     />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-[#d4ff00] flex items-center justify-center text-[#1a3a2a] font-bold text-lg">
-                      {getInitials(currentUser.displayName || currentUser.email)}
+                      {getInitials(displayName || currentUser.email)}
                     </div>
                   )}
                 </button>
@@ -108,7 +110,7 @@ const Navbar = () => {
                     {/* User info header */}
                     <div className="px-4 py-2 border-b dark:border-gray-700">
                       <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                        {currentUser.displayName || 'User'}
+                        {displayName}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                         {currentUser.email}
@@ -167,9 +169,8 @@ const Navbar = () => {
         <div className="md:hidden bg-[#1a3a2a] border-t border-white/10">
           <div className="px-2 pt-2 pb-3 space-y-1">
             <NavLink to="/" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Home</NavLink>
-            <NavLink to="/issues" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Issues</NavLink>
+            <NavLink to="/all-issues" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>All Issues</NavLink>
             <NavLink to="/map" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Map</NavLink>
-
             {currentUser && (
               <>
                 <NavLink to="/add-issue" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Add Issue</NavLink>

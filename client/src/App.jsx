@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
 // Pages — public
@@ -14,7 +14,6 @@ import MyContributionPage from './pages/MyContributionPage';
 import NotFoundPage from './pages/NotFoundPage';
 import DashboardPage from './pages/DashboardPage';
 import MapPage from './pages/MapPage';
-import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
 
 // Pages — admin dashboard
@@ -62,6 +61,71 @@ const RoleDashboardRedirect = () => {
   return <Navigate to="/dashboard/citizen" replace />;
 };
 
+const AppShell = () => {
+  const { pathname } = useLocation();
+  const isDashboardRoute = pathname.startsWith('/dashboard');
+
+  return (
+    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+      {!isDashboardRoute && <Navbar />}
+
+      <main className="flex-grow">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/all-issues" element={<AllIssuesPage />} />
+          <Route path="/all-issues/:id" element={<PrivateRoute><IssueDetailPage /></PrivateRoute>} />
+          <Route path="/map" element={<MapPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* Private Routes */}
+          <Route path="/add-issue" element={<PrivateRoute><AddIssuePage /></PrivateRoute>} />
+          <Route path="/my-issues" element={<PrivateRoute><MyIssuesPage /></PrivateRoute>} />
+          <Route path="/my-contributions" element={<PrivateRoute><MyContributionPage /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+
+          {/* /dashboard → role-based redirect */}
+          <Route path="/dashboard" element={<PrivateRoute><RoleDashboardRedirect /></PrivateRoute>} />
+
+          {/* Legacy dashboard page kept accessible */}
+          <Route path="/dashboard/legacy" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+
+          {/* Admin Dashboard Routes — nested under shared layout */}
+          <Route path="/dashboard/admin" element={<AdminRoute><AdminDashboardLayout /></AdminRoute>}>
+            <Route index element={<AdminOverview />} />
+            <Route path="issues"   element={<AdminAllIssues />} />
+            <Route path="users"    element={<AdminManageUsers />} />
+            <Route path="staff"    element={<AdminManageStaff />} />
+            <Route path="payments" element={<AdminPayments />} />
+            <Route path="profile"  element={<AdminProfile />} />
+          </Route>
+
+          {/* Staff Dashboard Routes — nested under shared layout */}
+          <Route path="/dashboard/staff" element={<StaffRoute><StaffDashboardLayout /></StaffRoute>}>
+            <Route index element={<StaffOverview />} />
+            <Route path="issues"  element={<StaffAssignedIssues />} />
+            <Route path="profile" element={<StaffProfile />} />
+          </Route>
+
+          {/* Citizen Dashboard Routes — nested under shared layout */}
+          <Route path="/dashboard/citizen" element={<PrivateRoute><CitizenDashboardLayout /></PrivateRoute>}>
+            <Route index element={<CitizenOverview />} />
+            <Route path="my-issues"    element={<CitizenMyIssues />} />
+            <Route path="report-issue" element={<CitizenReportIssue />} />
+            <Route path="profile"      element={<CitizenProfile />} />
+          </Route>
+
+          {/* Catch-all 404 Route */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </main>
+
+      {!isDashboardRoute && <Footer />}
+    </div>
+  );
+};
+
 function App() {
   return (
     <BrowserRouter>
@@ -90,64 +154,7 @@ function App() {
           },
         }}
       />
-      <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
-        <Navbar />
-
-        <main className="flex-grow">
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/issues" element={<AllIssuesPage />} />
-            <Route path="/issues/:id" element={<IssueDetailPage />} />
-            <Route path="/map" element={<MapPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-
-            {/* Private Routes */}
-            <Route path="/add-issue" element={<PrivateRoute><AddIssuePage /></PrivateRoute>} />
-            <Route path="/my-issues" element={<PrivateRoute><MyIssuesPage /></PrivateRoute>} />
-            <Route path="/my-contributions" element={<PrivateRoute><MyContributionPage /></PrivateRoute>} />
-            <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-
-            {/* /dashboard → role-based redirect */}
-            <Route path="/dashboard" element={<PrivateRoute><RoleDashboardRedirect /></PrivateRoute>} />
-
-            {/* Legacy dashboard page kept accessible */}
-            <Route path="/dashboard/legacy" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
-
-            {/* Admin Dashboard Routes — nested under shared layout */}
-            <Route path="/dashboard/admin" element={<AdminRoute><AdminDashboardLayout /></AdminRoute>}>
-              <Route index element={<AdminOverview />} />
-              <Route path="issues"   element={<AdminAllIssues />} />
-              <Route path="users"    element={<AdminManageUsers />} />
-              <Route path="staff"    element={<AdminManageStaff />} />
-              <Route path="payments" element={<AdminPayments />} />
-              <Route path="profile"  element={<AdminProfile />} />
-            </Route>
-
-            {/* Staff Dashboard Routes — nested under shared layout */}
-            <Route path="/dashboard/staff" element={<StaffRoute><StaffDashboardLayout /></StaffRoute>}>
-              <Route index element={<StaffOverview />} />
-              <Route path="issues"  element={<StaffAssignedIssues />} />
-              <Route path="profile" element={<StaffProfile />} />
-            </Route>
-
-            {/* Citizen Dashboard Routes — nested under shared layout */}
-            <Route path="/dashboard/citizen" element={<PrivateRoute><CitizenDashboardLayout /></PrivateRoute>}>
-              <Route index element={<CitizenOverview />} />
-              <Route path="my-issues"    element={<CitizenMyIssues />} />
-              <Route path="report-issue" element={<CitizenReportIssue />} />
-              <Route path="profile"      element={<CitizenProfile />} />
-            </Route>
-
-            {/* Catch-all 404 Route */}
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </main>
-
-        <Footer />
-      </div>
+      <AppShell />
     </BrowserRouter>
   );
 }

@@ -55,9 +55,9 @@ const MyContributionPage = () => {
 
       autoTable(doc, {
         startY: 80,
-        head: [['Issue Title', 'Amount (NOK)']],
+        head: [['Issue Title', 'Amount (kr)']],
         body: [
-          [contribution.issueTitle || 'N/A', `${contribution.amount || 0} NOK`]
+          [contribution.issueTitle || 'N/A', `${contribution.amount || 0} kr`]
         ],
         headStyles: { fillColor: [26, 58, 42], textColor: [212, 255, 0] },
         theme: 'grid',
@@ -102,7 +102,7 @@ const MyContributionPage = () => {
                 Help fund community clean-ups and track your receipts here. Every contribution counts!
               </p>
               <Link
-                to="/issues"
+                to="/all-issues"
                 className="inline-block px-8 py-4 bg-[#1a3a2a] text-[#d4ff00] dark:bg-[#d4ff00] dark:text-[#1a3a2a] text-lg font-bold rounded-lg shadow-lg hover:opacity-90 transition-opacity"
               >
                 Browse Open Issues
@@ -119,7 +119,7 @@ const MyContributionPage = () => {
                       <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wider font-semibold">
                         <th className="py-4 px-6">#</th>
                         <th className="py-4 px-6">Issue Title</th>
-                        <th className="py-4 px-6">Amount Paid (NOK)</th>
+                        <th className="py-4 px-6">Amount Paid (kr)</th>
                         <th className="py-4 px-6">Date</th>
                         <th className="py-4 px-6 text-right">Receipt</th>
                       </tr>
@@ -174,7 +174,7 @@ const MyContributionPage = () => {
                   </div>
                   <div className="bg-white/10 rounded-xl p-5 backdrop-blur-sm min-w-[150px] text-center border border-white/20">
                     <p className="text-sm text-green-200 dark:text-gray-400 uppercase tracking-widest mb-1 font-semibold">Total Funded</p>
-                    <p className="text-3xl font-extrabold text-[#d4ff00]">{totalAmount} NOK</p>
+                    <p className="text-3xl font-extrabold text-[#d4ff00]">{totalAmount} kr</p>
                   </div>
                 </div>
               </div>
