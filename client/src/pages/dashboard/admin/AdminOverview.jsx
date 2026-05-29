@@ -8,24 +8,32 @@ import axiosInstance from '../../../api/axiosInstance';
 const STATUS_COLORS = {
   pending:       '#f59e0b',
   'in-progress': '#3b82f6',
+  'in progress': '#3b82f6',
+  open:          '#0ea5e9',
   working:       '#8b5cf6',
+  ongoing:       '#8b5cf6',
   resolved:      '#10b981',
   closed:        '#6b7280',
+  ended:         '#6b7280',
   rejected:      '#ef4444',
 };
 
 const STATUS_STYLES = {
-  pending:       'bg-amber-100  text-amber-800',
-  'in-progress': 'bg-blue-100   text-blue-800',
-  working:       'bg-purple-100 text-purple-800',
-  resolved:      'bg-emerald-100 text-emerald-800',
-  closed:        'bg-gray-100   text-gray-700',
-  rejected:      'bg-red-100    text-red-800',
+  pending:       'bg-amber-100  text-amber-800  dark:bg-amber-900/40  dark:text-amber-300',
+  'in-progress': 'bg-blue-100   text-blue-800   dark:bg-blue-900/40   dark:text-blue-300',
+  'in progress': 'bg-blue-100   text-blue-800   dark:bg-blue-900/40   dark:text-blue-300',
+  open:          'bg-sky-100    text-sky-800    dark:bg-sky-900/40    dark:text-sky-300',
+  working:       'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
+  ongoing:       'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
+  resolved:      'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+  closed:        'bg-gray-100   text-gray-700   dark:bg-gray-700      dark:text-gray-300',
+  ended:         'bg-gray-100   text-gray-700   dark:bg-gray-700      dark:text-gray-300',
+  rejected:      'bg-red-100    text-red-800    dark:bg-red-900/40    dark:text-red-300',
 };
 
-const StatCard = ({ label, value, accent }) => (
+const StatCard = ({ label, value, accent, colorClass }) => (
   <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
-    <p className="text-2xl font-black" style={{ color: accent }}>{value}</p>
+    <p className={`text-2xl font-black ${colorClass || ''}`} style={colorClass ? {} : { color: accent }}>{value}</p>
     <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1 uppercase tracking-wide">{label}</p>
   </div>
 );
@@ -54,7 +62,7 @@ const AdminOverview = () => {
   const { data: users = [], isLoading: usersLoading } = useQuery({
     queryKey: ['adminUsers'],
     queryFn: async () => {
-      const res = await axiosInstance.get('/users');
+      const res = await axiosInstance.get('/users?role=citizen');
       return res.data;
     },
   });
@@ -93,7 +101,7 @@ const AdminOverview = () => {
 
   const latestIssues   = issues.slice(0, 5);
   const latestPayments = payments.slice(0, 5);
-  const latestUsers    = [...users].slice(-5).reverse();
+  const latestUsers    = users.slice(0, 5);
 
   return (
     <div>
@@ -105,7 +113,7 @@ const AdminOverview = () => {
         <StatCard label="Resolved"       value={resolved}       accent="#10b981" />
         <StatCard label="Pending"        value={pending}        accent="#f59e0b" />
         <StatCard label="Rejected"       value={rejected}       accent="#ef4444" />
-        <StatCard label="Total Revenue"  value={`kr${totalPaid}`} accent="#1a3a2a" />
+        <StatCard label="Total Revenue"  value={`kr${totalPaid}`} colorClass="text-[#1a3a2a] dark:text-[#d4ff00]" />
       </div>
 
       {/* Charts row */}
@@ -134,24 +142,33 @@ const AdminOverview = () => {
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
           <SectionTitle>Issues by Status</SectionTitle>
           {pieData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={240}>
               <PieChart>
                 <Pie
                   data={pieData}
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  labelLine={false}
+                  cy="45%"
+                  outerRadius={75}
+                  label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                  labelLine={true}
                 >
                   {pieData.map(entry => (
-                    <Cell key={entry.name} fill={STATUS_COLORS[entry.name] || '#94a3b8'} />
+                    <Cell key={entry.name} fill={STATUS_COLORS[entry.name?.toLowerCase()] || '#94a3b8'} />
                   ))}
                 </Pie>
-                <Tooltip />
-                <Legend iconSize={10} />
+                <Tooltip
+                  formatter={(value) => [value]}
+                  contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', backgroundColor: '#1f2937', color: '#f3f4f6' }}
+                />
+                <Legend
+                  iconSize={10}
+                  wrapperStyle={{ paddingTop: 8, fontSize: 12 }}
+                  formatter={(value) => (
+                    <span style={{ color: '#9ca3af' }}>{value}</span>
+                  )}
+                />
               </PieChart>
             </ResponsiveContainer>
           ) : (
@@ -171,7 +188,7 @@ const AdminOverview = () => {
             ) : latestIssues.map(issue => (
               <div key={issue._id} className="flex items-center justify-between gap-2">
                 <p className="text-sm text-gray-900 dark:text-white truncate max-w-[60%]">{issue.title}</p>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold capitalize shrink-0 ${STATUS_STYLES[issue.status] || ''}`}>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold capitalize shrink-0 ${STATUS_STYLES[issue.status?.toLowerCase()] || 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'}`}>
                   {issue.status}
                 </span>
               </div>
@@ -203,13 +220,16 @@ const AdminOverview = () => {
             ) : latestUsers.map(u => (
               <div key={u._id} className="flex items-center gap-2">
                 {u.avatar_url ? (
-                  <img src={u.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover shrink-0" />
+                  <img src={u.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover shrink-0" />
                 ) : (
-                  <div className="w-6 h-6 rounded-full bg-[#d4ff00] flex items-center justify-center text-[#1a3a2a] text-xs font-bold shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-[#d4ff00] flex items-center justify-center text-[#1a3a2a] text-xs font-bold shrink-0">
                     {(u.name || u.email).charAt(0).toUpperCase()}
                   </div>
                 )}
-                <p className="text-sm text-gray-900 dark:text-white truncate">{u.name || u.email}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-900 dark:text-white truncate leading-tight">{u.name || u.email}</p>
+                  {u.name && <p className="text-xs text-gray-400 truncate leading-tight">{u.email}</p>}
+                </div>
               </div>
             ))}
           </div>

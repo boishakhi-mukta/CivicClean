@@ -30,7 +30,7 @@ const CitizenReportIssue = () => {
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm();
   const imageUrl = watch('image');
 
-  const isBlocked   = dbUser?.isBlocked === true;
+  const isBlocked    = dbUser?.isBlocked === true;
   const limitReached = !isBlocked && (dbUser?.issueCount ?? 0) >= 3 && !dbUser?.isPremium;
 
   const reportMutation = useMutation({
@@ -111,7 +111,7 @@ const CitizenReportIssue = () => {
         Report an Issue
       </h1>
 
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border dark:border-gray-700 p-6 md:p-8 max-w-2xl">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border dark:border-gray-700 p-6 md:p-8 max-w-2xl mx-auto">
         <form onSubmit={handleSubmit((data) => reportMutation.mutate(data))} className="space-y-5">
           <Field label="Title" required error={errors.title?.message}>
             <input

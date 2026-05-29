@@ -8,23 +8,28 @@ import axiosInstance from '../../../api/axiosInstance';
 const CATEGORIES = ['Garbage', 'Illegal Construction', 'Broken Public Property', 'Road Damage'];
 
 const STATUS_STYLES = {
-  pending:       'bg-amber-100  text-amber-800',
-  'in-progress': 'bg-blue-100   text-blue-800',
-  working:       'bg-purple-100 text-purple-800',
-  resolved:      'bg-emerald-100 text-emerald-800',
-  closed:        'bg-gray-100   text-gray-700',
-  rejected:      'bg-red-100    text-red-800',
+  pending:       'bg-amber-100  text-amber-800  dark:bg-amber-900/40  dark:text-amber-300',
+  open:          'bg-sky-100    text-sky-800    dark:bg-sky-900/40    dark:text-sky-300',
+  'in-progress': 'bg-blue-100   text-blue-800   dark:bg-blue-900/40   dark:text-blue-300',
+  'in progress': 'bg-blue-100   text-blue-800   dark:bg-blue-900/40   dark:text-blue-300',
+  working:       'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
+  ongoing:       'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
+  resolved:      'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+  closed:        'bg-gray-100   text-gray-700   dark:bg-gray-700      dark:text-gray-300',
+  ended:         'bg-gray-100   text-gray-700   dark:bg-gray-700      dark:text-gray-300',
+  rejected:      'bg-red-100    text-red-800    dark:bg-red-900/40    dark:text-red-300',
 };
 
 const PRIORITY_STYLES = {
-  high:   'bg-red-100  text-red-700',
-  normal: 'bg-gray-100 text-gray-600',
+  high:   'bg-red-100  text-red-700  dark:bg-red-900/40  dark:text-red-300',
+  normal: 'bg-gray-100 text-gray-600 dark:bg-gray-700    dark:text-gray-300',
 };
 
 const Badge = ({ value, map }) => {
   if (!value) return null;
+  const key = value.toLowerCase();
   return (
-    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${map[value] || ''}`}>
+    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${map[key] || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}>
       {value}
     </span>
   );
@@ -107,6 +112,17 @@ const AdminAllIssues = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [assignModal,     setAssignModal]     = useState(null);
 
+  const hasActiveFilters = statusFilter || categoryFilter || priorityFilter || searchInput;
+
+  const clearFilters = () => {
+    setStatusFilter('');
+    setCategoryFilter('');
+    setPriorityFilter('');
+    setSearchInput('');
+    setDebouncedSearch('');
+    setPage(1);
+  };
+
   useEffect(() => {
     const t = setTimeout(() => { setDebouncedSearch(searchInput); setPage(1); }, 400);
     return () => clearTimeout(t);
@@ -174,8 +190,16 @@ const AdminAllIssues = () => {
             value={searchInput}
             onChange={e => setSearchInput(e.target.value)}
             placeholder="Search title, location…"
-            className="pl-9 pr-4 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-white text-sm outline-none focus:ring-2 focus:ring-[#d4ff00] w-52"
+            className="pl-9 pr-9 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-white text-sm outline-none focus:ring-2 focus:ring-[#d4ff00] w-52"
           />
+          {searchInput && (
+            <button
+              onClick={() => { setSearchInput(''); setDebouncedSearch(''); setPage(1); }}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            >
+              <FiX size={13} />
+            </button>
+          )}
         </div>
         {[
           { value: statusFilter,   setter: setStatusFilter,   options: Object.keys(STATUS_STYLES), label: 'All Statuses' },
@@ -192,6 +216,14 @@ const AdminAllIssues = () => {
             {options.map(o => <option key={o} value={o}>{o}</option>)}
           </select>
         ))}
+        {hasActiveFilters && (
+          <button
+            onClick={clearFilters}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition"
+          >
+            <FiX size={13} /> Clear filters
+          </button>
+        )}
       </div>
 
       {isLoading ? (
@@ -238,17 +270,19 @@ const AdminAllIssues = () => {
                         <div className="flex justify-end gap-2">
                           {!issue.assignedStaff?.staffId && (
                             <button
-                              onClick={() => setAssignModal(issue)}
-                              className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 transition"
+                              onClick={() => issue.status?.toLowerCase() !== 'rejected' && setAssignModal(issue)}
+                              disabled={issue.status?.toLowerCase() === 'rejected'}
+                              title={issue.status?.toLowerCase() === 'rejected' ? 'Cannot assign a rejected issue' : 'Assign staff'}
+                              className="px-2.5 py-1 rounded-lg text-xs font-semibold transition bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-50 dark:disabled:hover:bg-blue-900/20"
                             >
                               Assign
                             </button>
                           )}
-                          {issue.status === 'pending' && (
+                          {!['rejected', 'resolved', 'closed'].includes(issue.status?.toLowerCase()) && (
                             <button
                               onClick={() => handleReject(issue)}
                               disabled={rejectMutation.isPending}
-                              className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-50 text-red-700 hover:bg-red-100 transition disabled:opacity-50"
+                              className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 transition disabled:opacity-50"
                             >
                               Reject
                             </button>

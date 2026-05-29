@@ -1,11 +1,12 @@
 import { useState, useContext } from 'react';
 import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
-import { FiGrid, FiList, FiPlusCircle, FiUser, FiMenu, FiX, FiLogOut, FiSun, FiMoon } from 'react-icons/fi';
+import { FiGrid, FiList, FiPlusCircle, FiUser, FiMenu, FiX, FiLogOut, FiSun, FiMoon, FiGlobe } from 'react-icons/fi';
 import { AuthContext } from '../../../../context/AuthContext';
 import { ThemeContext } from '../../../../context/ThemeContext';
 
 const navItems = [
   { to: '/dashboard/citizen',              label: 'Overview',     Icon: FiGrid,       end: true },
+  { to: '/all-issues',                     label: 'All Issues',   Icon: FiGlobe },
   { to: '/dashboard/citizen/my-issues',    label: 'My Issues',    Icon: FiList },
   { to: '/dashboard/citizen/report-issue', label: 'Report Issue', Icon: FiPlusCircle },
   { to: '/dashboard/citizen/profile',      label: 'Profile',      Icon: FiUser },

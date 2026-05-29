@@ -51,7 +51,7 @@ const createStoragePath = (folder, fileName) => {
   return `${folder}/${Date.now()}_${randomId}_${safeName}`;
 };
 
-export const uploadPhotoFile = (file, { folder = 'avatars', onProgress, timeoutMs = 10000 } = {}) => {
+export const uploadPhotoFile = (file, { folder = 'avatars', onProgress, timeoutMs = 3000 } = {}) => {
   const validationError = validatePhotoFile(file);
   if (validationError) {
     return Promise.reject(new Error(validationError));

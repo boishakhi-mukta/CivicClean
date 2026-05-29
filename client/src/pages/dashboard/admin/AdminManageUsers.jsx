@@ -9,7 +9,7 @@ const AdminManageUsers = () => {
 
   const { data: users = [], isLoading, isError, error } = useQuery({
     queryKey: ['adminUsers'],
-    queryFn: async () => (await axiosInstance.get('/users')).data,
+    queryFn: async () => (await axiosInstance.get('/users?role=citizen')).data,
   });
 
   const blockMutation = useMutation({
@@ -66,7 +66,7 @@ const AdminManageUsers = () => {
       {users.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-14 text-center">
           <span className="text-5xl block mb-4">👤</span>
-          <p className="text-gray-500 dark:text-gray-400">No citizens registered yet.</p>
+          <p className="text-gray-500 dark:text-gray-400">No users registered yet.</p>
         </div>
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 overflow-hidden">
@@ -102,11 +102,11 @@ const AdminManageUsers = () => {
                     <td className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{user.email}</td>
                     <td className="px-5 py-4">
                       {user.isPremium ? (
-                        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
                           Premium
                         </span>
                       ) : (
-                        <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
                           Free
                         </span>
                       )}
@@ -116,11 +116,11 @@ const AdminManageUsers = () => {
                     </td>
                     <td className="px-5 py-4">
                       {user.isBlocked ? (
-                        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">
                           Blocked
                         </span>
                       ) : (
-                        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
                           Active
                         </span>
                       )}
@@ -129,10 +129,10 @@ const AdminManageUsers = () => {
                       <button
                         onClick={() => handleBlockToggle(user)}
                         disabled={blockMutation.isPending}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition disabled:opacity-50 ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${
                           user.isBlocked
-                            ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                            : 'bg-red-50    text-red-700    hover:bg-red-100'
+                            ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400'
+                            : 'bg-red-50    text-red-700    hover:bg-red-100    dark:bg-red-900/20    dark:text-red-400'
                         }`}
                       >
                         {user.isBlocked ? 'Unblock' : 'Block'}

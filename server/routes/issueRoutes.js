@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Issue = require('../models/Issue');
+const User  = require('../models/User');
 const verifyToken = require('../middlewares/verifyToken');
 const verifyAdmin = require('../middlewares/verifyAdmin');
 const verifyStaff = require('../middlewares/verifyStaff');
@@ -23,18 +24,31 @@ router.get('/', async (req, res) => {
     const limit = Math.max(1, parseInt(req.query.limit) || 10);
     const skip  = (page - 1) * limit;
 
+    const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     const query = {};
-    if (category)           query.category                    = category;
-    if (status)             query.status                      = status;
-    if (priority)           query.priority                    = priority;
+    if (category)           query.category                    = { $regex: new RegExp(`^${escapeRegex(category)}$`, 'i') };
+    if (priority)           query.priority                    = { $regex: new RegExp(`^${escapeRegex(priority)}$`, 'i') };
     if (email)              query.email                       = email;
     if (reported_by)        query.reported_by                 = reported_by;
     if (assignedStaffEmail) query['assignedStaff.staffEmail'] = assignedStaffEmail;
+    if (status) {
+      // Include legacy status values stored in DB (e.g. "Open" → "pending")
+      const legacyEquivalents = Object.entries(LEGACY_STATUS_MAP)
+        .filter(([, v]) => v === status)
+        .map(([k]) => k);
+      query.status = legacyEquivalents.length > 0
+        ? { $in: [status, ...legacyEquivalents] }
+        : { $regex: new RegExp(`^${escapeRegex(status)}$`, 'i') };
+    }
     if (search) {
-      query.$or = [
-        { title:    { $regex: search, $options: 'i' } },
-        { category: { $regex: search, $options: 'i' } },
-        { location: { $regex: search, $options: 'i' } }
+      query.$and = [
+        ...(query.$and || []),
+        { $or: [
+          { title:    { $regex: search, $options: 'i' } },
+          { category: { $regex: search, $options: 'i' } },
+          { location: { $regex: search, $options: 'i' } }
+        ]}
       ];
     }
 
@@ -74,9 +88,17 @@ router.get('/:id', async (req, res) => {
 // Requires auth. Adds initial timeline entry on creation.
 router.post('/', verifyToken, async (req, res) => {
   try {
-    const { title, category, reported_by } = req.body;
+    const { title, category } = req.body;
     if (!title || !category) {
       return res.status(400).json({ error: 'Title and category are required' });
+    }
+
+    const user = await User.findOne({ email: req.user.email });
+    if (user?.isBlocked) {
+      return res.status(403).json({ error: 'Your account has been blocked. Contact admin.' });
+    }
+    if (user && !user.isPremium && (user.issueCount ?? 0) >= 3) {
+      return res.status(403).json({ error: 'Free account limit reached. Upgrade to Premium for unlimited reporting.' });
     }
 
     const issue = new Issue({

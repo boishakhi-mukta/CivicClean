@@ -120,7 +120,7 @@ router.get('/me', verifyToken, async (req, res) => {
 });
 
 // GET /api/users/staff — get all staff users (admin only)
-router.get('/staff', verifyToken, verifyAdmin, async (req, res) => {
+router.get('/staff', verifyToken, verifyAdmin, async (_req, res) => {
   try {
     const staff = await User.find({ role: 'staff' });
     res.json(staff);
@@ -129,12 +129,15 @@ router.get('/staff', verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
-// GET /api/users — all users (admin only); defaults to citizens, ?role= overrides
+// GET /api/users — citizens only (admin only); ?role= overrides
 router.get('/', verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { role } = req.query;
-    const query = role ? { role } : { role: 'citizen' };
-    const users = await User.find(query);
+    // When filtering for citizens, also include users with no role field (pre-migration documents)
+    const query = role && role !== 'citizen'
+      ? { role }
+      : { role: { $nin: ['admin', 'staff'] } };
+    const users = await User.find(query).sort({ _id: -1 });
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
