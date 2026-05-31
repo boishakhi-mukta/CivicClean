@@ -91,17 +91,17 @@ router.post('/', verifyToken, async (req, res) => {
     await payment.save();
 
     if (type === 'boost') {
-      issue.isBoosted = true;
-      issue.priority  = 'high';
-      issue.timeline.push({
+      const timelineEntry = {
         message:   'Issue priority boosted to High via payment',
         updatedBy: req.user.email,
         role:      'citizen',
         status:    issue.status,
         createdAt: new Date()
-      });
-
-      await issue.save();
+      };
+      await Issue.findByIdAndUpdate(
+        issueId,
+        { $set: { isBoosted: true, priority: 'high' }, $push: { timeline: timelineEntry } }
+      );
     }
 
     if (type === 'subscription') {

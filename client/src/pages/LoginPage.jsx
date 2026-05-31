@@ -7,7 +7,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 const LoginPage = () => {
-  const { loginWithEmail, loginWithGoogle } = useContext(AuthContext);
+  const { currentUser, dbUser, loading, loginWithEmail, loginWithGoogle } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -18,25 +18,47 @@ const LoginPage = () => {
     document.title = "CivicClean | Login";
   }, []);
 
+  // Navigate only after auth state (including dbUser sync) is fully ready.
+  // If 'from' is a dashboard path that doesn't match the user's role
+  // (e.g. staff was redirected from a citizen page), send them to their own dashboard.
+  useEffect(() => {
+    if (!loading && currentUser && dbUser) {
+      const roleBase = dbUser.role === 'admin' ? '/dashboard/admin'
+                     : dbUser.role === 'staff'  ? '/dashboard/staff'
+                     : '/dashboard/citizen';
+
+      const destination = (from.startsWith('/dashboard') && !from.startsWith(roleBase))
+        ? roleBase
+        : from;
+
+      navigate(destination, { replace: true });
+    }
+  }, [currentUser, loading, dbUser]);
+
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = async (data) => {
+    setIsLoggingIn(true);
     try {
       await loginWithEmail(data.email, data.password);
       toast.success('Successfully logged in!');
-      navigate(from, { replace: true });
+      // navigation handled by useEffect above
     } catch (error) {
+      setIsLoggingIn(false);
       toast.error(error.message || 'Failed to login. Please check your credentials.');
     }
   };
 
   const handleGoogleLogin = async () => {
+    setIsLoggingIn(true);
     try {
       await loginWithGoogle();
       toast.success('Successfully logged in with Google!');
-      navigate(from, { replace: true });
+      // navigation handled by useEffect above
     } catch (error) {
+      setIsLoggingIn(false);
       toast.error(error.message || 'Failed to login with Google.');
     }
   };
@@ -92,9 +114,10 @@ const LoginPage = () => {
 
             <button
               type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-bold text-[#1a3a2a] bg-[#d4ff00] hover:bg-[#bce600] focus:outline-none transition-colors"
+              disabled={isLoggingIn}
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-bold text-[#1a3a2a] bg-[#d4ff00] hover:bg-[#bce600] focus:outline-none transition-colors disabled:opacity-60"
             >
-              Sign In
+              {isLoggingIn ? 'Signing in…' : 'Sign In'}
             </button>
           </form>
 

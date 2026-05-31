@@ -7,6 +7,10 @@ import axiosInstance from '../../../api/axiosInstance';
 
 const CATEGORIES = ['Garbage', 'Illegal Construction', 'Broken Public Property', 'Road Damage'];
 
+// These are the only statuses in the real workflow
+const FILTER_STATUSES = ['pending', 'in-progress', 'working', 'resolved', 'closed', 'rejected'];
+
+// Keep legacy values here for display only (old DB docs may still have them)
 const STATUS_STYLES = {
   pending:       'bg-amber-100  text-amber-800  dark:bg-amber-900/40  dark:text-amber-300',
   open:          'bg-sky-100    text-sky-800    dark:bg-sky-900/40    dark:text-sky-300',
@@ -21,8 +25,9 @@ const STATUS_STYLES = {
 };
 
 const PRIORITY_STYLES = {
-  high:   'bg-red-100  text-red-700  dark:bg-red-900/40  dark:text-red-300',
-  normal: 'bg-gray-100 text-gray-600 dark:bg-gray-700    dark:text-gray-300',
+  low:    'bg-green-100  text-green-700  dark:bg-green-900/30  dark:text-green-400',
+  medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+  high:   'bg-red-100    text-red-700    dark:bg-red-900/40    dark:text-red-300',
 };
 
 const Badge = ({ value, map }) => {
@@ -202,9 +207,9 @@ const AdminAllIssues = () => {
           )}
         </div>
         {[
-          { value: statusFilter,   setter: setStatusFilter,   options: Object.keys(STATUS_STYLES), label: 'All Statuses' },
+          { value: statusFilter,   setter: setStatusFilter,   options: FILTER_STATUSES,              label: 'All Statuses' },
           { value: categoryFilter, setter: setCategoryFilter, options: CATEGORIES,                  label: 'All Categories' },
-          { value: priorityFilter, setter: setPriorityFilter, options: ['high', 'normal'],          label: 'All Priorities' },
+          { value: priorityFilter, setter: setPriorityFilter, options: ['low', 'medium', 'high'],   label: 'All Priorities' },
         ].map(({ value, setter, options, label }) => (
           <select
             key={label}

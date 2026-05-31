@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
-import { FiExternalLink, FiEdit2, FiTrash2, FiX } from 'react-icons/fi';
+import { FiExternalLink, FiEdit2, FiTrash2, FiX, FiZap } from 'react-icons/fi';
 import { AuthContext } from '../../../context/AuthContext';
 import axiosInstance from '../../../api/axiosInstance';
 
@@ -20,10 +20,12 @@ const STATUS_STYLES = {
 };
 
 const PRIORITY_STYLES = {
-  high:   'bg-red-100    text-red-700    dark:bg-red-900/30    dark:text-red-400',
-  medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-  low:    'bg-green-100  text-green-700  dark:bg-green-900/30  dark:text-green-400',
+  high:   'bg-red-100    text-red-600    dark:bg-red-900/40    dark:text-red-400',
+  medium: 'bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400',
+  low:    'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400',
 };
+
+const BOOST_PRICE = 99;
 
 const Badge = ({ value, map, fallback = '' }) => {
   if (!value) return fallback ? <span className="text-gray-400 text-xs">{fallback}</span> : null;
@@ -107,6 +109,79 @@ const EditModal = ({ issue, onClose, onSave, isPending }) => {
   );
 };
 
+const BoostModal = ({ issue, onClose, onBoost, isPending }) => {
+  const [paymentMethod, setPaymentMethod] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!paymentMethod) { toast.error('Select a payment method'); return; }
+    onBoost({ paymentMethod });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-xl">
+        <div className="flex justify-between items-center px-6 py-4 border-b dark:border-gray-700">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <FiZap className="text-amber-500" size={18} />
+            Boost This Issue
+          </h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+            <FiX size={20} />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+            <p className="text-xs text-amber-700 dark:text-amber-400 font-medium mb-1">Issue</p>
+            <p className="text-sm font-bold text-gray-900 dark:text-white line-clamp-2">{issue.title}</p>
+          </div>
+          <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Boost Fee</p>
+              <p className="text-2xl font-extrabold text-[#1a3a2a] dark:text-[#d4ff00]">kr {BOOST_PRICE}</p>
+            </div>
+            <div className="text-right text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
+              <p className="font-medium text-gray-700 dark:text-gray-300">Your issue gets:</p>
+              <p>• Priority set to High</p>
+              <p>• Pinned to top of All Issues</p>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Payment Method</label>
+            <select
+              value={paymentMethod}
+              onChange={e => setPaymentMethod(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-[#d4ff00]"
+            >
+              <option value="">Select method</option>
+              <option value="mobile-banking">Mobile Banking</option>
+              <option value="card">Card</option>
+              <option value="bank-transfer">Bank Transfer</option>
+            </select>
+          </div>
+          <div className="flex gap-3 pt-1">
+            <button
+              type="submit"
+              disabled={isPending}
+              className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              <FiZap size={15} />
+              {isPending ? 'Processing…' : `Pay kr ${BOOST_PRICE} & Boost`}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const CitizenMyIssues = () => {
   const { currentUser, dbUser } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -114,7 +189,9 @@ const CitizenMyIssues = () => {
 
   const [statusFilter,   setStatusFilter]   = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
   const [editingIssue,   setEditingIssue]   = useState(null);
+  const [boostingIssue,  setBoostingIssue]  = useState(null);
 
   const { data: issues = [], isLoading } = useQuery({
     queryKey: ['myIssues', currentUser?.email],
@@ -148,6 +225,23 @@ const CitizenMyIssues = () => {
     onError: (err) => toast.error(err.response?.data?.error || 'Delete failed'),
   });
 
+  const boostMutation = useMutation({
+    mutationFn: ({ issueId, issueTitle, paymentMethod }) =>
+      axiosInstance.post('/payments', {
+        amount: BOOST_PRICE,
+        type: 'boost',
+        issueId,
+        issueTitle,
+        paymentMethod,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['myIssues'] });
+      toast.success('Issue boosted! It will now appear at the top of All Issues.');
+      setBoostingIssue(null);
+    },
+    onError: (err) => toast.error(err.response?.data?.message || 'Boost failed'),
+  });
+
   const handleDelete = (issue) => {
     if (dbUser?.isBlocked) {
       toast.error('Your account is blocked. Contact admin.');
@@ -168,6 +262,7 @@ const CitizenMyIssues = () => {
   const filtered = issues.filter(i => {
     if (statusFilter   && i.status   !== statusFilter)   return false;
     if (categoryFilter && i.category !== categoryFilter) return false;
+    if (priorityFilter && i.priority !== priorityFilter) return false;
     return true;
   });
 
@@ -201,6 +296,16 @@ const CitizenMyIssues = () => {
           <option value="">All Categories</option>
           {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
+        <select
+          value={priorityFilter}
+          onChange={e => setPriorityFilter(e.target.value)}
+          className="px-3 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-white text-sm outline-none focus:ring-2 focus:ring-[#d4ff00]"
+        >
+          <option value="">All Priorities</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
       </div>
 
       {filtered.length === 0 ? (
@@ -220,6 +325,7 @@ const CitizenMyIssues = () => {
                   <th className="px-5 py-4">Status</th>
                   <th className="px-5 py-4">Priority</th>
                   <th className="px-5 py-4">Date</th>
+                  <th className="px-5 py-4">Boost</th>
                   <th className="px-5 py-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -239,6 +345,23 @@ const CitizenMyIssues = () => {
                     </td>
                     <td className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {new Date(issue.date).toLocaleDateString()}
+                    </td>
+                    <td className="px-5 py-4">
+                      {issue.isBoosted ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
+                          <FiZap size={11} />
+                          Boosted
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => setBoostingIssue(issue)}
+                          title="Boost this issue to the top"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800 dark:hover:bg-amber-900/40 transition"
+                        >
+                          <FiZap size={11} />
+                          Boost
+                        </button>
+                      )}
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex justify-end gap-2">
@@ -284,6 +407,21 @@ const CitizenMyIssues = () => {
           onClose={() => setEditingIssue(null)}
           onSave={(data) => updateMutation.mutate({ id: editingIssue._id, data })}
           isPending={updateMutation.isPending}
+        />
+      )}
+
+      {boostingIssue && (
+        <BoostModal
+          issue={boostingIssue}
+          onClose={() => setBoostingIssue(null)}
+          onBoost={({ paymentMethod }) =>
+            boostMutation.mutate({
+              issueId: boostingIssue._id,
+              issueTitle: boostingIssue.title,
+              paymentMethod,
+            })
+          }
+          isPending={boostMutation.isPending}
         />
       )}
     </div>

@@ -24,8 +24,9 @@ const STATUS_STYLES = {
 };
 
 const PRIORITY_STYLES = {
-  high:   'bg-red-100    text-red-700',
-  normal: 'bg-gray-100   text-gray-600',
+  low:    'bg-green-100  text-green-700  dark:bg-green-900/30  dark:text-green-400',
+  medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+  high:   'bg-red-100    text-red-700    dark:bg-red-900/30    dark:text-red-400',
 };
 
 const Badge = ({ value, map }) => {
@@ -144,8 +145,9 @@ const StaffAssignedIssues = () => {
           className="px-3 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-white text-sm outline-none focus:ring-2 focus:ring-[#d4ff00]"
         >
           <option value="">All Priorities</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
           <option value="high">High</option>
-          <option value="normal">Normal</option>
         </select>
       </div>
 

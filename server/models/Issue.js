@@ -53,4 +53,9 @@ const issueSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now }
 });
 
+// Normalize legacy priority values before validation
+issueSchema.pre('validate', function () {
+  if (this.priority === 'normal') this.priority = 'medium';
+});
+
 module.exports = mongoose.model('Issue', issueSchema);

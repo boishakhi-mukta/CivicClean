@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import axiosInstance from '../api/axiosInstance';
 import IssueCard from '../components/IssueCard';
 import { Fade } from 'react-awesome-reveal';
+
+const LIMIT = 6;
+
+function getPageNumbers(current, total) {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 4) return [1, 2, 3, 4, 5, '...', total];
+  if (current >= total - 3) return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+  return [1, '...', current - 1, current, current + 1, '...', total];
+}
 
 const AllIssuesPage = () => {
   const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     document.title = "CivicClean | All Issues";
@@ -18,18 +29,32 @@ const AllIssuesPage = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const { data: issues = [], isLoading } = useQuery({
-    queryKey: ['issues', category, debouncedSearch],
+  // Reset to page 1 whenever filters change
+  useEffect(() => {
+    setPage(1);
+  }, [category, debouncedSearch]);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['issues', category, debouncedSearch, page],
     queryFn: async () => {
-      const params = {};
+      const params = { page, limit: LIMIT };
       if (category) params.category = category;
       if (debouncedSearch) params.search = debouncedSearch;
       const res = await axiosInstance.get('/issues', { params });
-      return res.data.issues;
+      return res.data;
     },
+    keepPreviousData: true,
   });
 
+  const issues     = data?.issues     ?? [];
+  const total      = data?.total      ?? 0;
+  const totalPages = data?.totalPages ?? 1;
+
   const categories = ['Garbage', 'Illegal Construction', 'Broken Public Property', 'Road Damage'];
+  const pageNumbers = getPageNumbers(page, totalPages);
+
+  const firstItem = total === 0 ? 0 : (page - 1) * LIMIT + 1;
+  const lastItem  = Math.min(page * LIMIT, total);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
@@ -45,8 +70,6 @@ const AllIssuesPage = () => {
         {/* Filters Toolbar */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            {/* Search */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Search</label>
               <input
@@ -57,8 +80,6 @@ const AllIssuesPage = () => {
                 className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-[#d4ff00] focus:border-transparent outline-none transition-all dark:text-white"
               />
             </div>
-
-            {/* Category Filter */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Category</label>
               <select
@@ -88,13 +109,66 @@ const AllIssuesPage = () => {
             <p className="text-gray-500 dark:text-gray-400">Try adjusting your search or filters.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Fade cascade damping={0.05} triggerOnce>
-              {issues.map(issue => (
-                <IssueCard key={issue._id} issue={issue} />
-              ))}
-            </Fade>
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <Fade cascade damping={0.05} triggerOnce key={`${category}-${debouncedSearch}-${page}`}>
+                {issues.map(issue => (
+                  <IssueCard key={issue._id} issue={issue} />
+                ))}
+              </Fade>
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-10 flex flex-col items-center gap-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Showing <span className="font-semibold text-gray-700 dark:text-gray-200">{firstItem}–{lastItem}</span> of <span className="font-semibold text-gray-700 dark:text-gray-200">{total}</span> issues
+                </p>
+                <div className="flex items-center gap-1">
+
+                  {/* Prev */}
+                  <button
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  >
+                    <FiChevronLeft size={16} />
+                    Prev
+                  </button>
+
+                  {/* Page numbers */}
+                  {pageNumbers.map((p, idx) =>
+                    p === '...' ? (
+                      <span key={`ellipsis-${idx}`} className="px-3 py-2 text-sm text-gray-400 dark:text-gray-500 select-none">…</span>
+                    ) : (
+                      <button
+                        key={p}
+                        onClick={() => setPage(p)}
+                        className={`w-10 h-10 rounded-lg text-sm font-semibold transition
+                          ${p === page
+                            ? 'bg-[#1a3a2a] text-[#d4ff00] dark:bg-[#d4ff00] dark:text-[#1a3a2a] shadow-sm'
+                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+                          }`}
+                      >
+                        {p}
+                      </button>
+                    )
+                  )}
+
+                  {/* Next */}
+                  <button
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  >
+                    Next
+                    <FiChevronRight size={16} />
+                  </button>
+
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

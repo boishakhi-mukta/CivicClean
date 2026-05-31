@@ -190,14 +190,23 @@ const IssueDetailPage = () => {
   // ── Upvote ─────────────────────────────────────────────────────────────────
   const upvoteMutation = useMutation({
     mutationFn: () => axiosInstance.patch(`/issues/${id}/upvote`),
-    onSuccess:  () => {
-      queryClient.invalidateQueries({ queryKey: ['issue', id] });
+    onSuccess: (response) => {
+      const updated = response.data;
+      // Instant update — write server-confirmed data directly into cache
+      queryClient.setQueryData(['issue', id], updated);
+      // Keep issues list caches in sync too
+      queryClient.setQueriesData({ queryKey: ['issues'] }, (old) => {
+        if (!old) return old;
+        if (Array.isArray(old)) return old.map(i => i._id === updated._id ? updated : i);
+        if (old?.issues) return { ...old, issues: old.issues.map(i => i._id === updated._id ? updated : i) };
+        return old;
+      });
       toast.success('Upvoted!');
     },
-    onError:    (err) => toast.error(err.response?.data?.message || 'Could not upvote'),
+    onError: (err) => toast.error(err.response?.data?.message || 'Could not upvote'),
   });
 
-  const hasVoted   = issue?.upvotes?.includes(currentUser?.email);
+  const hasVoted   = Array.isArray(issue?.upvotes) && issue.upvotes.includes(currentUser?.email);
   const isOwnIssue = issue?.email === currentUser?.email;
 
   const handleUpvote = () => {
@@ -209,7 +218,7 @@ const IssueDetailPage = () => {
       toast.error('Your account is blocked. Contact admin.');
       return;
     }
-    if (isOwnIssue || hasVoted) return;
+    if (isOwnIssue || hasVoted || upvoteMutation.isPending) return;
     upvoteMutation.mutate();
   };
 
@@ -335,22 +344,6 @@ const IssueDetailPage = () => {
                       {issue.status || 'pending'}
                     </span>
 
-                    {/* Upvote */}
-                    <button
-                      onClick={handleUpvote}
-                      disabled={isOwnIssue || hasVoted || upvoteMutation.isPending}
-                      title={isOwnIssue ? 'Cannot upvote your own issue' : hasVoted ? 'Already upvoted' : 'Upvote'}
-                      className={`px-3 py-1 rounded-md text-sm font-bold shadow-sm flex items-center gap-1.5 transition-colors ${
-                        hasVoted
-                          ? 'bg-blue-600 text-white cursor-default'
-                          : isOwnIssue
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 hover:bg-blue-200'
-                      }`}
-                    >
-                      <FiThumbsUp size={14} /> {issue.upvoteCount || 0}
-                    </button>
-
                     {/* Boost */}
                     {showBoostBtn && (
                       <button
@@ -410,6 +403,41 @@ const IssueDetailPage = () => {
                   <div className="prose prose-lg dark:prose-invert max-w-none mb-8 text-gray-600 dark:text-gray-300">
                     <p className="whitespace-pre-wrap">{issue.description}</p>
                   </div>
+                </div>
+
+                {/* Upvote section */}
+                <div className="flex items-center gap-5 mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                  <button
+                    onClick={handleUpvote}
+                    disabled={isOwnIssue || hasVoted || upvoteMutation.isPending}
+                    title={
+                      !currentUser ? 'Login to upvote'
+                      : isOwnIssue  ? 'Cannot upvote your own issue'
+                      : hasVoted    ? 'Already upvoted'
+                                    : 'Upvote this issue'
+                    }
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all
+                      ${hasVoted
+                        ? 'bg-[#d4ff00] text-[#1a3a2a] cursor-default shadow-sm'
+                        : isOwnIssue
+                        ? 'bg-gray-100 dark:bg-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                        : 'bg-[#1a3a2a] text-[#d4ff00] hover:bg-[#2c5f45] shadow-sm'
+                      } disabled:opacity-60`}
+                  >
+                    <FiThumbsUp size={16} />
+                    {hasVoted ? 'Upvoted' : 'Upvote'}
+                  </button>
+                  <div>
+                    <p className="text-2xl font-extrabold text-gray-900 dark:text-white leading-none">
+                      {issue.upvoteCount ?? 0}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">community votes</p>
+                  </div>
+                  {!currentUser && (
+                    <p className="text-xs text-gray-400 dark:text-gray-500 ml-auto">
+                      <button onClick={handleUpvote} className="underline text-[#1a3a2a] dark:text-[#d4ff00]">Login</button> to upvote
+                    </p>
+                  )}
                 </div>
 
                 {/* Budget section */}

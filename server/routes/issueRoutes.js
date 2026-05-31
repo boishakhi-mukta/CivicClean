@@ -233,21 +233,25 @@ router.patch('/:id/assign', verifyToken, verifyAdmin, async (req, res) => {
     const issue = await Issue.findById(req.params.id);
     if (!issue) return res.status(404).json({ error: 'Issue not found' });
 
-    if (issue.assignedStaff && issue.assignedStaff.staffId) {
+    if (issue.assignedStaff?.staffId) {
       return res.status(400).json({ message: 'Staff already assigned' });
     }
 
-    issue.assignedStaff = { staffId, staffName, staffEmail };
-    issue.timeline.push({
+    const timelineEntry = {
       message:   `Issue assigned to Staff: ${staffName}`,
       updatedBy: req.user.email,
       role:      'admin',
       status:    issue.status,
       createdAt: new Date()
-    });
+    };
 
-    await issue.save();
-    res.json(issue);
+    const updated = await Issue.findByIdAndUpdate(
+      req.params.id,
+      { $set: { assignedStaff: { staffId, staffName, staffEmail } }, $push: { timeline: timelineEntry } },
+      { new: true }
+    );
+
+    res.json(updated);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -265,17 +269,21 @@ router.patch('/:id/status', verifyToken, verifyStaff, async (req, res) => {
     const issue = await Issue.findById(req.params.id);
     if (!issue) return res.status(404).json({ error: 'Issue not found' });
 
-    issue.status = status;
-    issue.timeline.push({
+    const timelineEntry = {
       message:   message || `Status updated to ${status}`,
       updatedBy: req.user.email,
       role:      'staff',
       status,
       createdAt: new Date()
-    });
+    };
 
-    await issue.save();
-    res.json(issue);
+    const updated = await Issue.findByIdAndUpdate(
+      req.params.id,
+      { $set: { status }, $push: { timeline: timelineEntry } },
+      { new: true }
+    );
+
+    res.json(updated);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -289,18 +297,21 @@ router.patch('/:id/reject', verifyToken, verifyAdmin, async (req, res) => {
     const issue = await Issue.findById(req.params.id);
     if (!issue) return res.status(404).json({ error: 'Issue not found' });
 
-    issue.status         = 'rejected';
-    issue.rejectedReason = reason;
-    issue.timeline.push({
+    const timelineEntry = {
       message:   `Issue rejected by admin. Reason: ${reason}`,
       updatedBy: req.user.email,
       role:      'admin',
       status:    'rejected',
       createdAt: new Date()
-    });
+    };
 
-    await issue.save();
-    res.json(issue);
+    const updated = await Issue.findByIdAndUpdate(
+      req.params.id,
+      { $set: { status: 'rejected', rejectedReason: reason }, $push: { timeline: timelineEntry } },
+      { new: true }
+    );
+
+    res.json(updated);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
