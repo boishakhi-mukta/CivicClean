@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { FiMapPin, FiThumbsUp } from 'react-icons/fi';
+import { FiMapPin, FiThumbsUp, FiZap } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { AuthContext } from '../context/AuthContext';
 import axiosInstance from '../api/axiosInstance';
@@ -99,6 +99,14 @@ const IssueCard = ({ issue }) => {
         {issue.category && (
           <span className={`absolute bottom-3 left-3 px-2 py-0.5 rounded text-[11px] font-semibold shadow-sm ${CATEGORY_STYLES[issue.category] || 'bg-blue-500 text-white'}`}>
             {issue.category}
+          </span>
+        )}
+
+        {/* Boosted — bottom right */}
+        {issue.isBoosted && (
+          <span className="absolute bottom-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-amber-400 text-amber-900 shadow-sm">
+            <FiZap size={10} />
+            Boosted
           </span>
         )}
       </div>

@@ -151,8 +151,19 @@ const AdminOverview = () => {
                   cx="50%"
                   cy="45%"
                   outerRadius={75}
-                  label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
-                  labelLine={true}
+                  label={({ cx, cy, midAngle, outerRadius, percent }) => {
+                    if (percent < 0.05) return null;
+                    const RADIAN = Math.PI / 180;
+                    const r = outerRadius + 22;
+                    const x = cx + r * Math.cos(-midAngle * RADIAN);
+                    const y = cy + r * Math.sin(-midAngle * RADIAN);
+                    return (
+                      <text x={x} y={y} fill="#d1d5db" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11} fontWeight={600}>
+                        {`${(percent * 100).toFixed(0)}%`}
+                      </text>
+                    );
+                  }}
+                  labelLine={{ stroke: '#6b7280', strokeWidth: 1 }}
                 >
                   {pieData.map(entry => (
                     <Cell key={entry.name} fill={STATUS_COLORS[entry.name?.toLowerCase()] || '#94a3b8'} />

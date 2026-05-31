@@ -16,6 +16,7 @@ function getPageNumbers(current, total) {
 
 const AllIssuesPage = () => {
   const [category, setCategory] = useState('');
+  const [status,   setStatus]   = useState('');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -32,13 +33,14 @@ const AllIssuesPage = () => {
   // Reset to page 1 whenever filters change
   useEffect(() => {
     setPage(1);
-  }, [category, debouncedSearch]);
+  }, [category, status, debouncedSearch]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['issues', category, debouncedSearch, page],
+    queryKey: ['issues', category, status, debouncedSearch, page],
     queryFn: async () => {
       const params = { page, limit: LIMIT };
       if (category) params.category = category;
+      if (status)   params.status   = status;
       if (debouncedSearch) params.search = debouncedSearch;
       const res = await axiosInstance.get('/issues', { params });
       return res.data;
@@ -69,7 +71,7 @@ const AllIssuesPage = () => {
 
         {/* Filters Toolbar */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Search</label>
               <input
@@ -91,6 +93,22 @@ const AllIssuesPage = () => {
                 {categories.map(c => (
                   <option key={c} value={c}>{c}</option>
                 ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Status</label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-[#d4ff00] focus:border-transparent outline-none transition-all dark:text-white"
+              >
+                <option value="">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="in-progress">In Progress</option>
+                <option value="working">Working</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
+                <option value="rejected">Rejected</option>
               </select>
             </div>
           </div>
