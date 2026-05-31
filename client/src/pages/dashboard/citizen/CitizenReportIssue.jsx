@@ -8,6 +8,7 @@ import axiosInstance from '../../../api/axiosInstance';
 import PhotoUploader from '../../../components/PhotoUploader';
 
 const CATEGORIES = ['Garbage', 'Illegal Construction', 'Broken Public Property', 'Road Damage'];
+const PRIORITIES = ['low', 'medium', 'high'];
 
 const Field = ({ label, required, error, children }) => (
   <div>
@@ -128,6 +129,18 @@ const CitizenReportIssue = () => {
             >
               <option value="">Select a category</option>
               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </Field>
+
+          <Field label="Priority" required error={errors.priority?.message}>
+            <select
+              {...register('priority', { required: 'Priority is required' })}
+              className={inputClass}
+            >
+              <option value="">Select priority</option>
+              {PRIORITIES.map(p => (
+                <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>
+              ))}
             </select>
           </Field>
 

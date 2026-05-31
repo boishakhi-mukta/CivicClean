@@ -1,26 +1,31 @@
-import React, { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { FcGoogle } from 'react-icons/fc';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 const LoginPage = () => {
   const { loginWithEmail, loginWithGoogle } = useContext(AuthContext);
   const navigate = useNavigate();
-  const destination = '/dashboard';
+  const location = useLocation();
+
+  // Redirect back to where the user came from, or fall through to role-based redirect
+  const from = location.state?.from?.pathname || '/dashboard';
 
   useEffect(() => {
     document.title = "CivicClean | Login";
   }, []);
 
+  const [showPassword, setShowPassword] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = async (data) => {
     try {
       await loginWithEmail(data.email, data.password);
       toast.success('Successfully logged in!');
-      navigate(destination, { replace: true });
+      navigate(from, { replace: true });
     } catch (error) {
       toast.error(error.message || 'Failed to login. Please check your credentials.');
     }
@@ -30,7 +35,7 @@ const LoginPage = () => {
     try {
       await loginWithGoogle();
       toast.success('Successfully logged in with Google!');
-      navigate(destination, { replace: true });
+      navigate(from, { replace: true });
     } catch (error) {
       toast.error(error.message || 'Failed to login with Google.');
     }
@@ -67,12 +72,21 @@ const LoginPage = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-              <input
-                type="password"
-                {...register("password", { required: "Password is required" })}
-                className="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-[#1a3a2a] focus:border-[#1a3a2a] dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors"
-                placeholder="••••••••"
-              />
+              <div className="relative mt-1">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  {...register("password", { required: "Password is required" })}
+                  className="block w-full px-4 py-3 pr-11 bg-gray-50 border border-gray-200 rounded-lg focus:ring-[#1a3a2a] focus:border-[#1a3a2a] dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                >
+                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </button>
+              </div>
               {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>}
             </div>
 

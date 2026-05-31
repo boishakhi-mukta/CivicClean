@@ -36,4 +36,10 @@ const userSchema = new mongoose.Schema({
   }
 });
 
+// Normalize legacy role values (e.g. 'User' → 'citizen') before validation
+userSchema.pre('validate', function () {
+  const ROLE_MAP = { User: 'citizen', user: 'citizen', Admin: 'admin', Staff: 'staff' };
+  if (this.role && ROLE_MAP[this.role]) this.role = ROLE_MAP[this.role];
+});
+
 module.exports = mongoose.model('User', userSchema);

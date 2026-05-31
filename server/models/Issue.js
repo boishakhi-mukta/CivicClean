@@ -30,8 +30,8 @@ const issueSchema = new mongoose.Schema({
   },
   priority: {
     type: String,
-    enum: ['normal', 'high'],
-    default: 'normal'
+    enum: ['low', 'medium', 'high'],
+    default: 'medium'
   },
   isBoosted: {
     type: Boolean,

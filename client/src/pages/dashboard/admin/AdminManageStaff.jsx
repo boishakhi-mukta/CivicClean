@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
-import { FiPlus, FiEdit2, FiTrash2, FiX, FiAlertCircle } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiX, FiAlertCircle, FiEye, FiEyeOff } from 'react-icons/fi';
 import axiosInstance from '../../../api/axiosInstance';
 import PhotoUploader from '../../../components/PhotoUploader';
 
@@ -12,6 +12,7 @@ const inputClass =
 
 const StaffFormModal = ({ title, defaultValues, onClose, onSubmit, isPending }) => {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm({ defaultValues });
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -49,15 +50,24 @@ const StaffFormModal = ({ title, defaultValues, onClose, onSubmit, isPending }) 
               <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
                 Password <span className="text-red-500">*</span>
               </label>
-              <input
-                {...register('password', {
-                  required: 'Required',
-                  minLength: { value: 6, message: 'Min 6 characters' },
-                })}
-                type="password"
-                className={inputClass}
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  {...register('password', {
+                    required: 'Required',
+                    minLength: { value: 6, message: 'Min 6 characters' },
+                  })}
+                  type={showPassword ? 'text' : 'password'}
+                  className={`${inputClass} pr-10`}
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                >
+                  {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                </button>
+              </div>
               {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
             </div>
           )}

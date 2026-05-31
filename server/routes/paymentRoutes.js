@@ -63,6 +63,9 @@ router.post('/', verifyToken, async (req, res) => {
       if (!issue) {
         return res.status(404).json({ message: 'Issue not found for boost' });
       }
+      if (issue.isBoosted) {
+        return res.status(409).json({ message: 'This issue is already boosted.' });
+      }
     }
 
     if (type === 'subscription') {
@@ -102,8 +105,7 @@ router.post('/', verifyToken, async (req, res) => {
     }
 
     if (type === 'subscription') {
-      user.isPremium = true;
-      await user.save();
+      await User.findByIdAndUpdate(user._id, { $set: { isPremium: true, role: 'citizen' } });
     }
 
     res.status(201).json({ success: true, payment, transactionId });

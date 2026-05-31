@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosInstance';
@@ -19,7 +19,7 @@ const HomePage = () => {
       emoji: "🗑️",
       subtitle: "See a pile of trash? Don't ignore it. Report it instantly and help us maintain a clean city.",
       ctaText: "Report Now",
-      ctaLink: "/add-issue",
+      ctaLink: "/dashboard/citizen/report-issue",
       bgImage: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&q=80"
     },
     {
@@ -393,7 +393,7 @@ const HomePage = () => {
                 </Link>
               </div>
             ) : (
-              <Link to="/add-issue" className="inline-block px-10 py-5 bg-[#d4ff00] text-[#1a3a2a] font-bold rounded-lg hover:bg-[#bce600] transition shadow-lg text-xl transform hover:-translate-y-1">
+              <Link to="/dashboard/citizen/report-issue" className="inline-block px-10 py-5 bg-[#d4ff00] text-[#1a3a2a] font-bold rounded-lg hover:bg-[#bce600] transition shadow-lg text-xl transform hover:-translate-y-1">
                 Report an Issue Now
               </Link>
             )}

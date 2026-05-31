@@ -52,11 +52,10 @@ const Navbar = () => {
             <NavLink to="/" className={navLinkClass}>Home</NavLink>
             <NavLink to="/all-issues" className={navLinkClass}>All Issues</NavLink>
             <NavLink to="/map" className={navLinkClass}>Map</NavLink>
-            {currentUser && (
+            {currentUser && (!dbUser?.role || dbUser?.role === 'citizen') && (
               <>
-                <NavLink to="/add-issue" className={navLinkClass}>Add Issue</NavLink>
-                <NavLink to="/my-issues" className={navLinkClass}>My Issues</NavLink>
-                <NavLink to="/my-contributions" className={navLinkClass}>Donations</NavLink>
+                <NavLink to="/dashboard/citizen/report-issue" className={navLinkClass}>Report Issue</NavLink>
+                <NavLink to="/dashboard/citizen/my-issues" className={navLinkClass}>My Issues</NavLink>
               </>
             )}
           </div>
@@ -171,11 +170,10 @@ const Navbar = () => {
             <NavLink to="/" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Home</NavLink>
             <NavLink to="/all-issues" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>All Issues</NavLink>
             <NavLink to="/map" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Map</NavLink>
-            {currentUser && (
+            {currentUser && (!dbUser?.role || dbUser?.role === 'citizen') && (
               <>
-                <NavLink to="/add-issue" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Add Issue</NavLink>
-                <NavLink to="/my-issues" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>My Issues</NavLink>
-                <NavLink to="/my-contributions" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Donations</NavLink>
+                <NavLink to="/dashboard/citizen/report-issue" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>Report Issue</NavLink>
+                <NavLink to="/dashboard/citizen/my-issues" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5" onClick={() => setIsMenuOpen(false)}>My Issues</NavLink>
                 <Link
                   to={getDashboardPath()}
                   className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#d4ff00] hover:bg-white/5"

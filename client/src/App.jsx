@@ -8,13 +8,8 @@ import AllIssuesPage from './pages/AllIssuesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import IssueDetailPage from './pages/IssueDetailPage';
-import AddIssuePage from './pages/AddIssuePage';
-import MyIssuesPage from './pages/MyIssuesPage';
-import MyContributionPage from './pages/MyContributionPage';
 import NotFoundPage from './pages/NotFoundPage';
-import DashboardPage from './pages/DashboardPage';
 import MapPage from './pages/MapPage';
-import ProfilePage from './pages/ProfilePage';
 
 // Pages — admin dashboard
 import AdminDashboardLayout from './pages/dashboard/admin/layout/AdminDashboardLayout';
@@ -54,8 +49,9 @@ import ScrollToTop from './components/ScrollToTop';
 
 // Redirects /dashboard to the correct role-specific dashboard
 const RoleDashboardRedirect = () => {
-  const { dbUser, loading } = useContext(AuthContext);
-  if (loading) return <LoadingSpinner />;
+  const { currentUser, dbUser, loading } = useContext(AuthContext);
+  // Wait if auth is loading OR if user is authenticated but dbUser hasn't synced yet
+  if (loading || (currentUser && !dbUser)) return <LoadingSpinner />;
   if (dbUser?.role === 'admin') return <Navigate to="/dashboard/admin" replace />;
   if (dbUser?.role === 'staff') return <Navigate to="/dashboard/staff" replace />;
   return <Navigate to="/dashboard/citizen" replace />;
@@ -79,17 +75,14 @@ const AppShell = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* Private Routes */}
-          <Route path="/add-issue" element={<PrivateRoute><AddIssuePage /></PrivateRoute>} />
-          <Route path="/my-issues" element={<PrivateRoute><MyIssuesPage /></PrivateRoute>} />
-          <Route path="/my-contributions" element={<PrivateRoute><MyContributionPage /></PrivateRoute>} />
-          <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+          {/* Legacy redirects → new citizen dashboard equivalents */}
+          <Route path="/add-issue"        element={<Navigate to="/dashboard/citizen/report-issue" replace />} />
+          <Route path="/my-issues"        element={<Navigate to="/dashboard/citizen/my-issues"    replace />} />
+          <Route path="/profile"          element={<Navigate to="/dashboard/citizen/profile"      replace />} />
+          <Route path="/my-contributions" element={<Navigate to="/dashboard/citizen"              replace />} />
 
           {/* /dashboard → role-based redirect */}
           <Route path="/dashboard" element={<PrivateRoute><RoleDashboardRedirect /></PrivateRoute>} />
-
-          {/* Legacy dashboard page kept accessible */}
-          <Route path="/dashboard/legacy" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
 
           {/* Admin Dashboard Routes — nested under shared layout */}
           <Route path="/dashboard/admin" element={<AdminRoute><AdminDashboardLayout /></AdminRoute>}>

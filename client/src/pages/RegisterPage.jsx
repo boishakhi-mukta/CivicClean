@@ -1,16 +1,18 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import { FcGoogle } from 'react-icons/fc';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import PhotoUploader from '../components/PhotoUploader';
 
 const RegisterPage = () => {
   const { registerWithEmail, loginWithGoogle } = useContext(AuthContext);
   const navigate = useNavigate();
   const [photoFile, setPhotoFile] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     document.title = "CivicClean | Register";
@@ -27,7 +29,7 @@ const RegisterPage = () => {
         icon: 'success',
         confirmButtonColor: '#1a3a2a',
       });
-      navigate('/dashboard', { replace: true });
+      navigate('/dashboard/citizen', { replace: true });
     } catch (error) {
       toast.error(error.message || 'Failed to register. Please try again.');
     }
@@ -42,7 +44,7 @@ const RegisterPage = () => {
         icon: 'success',
         confirmButtonColor: '#1a3a2a',
       });
-      navigate('/dashboard', { replace: true });
+      navigate('/dashboard/citizen', { replace: true });
     } catch (error) {
       toast.error(error.message || 'Failed to register with Google.');
     }
@@ -105,19 +107,28 @@ const RegisterPage = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-              <input
-                type="password"
-                {...register("password", { 
-                  required: "Password is required",
-                  minLength: { value: 6, message: "Password must be at least 6 characters" },
-                  pattern: {
-                    value: /^(?=.*[a-z])(?=.*[A-Z])/,
-                    message: "Password must contain at least one uppercase and one lowercase letter"
-                  }
-                })}
-                className="mt-1 block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-[#1a3a2a] focus:border-[#1a3a2a] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                placeholder="••••••••"
-              />
+              <div className="relative mt-1">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  {...register("password", {
+                    required: "Password is required",
+                    minLength: { value: 6, message: "Password must be at least 6 characters" },
+                    pattern: {
+                      value: /^(?=.*[a-z])(?=.*[A-Z])/,
+                      message: "Password must contain at least one uppercase and one lowercase letter"
+                    }
+                  })}
+                  className="block w-full px-4 py-3 pr-11 bg-gray-50 border border-gray-200 rounded-lg focus:ring-[#1a3a2a] focus:border-[#1a3a2a] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                >
+                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </button>
+              </div>
               {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>}
               
               <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600 text-xs text-gray-500 dark:text-gray-400">

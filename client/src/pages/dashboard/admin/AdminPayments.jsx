@@ -5,8 +5,14 @@ import { FiDownload } from 'react-icons/fi';
 import axiosInstance from '../../../api/axiosInstance';
 
 const TYPE_STYLES = {
-  boost:        'bg-amber-100  text-amber-800',
-  subscription: 'bg-purple-100 text-purple-800',
+  boost:        'bg-amber-100  text-amber-800  dark:bg-amber-900/40  dark:text-amber-300',
+  subscription: 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300',
+};
+
+const METHOD_LABELS = {
+  'mobile-banking': 'Mobile Banking',
+  'card':           'Card',
+  'bank-transfer':  'Bank Transfer',
 };
 
 const AdminPayments = () => {
@@ -107,6 +113,7 @@ const AdminPayments = () => {
                   <th className="px-5 py-4">User</th>
                   <th className="px-5 py-4">Type</th>
                   <th className="px-5 py-4">Amount</th>
+                  <th className="px-5 py-4">Method</th>
                   <th className="px-5 py-4">Issue</th>
                   <th className="px-5 py-4">Date</th>
                   <th className="px-5 py-4">Transaction ID</th>
@@ -126,6 +133,9 @@ const AdminPayments = () => {
                       </span>
                     </td>
                     <td className="px-5 py-4 text-sm font-bold text-gray-900 dark:text-white">kr{p.amount}</td>
+                    <td className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
+                      {METHOD_LABELS[p.paymentMethod] || '—'}
+                    </td>
                     <td className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-[140px] truncate">
                       {p.issueTitle || '—'}
                     </td>

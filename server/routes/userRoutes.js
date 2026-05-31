@@ -180,9 +180,12 @@ router.patch('/:id/block', verifyToken, verifyAdmin, async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    user.isBlocked = !user.isBlocked;
-    await user.save();
-    res.json(user);
+    const updated = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: { isBlocked: !user.isBlocked } },
+      { new: true }
+    );
+    res.json(updated);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

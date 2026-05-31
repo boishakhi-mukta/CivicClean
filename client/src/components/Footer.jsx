@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaXTwitter, FaFacebookF, FaInstagram, FaLinkedinIn } from 'react-icons/fa6';
 
@@ -27,7 +26,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li><Link to="/" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Home</Link></li>
               <li><Link to="/all-issues" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">All Issues</Link></li>
-              <li><Link to="/add-issue" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Report an Issue</Link></li>
+              <li><Link to="/dashboard/citizen/report-issue" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Report an Issue</Link></li>
               <li><Link to="/map" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Map</Link></li>
             </ul>
           </div>

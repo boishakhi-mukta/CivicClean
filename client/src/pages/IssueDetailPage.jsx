@@ -86,26 +86,60 @@ const EditModal = ({ issue, onClose, onSave, isPending }) => {
   );
 };
 
+const PAYMENT_METHODS = [
+  { value: 'mobile-banking', label: 'Mobile Banking' },
+  { value: 'card',           label: 'Card' },
+  { value: 'bank-transfer',  label: 'Bank Transfer' },
+];
+
 // ── Boost Modal ───────────────────────────────────────────────────────────────
-const BoostModal = ({ issue, onClose, onConfirm, isPending }) => (
+const BoostModal = ({ issue, onClose, onConfirm, isPending, paymentMethod, onPaymentMethodChange }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
     <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-sm shadow-xl p-8">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-bold text-gray-900 dark:text-white">Boost Priority</h3>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+        <button onClick={onClose} disabled={isPending} className="text-gray-400 hover:text-gray-600 disabled:opacity-50">
           <FiX size={20} />
         </button>
       </div>
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <FiZap className="mx-auto text-amber-400 mb-3" size={44} />
         <p className="text-3xl font-black text-gray-900 dark:text-white mb-1">100 kr</p>
         <p className="text-sm text-gray-500 dark:text-gray-400">
           One-time payment · Boosts your issue to High Priority
         </p>
-        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-3 truncate">
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-2 truncate">
           "{issue.title}"
         </p>
       </div>
+
+      <div className="mb-6">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Payment Method</p>
+        <div className="grid gap-2">
+          {PAYMENT_METHODS.map(method => (
+            <label
+              key={method.value}
+              className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 cursor-pointer transition ${
+                paymentMethod === method.value
+                  ? 'border-[#1a3a2a] bg-[#d4ff00]/20 dark:border-[#d4ff00]'
+                  : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/60'
+              }`}
+            >
+              <input
+                type="radio"
+                name="boostPaymentMethod"
+                value={method.value}
+                checked={paymentMethod === method.value}
+                onChange={e => onPaymentMethodChange(e.target.value)}
+                disabled={isPending}
+                className="accent-[#1a3a2a]"
+              />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{method.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
       <div className="flex gap-3">
         <button
           onClick={onConfirm}
@@ -116,7 +150,8 @@ const BoostModal = ({ issue, onClose, onConfirm, isPending }) => (
         </button>
         <button
           onClick={onClose}
-          className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition"
+          disabled={isPending}
+          className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition disabled:opacity-50"
         >
           Cancel
         </button>
@@ -132,9 +167,10 @@ const IssueDetailPage = () => {
   const queryClient   = useQueryClient();
   const { currentUser, dbUser } = useContext(AuthContext);
 
-  const [isModalOpen,    setIsModalOpen]    = useState(false);
-  const [showEditModal,  setShowEditModal]  = useState(false);
-  const [showBoostModal, setShowBoostModal] = useState(false);
+  const [isModalOpen,       setIsModalOpen]       = useState(false);
+  const [showEditModal,     setShowEditModal]     = useState(false);
+  const [showBoostModal,    setShowBoostModal]    = useState(false);
+  const [boostPaymentMethod, setBoostPaymentMethod] = useState('mobile-banking');
 
   // TanStack Query for the issue
   const { data: issue, isLoading } = useQuery({
@@ -182,10 +218,13 @@ const IssueDetailPage = () => {
     mutationFn: () =>
       axiosInstance.post('/payments', {
         type: 'boost', amount: 100, issueId: id, issueTitle: issue.title,
+        paymentMethod: boostPaymentMethod,
       }),
     onSuccess: async () => {
       setShowBoostModal(false);
+      setBoostPaymentMethod('mobile-banking');
       queryClient.invalidateQueries({ queryKey: ['issue', id] });
+      queryClient.invalidateQueries({ queryKey: ['adminPayments'] });
       await Swal.fire({
         icon: 'success',
         title: 'Issue Boosted!',
@@ -484,9 +523,11 @@ const IssueDetailPage = () => {
       {showBoostModal && (
         <BoostModal
           issue={issue}
-          onClose={() => setShowBoostModal(false)}
+          onClose={() => !boostMutation.isPending && setShowBoostModal(false)}
           onConfirm={() => boostMutation.mutate()}
           isPending={boostMutation.isPending}
+          paymentMethod={boostPaymentMethod}
+          onPaymentMethodChange={setBoostPaymentMethod}
         />
       )}
     </div>
