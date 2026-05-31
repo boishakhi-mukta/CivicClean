@@ -13,7 +13,7 @@ CivicClean is a full-stack civic issue reporting and management platform. Citize
 |---------|------------------------|-------------|
 | Admin   | admin@civicclean.com   | Admin@123   |
 | Staff   | staff@civicclean.com   | Staff@123   |
-| Citizen | citizen@civicclean.com | Citizen@123 |
+| Citizen | create account | |
 
 > Citizen accounts can also be created via `/register` or Google Sign-In. Admin and staff accounts are pre-seeded.
 
