@@ -1,64 +1,92 @@
 # CivicClean
 
-**CivicClean** is a full-stack civic issue reporting and management platform that empowers citizens to report local problems, track resolutions, and support clean-up efforts through community contributions.
+CivicClean is a full-stack civic issue reporting and management platform. Citizens report local problems, staff resolve them, and admins oversee the entire workflow — all through role-based dashboards.
 
-**Live site:** https://civic-clean-oslo.netlify.app/
+**Live site:** https://civic-clean-oslo.netlify.app/  
 **Backend API:** https://civic-clean-olive.vercel.app
 
 ---
 
 ## Test Credentials
 
-| Role    | Email                      | Password    |
-|---------|----------------------------|-------------|
-| Admin   | admin@civicclean.com       | Admin@123   |
-| Staff   | staff@civicclean.com       | Staff@123   |
-| Citizen | citizen@civicclean.com     | Citizen@123 |
+| Role    | Email                  | Password    |
+|---------|------------------------|-------------|
+| Admin   | admin@civicclean.com   | Admin@123   |
+| Staff   | staff@civicclean.com   | Staff@123   |
+| Citizen | citizen@civicclean.com | Citizen@123 |
 
-> Create the citizen account via the `/register` page (or Sign in with Google). The admin and staff accounts are pre-seeded.
+> Citizen accounts can also be created via `/register` or Google Sign-In. Admin and staff accounts are pre-seeded.
 
 ---
 
 ## Features
 
-- **Role-based dashboards** for Citizens, Staff, and Admins — each with a dedicated sidebar layout and protected routes that redirect on unauthorized access.
-- **Issue reporting** — Citizens submit civic issues (garbage, road damage, illegal construction, broken public property) with title, category, location, description, and an optional image URL.
-- **Staff workflow** — Staff advance issue status in one direction only: pending → in-progress → working → resolved → closed, with a confirmation modal at each step.
-- **Admin controls** — Admins assign staff to issues, reject issues with a reason, block/unblock citizen accounts, and view all platform payments with PDF invoice download.
-- **Upvoting and Priority Boost** — Citizens can upvote issues they care about (own-issue guard enforced); issue owners can pay ৳100 to boost their issue to High Priority via a payment modal.
-- **Premium subscription** — Citizens can pay ৳1,000 for unlimited issue reporting; free accounts are capped at 3 submissions.
-- **Issue timeline** — Every status change, staff assignment, and admin action is recorded in a chronological timeline displayed on the issue detail page.
-- **Contribution funding** — Any logged-in user can contribute NOK amounts toward an issue's clean-up budget; a live progress bar tracks funding vs. the suggested budget.
-- **Interactive issue map** — All reported issues are plotted on a Leaflet map with popups linking to the detail page.
-- **Community leaderboard** — Top contributors ranked by earned points, with PDF receipt download for payment history and contribution records.
+### Citizen
+- **Report issues** — Submit civic problems (Garbage, Road Damage, Illegal Construction, Broken Public Property) with title, category, priority (Low / Medium / High), location, description, and an optional photo.
+- **Free account limit** — Free accounts are capped at 3 issue submissions. Upgrade to Premium (kr 1,000) for unlimited reporting.
+- **My Issues dashboard** — View, edit (pending-only), and delete your own issues in a filterable table. Priority badges use colour-coded labels (red / orange / green).
+- **Boost an issue** — Pay kr 99 to pin your issue to the top of the All Issues page and upgrade its priority to High. A payment modal lets you choose the payment method.
+- **Upvote** — Upvote any issue you didn't report to signal community importance. Each user can upvote an issue once; the count is updated instantly without a page reload.
+- **Issue detail page** — View the full description, photo, timeline of every status change, upvote count, and a community funding progress bar.
+- **Contribution funding** — Contribute any NOK amount toward an issue's suggested clean-up budget. A live progress bar shows funding vs. target.
+
+### Staff
+- **Assigned Issues dashboard** — See only the issues assigned to you, filterable by status and priority.
+- **Advance status** — Move issues through the workflow: `pending → in-progress → working → resolved`, with a note on each transition.
+
+### Admin
+- **All Issues** — Browse every issue with search, category, status, and priority filters. Assign issues to staff or reject them with a reason.
+- **Manage Users** — View all citizens; block or unblock accounts.
+- **Manage Staff** — View staff members; block or unblock staff accounts.
+- **Payments** — View all boost and subscription payments in a table; download individual PDF invoices.
+- **Overview dashboard** — Stat cards (total issues, resolved, pending, rejected, total revenue), revenue-by-month bar chart, issues-by-status pie chart, and mini tables for latest issues, payments, and users.
+
+### Public
+- **All Issues page** — Paginated grid (6 per page) of all reported issues. Boosted issues always appear first. Filter by search text, category, or status. Each card shows the issue image, title, location, category tag, status badge, priority badge, and upvote count.
+- **Interactive map** — All issues plotted on a Leaflet map with popups linking to the detail page.
+- **Leaderboard** — Top contributors ranked by points earned from donations.
+
+---
+
+## Issue Workflow
+
+```
+pending  →  in-progress  →  working  →  resolved
+                                    ↘
+                              rejected  (admin only, at any stage)
+```
 
 ---
 
 ## Tech Stack
 
 ### Client
-
-- React + React Router v6
-- Tailwind CSS
-- TanStack Query v5 (all data fetching)
-- Firebase Authentication + Firebase Storage
-- Recharts (dashboard charts)
-- Leaflet / React Leaflet (issue map)
-- jsPDF + jsPDF AutoTable (PDF generation)
-- React Hook Form + SweetAlert2 + React Hot Toast
+| Library | Purpose |
+|---------|---------|
+| React 18 + React Router v6 | UI and routing |
+| Tailwind CSS | Styling |
+| TanStack Query v5 | Data fetching, caching, and mutations |
+| Firebase Auth + Firebase Storage | Authentication and photo uploads |
+| Recharts | Bar chart and pie chart on admin overview |
+| Leaflet / React Leaflet | Interactive issue map |
+| React Hook Form | Form handling and validation |
+| jsPDF + jsPDF-AutoTable | PDF invoice generation |
+| SweetAlert2 + React Hot Toast | Modals and notifications |
 
 ### Server
-
-- Node.js + Express
-- MongoDB + Mongoose
-- Firebase Admin SDK (JWT verification)
-- dotenv / CORS
+| Library | Purpose |
+|---------|---------|
+| Node.js + Express | REST API |
+| MongoDB + Mongoose | Database and schemas |
+| Firebase Admin SDK | Firebase JWT verification |
+| dotenv + CORS | Config and cross-origin requests |
 
 ### Deployment
-
-- Client: Netlify
-- Server: Vercel
-- Database: MongoDB Atlas
+| Part | Platform |
+|------|----------|
+| Client | Netlify |
+| Server | Vercel |
+| Database | MongoDB Atlas |
 
 ---
 
@@ -66,46 +94,53 @@
 
 ```
 CivicClean/
-├── client/          # React frontend
+├── client/
 │   └── src/
-│       ├── api/           # axiosInstance
-│       ├── components/    # Shared UI (Navbar, IssueCard, PhotoUploader, IssueTimeline…)
-│       ├── context/       # AuthContext, ThemeContext
+│       ├── api/              # axiosInstance
+│       ├── components/       # Navbar, IssueCard, IssueTimeline, PhotoUploader…
+│       ├── context/          # AuthContext, ThemeContext
 │       ├── pages/
+│       │   ├── AllIssuesPage.jsx
+│       │   ├── IssueDetailPage.jsx
+│       │   ├── LoginPage.jsx
+│       │   ├── RegisterPage.jsx
+│       │   ├── MapPage.jsx
+│       │   ├── LeaderboardPage.jsx
 │       │   └── dashboard/
-│       │       ├── admin/   # AdminDashboardLayout + 6 sub-pages
-│       │       ├── staff/   # StaffDashboardLayout + 3 sub-pages
-│       │       └── citizen/ # CitizenDashboardLayout + 4 sub-pages
-│       └── routes/        # PrivateRoute, AdminRoute, StaffRoute
-└── server/          # Express API
-    ├── middlewares/   # verifyToken, verifyAdmin, verifyStaff
-    ├── models/        # Issue, User, Payment, Donation, Contribution
-    └── routes/        # authRoutes, issueRoutes, userRoutes, paymentRoutes, donationRoutes
+│       │       ├── admin/    # AdminDashboardLayout, Overview, AllIssues, ManageUsers, ManageStaff, Payments, Profile
+│       │       ├── staff/    # StaffDashboardLayout, AssignedIssues, Profile
+│       │       └── citizen/  # CitizenDashboardLayout, ReportIssue, MyIssues, Profile, Contributions
+│       └── routes/           # PrivateRoute, AdminRoute, StaffRoute
+└── server/
+    ├── middlewares/          # verifyToken, verifyAdmin, verifyStaff
+    ├── models/               # Issue, User, Payment, Donation, Contribution
+    ├── routes/               # authRoutes, issueRoutes, userRoutes, paymentRoutes, donationRoutes
+    └── index.js
 ```
 
 ---
 
 ## Environment Variables
 
-### Client (`client/.env`)
+### Client — `client/.env`
 
 ```env
 REACT_APP_API_URL=http://localhost:5000/api
-REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
-REACT_APP_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
-REACT_APP_FIREBASE_PROJECT_ID=your-project-id
-REACT_APP_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-REACT_APP_FIREBASE_APP_ID=your_app_id
-REACT_APP_FIREBASE_MEASUREMENT_ID=your_measurement_id
+REACT_APP_FIREBASE_API_KEY=
+REACT_APP_FIREBASE_AUTH_DOMAIN=
+REACT_APP_FIREBASE_PROJECT_ID=
+REACT_APP_FIREBASE_STORAGE_BUCKET=
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=
+REACT_APP_FIREBASE_APP_ID=
+REACT_APP_FIREBASE_MEASUREMENT_ID=
 ```
 
-For production set `REACT_APP_API_URL=https://civic-clean-olive.vercel.app/api`.
+Set `REACT_APP_API_URL=https://civic-clean-olive.vercel.app/api` for production.
 
-### Server (`server/.env`)
+### Server — `server/.env`
 
 ```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/civicclean
+MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/civicclean
 PORT=5000
 FIREBASE_SERVICE_ACCOUNT={"type":"service_account",...}
 ```
@@ -115,17 +150,21 @@ FIREBASE_SERVICE_ACCOUNT={"type":"service_account",...}
 ## Run Locally
 
 ```bash
-# 1. Clone
+# 1. Clone the repo
 git clone https://github.com/Boishakhi11/CivicClean.git
 cd CivicClean
 
-# 2. Server
-cd server && npm install && cp .env.example .env
-npm run dev   # http://localhost:5000
+# 2. Start the server
+cd server
+npm install
+cp .env.example .env   # fill in your values
+npm run dev            # http://localhost:5000
 
-# 3. Client (new terminal)
-cd client && npm install && cp .env.example .env
-npm start     # http://localhost:3000
+# 3. Start the client (new terminal)
+cd client
+npm install
+cp .env.example .env   # fill in your values
+npm start              # http://localhost:3000
 ```
 
 ---
@@ -137,10 +176,10 @@ npm start     # http://localhost:3000
 ```
 Base directory:    client
 Build command:     npm run build
-Publish directory: build
+Publish directory: client/build
 ```
 
-Add your Netlify domain to Firebase → Authentication → Authorized domains.
+Add your Netlify domain to **Firebase → Authentication → Authorized domains**.
 
 ### Vercel (server)
 
@@ -152,26 +191,48 @@ Set `MONGODB_URI` and `FIREBASE_SERVICE_ACCOUNT` as Vercel environment variables
 
 ---
 
-## API Overview
+## API Reference
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/issues` | List issues (pagination, search, filters) |
-| POST | `/api/issues` | Create issue (auth required) |
-| GET | `/api/issues/:id` | Get single issue |
-| PUT | `/api/issues/:id` | Edit issue (owner only) |
-| DELETE | `/api/issues/:id` | Delete issue (owner only) |
-| PATCH | `/api/issues/:id/upvote` | Upvote issue (auth, own-issue guard) |
-| PATCH | `/api/issues/:id/assign` | Assign staff (admin only) |
-| PATCH | `/api/issues/:id/status` | Advance status (staff only) |
-| PATCH | `/api/issues/:id/reject` | Reject issue (admin only) |
-| GET | `/api/users` | List citizens (admin only) |
-| GET | `/api/users/staff` | List staff (admin only) |
-| GET | `/api/users/leaderboard` | Top contributors by points |
-| PATCH | `/api/users/:id/block` | Block/unblock user (admin only) |
-| GET | `/api/payments` | List payments (admin only) |
-| POST | `/api/payments` | Create payment (boost / subscription) |
-| GET | `/api/donations` | List donations by issue or user |
-| POST | `/api/donations` | Create donation |
-| POST | `/api/auth/verify` | Sync Firebase user with MongoDB |
-| GET | `/api/stats` | Platform-wide stats |
+### Issues
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/issues` | — | List issues — supports `?page`, `?limit`, `?search`, `?category`, `?status`, `?priority`, `?email`. Boosted issues always sort first. |
+| POST | `/api/issues` | Citizen | Create issue |
+| GET | `/api/issues/:id` | — | Get single issue |
+| PUT | `/api/issues/:id` | Owner | Edit issue |
+| DELETE | `/api/issues/:id` | Owner | Delete issue |
+| PATCH | `/api/issues/:id/upvote` | Auth | Upvote (own-issue blocked, once per user) |
+| PATCH | `/api/issues/:id/assign` | Admin | Assign staff |
+| PATCH | `/api/issues/:id/status` | Staff | Advance status |
+| PATCH | `/api/issues/:id/reject` | Admin | Reject with reason |
+
+### Users
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/users` | Admin | List citizens |
+| GET | `/api/users/staff` | Admin | List staff |
+| GET | `/api/users/leaderboard` | — | Top contributors |
+| PATCH | `/api/users/:id/block` | Admin | Block / unblock user |
+
+### Payments
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/payments` | Admin | All payments |
+| GET | `/api/payments/mine` | Auth | Current user's payments |
+| POST | `/api/payments` | Auth | Create payment (`type: boost \| subscription`) |
+
+### Donations
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/donations` | — | List donations (filter by `?issueId` or `?email`) |
+| POST | `/api/donations` | Auth | Create donation |
+
+### Auth
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/auth/verify` | Firebase token | Sync Firebase user → MongoDB, return role |

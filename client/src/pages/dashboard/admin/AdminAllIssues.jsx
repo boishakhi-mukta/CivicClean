@@ -8,7 +8,7 @@ import axiosInstance from '../../../api/axiosInstance';
 const CATEGORIES = ['Garbage', 'Illegal Construction', 'Broken Public Property', 'Road Damage'];
 
 // These are the only statuses in the real workflow
-const FILTER_STATUSES = ['pending', 'in-progress', 'working', 'resolved', 'closed', 'rejected'];
+const FILTER_STATUSES = ['pending', 'in-progress', 'working', 'resolved', 'rejected'];
 
 // Keep legacy values here for display only (old DB docs may still have them)
 const STATUS_STYLES = {

@@ -107,7 +107,6 @@ const AllIssuesPage = () => {
                 <option value="in-progress">In Progress</option>
                 <option value="working">Working</option>
                 <option value="resolved">Resolved</option>
-                <option value="closed">Closed</option>
                 <option value="rejected">Rejected</option>
               </select>
             </div>
