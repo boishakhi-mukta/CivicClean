@@ -6,6 +6,25 @@ import toast from 'react-hot-toast';
 import { FcGoogle } from 'react-icons/fc';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 
+const getAuthErrorMessage = (code) => {
+  switch (code) {
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return 'Incorrect email or password. Please try again.';
+    case 'auth/invalid-email':
+      return 'Please enter a valid email address.';
+    case 'auth/user-disabled':
+      return 'This account has been disabled. Contact support for help.';
+    case 'auth/too-many-requests':
+      return 'Too many failed attempts. Please wait a moment before trying again.';
+    case 'auth/network-request-failed':
+      return 'Network error. Please check your connection and try again.';
+    default:
+      return 'Failed to sign in. Please check your credentials and try again.';
+  }
+};
+
 const LoginPage = () => {
   const { currentUser, dbUser, loading, loginWithEmail, loginWithGoogle } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -47,7 +66,7 @@ const LoginPage = () => {
       // navigation handled by useEffect above
     } catch (error) {
       setIsLoggingIn(false);
-      toast.error(error.message || 'Failed to login. Please check your credentials.');
+      toast.error(getAuthErrorMessage(error.code));
     }
   };
 
@@ -59,7 +78,7 @@ const LoginPage = () => {
       // navigation handled by useEffect above
     } catch (error) {
       setIsLoggingIn(false);
-      toast.error(error.message || 'Failed to login with Google.');
+      toast.error(error.code === 'auth/popup-closed-by-user' ? 'Sign-in cancelled.' : getAuthErrorMessage(error.code));
     }
   };
 
