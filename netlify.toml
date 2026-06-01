@@ -4,6 +4,7 @@
   publish = "build"
 
 [build.environment]
+  CI = "false"
   REACT_APP_API_URL = "https://civic-clean-olive.vercel.app/api"
   REACT_APP_FIREBASE_API_KEY = "AIzaSyBwzP4ZH40EZqMDF0SD7fOPCA0-__v7aII"
   REACT_APP_FIREBASE_AUTH_DOMAIN = "civicclean-d85cd.firebaseapp.com"

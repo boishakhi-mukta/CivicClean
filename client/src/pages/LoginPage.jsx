@@ -52,7 +52,7 @@ const LoginPage = () => {
 
       navigate(destination, { replace: true });
     }
-  }, [currentUser, loading, dbUser]);
+  }, [currentUser, loading, dbUser, from, navigate]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
