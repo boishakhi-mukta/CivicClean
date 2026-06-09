@@ -1,8 +1,8 @@
 import { useState, useContext } from 'react';
 import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
-import { FiGrid, FiList, FiUser, FiMenu, FiX, FiLogOut, FiSun, FiMoon } from 'react-icons/fi';
+import { FiGrid, FiList, FiUser, FiMenu, FiX, FiLogOut } from 'react-icons/fi';
 import { AuthContext } from '../../../../context/AuthContext';
-import { ThemeContext } from '../../../../context/ThemeContext';
+import ThemeToggle from '../../../../components/ThemeToggle';
 
 const navItems = [
   { to: '/dashboard/staff',         label: 'Overview',        Icon: FiGrid, end: true },
@@ -12,7 +12,6 @@ const navItems = [
 
 const StaffDashboardLayout = () => {
   const { currentUser, dbUser, logout } = useContext(AuthContext);
-  const { isDarkMode, toggleDarkMode }  = useContext(ThemeContext);
   const [mobileOpen, setMobileOpen]     = useState(false);
   const navigate = useNavigate();
 
@@ -26,109 +25,74 @@ const StaffDashboardLayout = () => {
 
   const linkClass = ({ isActive }) =>
     isActive
-      ? 'text-[#d4ff00] font-semibold border-b-2 border-[#d4ff00] transition-colors duration-200'
-      : 'text-white/80 hover:text-[#d4ff00] transition-colors duration-200';
+      ? 'text-on-primary font-semibold border-b-2 border-on-primary/60 transition-colors duration-150'
+      : 'text-on-primary/70 hover:text-on-primary transition-colors duration-150';
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* ── Top Navbar ── */}
-      <nav className="sticky top-0 z-50 bg-[#1a3a2a] shadow-lg">
+    <div className="flex flex-col min-h-screen bg-bg">
+      <nav className="sticky top-0 z-50 bg-primary shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
 
-            {/* Logo */}
             <Link to="/dashboard/staff" className="flex items-center gap-2 flex-shrink-0">
               <span className="text-2xl">🌿</span>
-              <span className="text-[#d4ff00] font-bold text-xl tracking-wide hidden sm:block">
-                CivicClean
-              </span>
-              <span className="ml-2 text-xs font-semibold uppercase tracking-widest text-white/50 hidden sm:block">
-                Staff
-              </span>
+              <span className="text-on-primary font-bold text-xl tracking-wide hidden sm:block">CivicClean</span>
+              <span className="ml-2 text-xs font-semibold uppercase tracking-widest text-on-primary/50 hidden sm:block">Staff</span>
             </Link>
 
-            {/* Desktop nav links */}
             <div className="hidden md:flex items-center gap-6">
               {navItems.map(({ to, label, end }) => (
-                <NavLink key={to} to={to} end={end} className={linkClass}>
-                  {label}
-                </NavLink>
+                <NavLink key={to} to={to} end={end} className={linkClass}>{label}</NavLink>
               ))}
             </div>
 
-            {/* Right controls */}
             <div className="hidden md:flex items-center gap-3">
-              <button
-                onClick={toggleDarkMode}
-                className="p-2 rounded-full text-white hover:bg-white/10 transition"
-                aria-label="Toggle dark mode"
-              >
-                {isDarkMode ? <FiSun size={18} /> : <FiMoon size={18} />}
-              </button>
-
+              <ThemeToggle />
               <div className="flex items-center gap-2">
                 {photoSrc ? (
-                  <img src={photoSrc} alt="avatar" className="w-8 h-8 rounded-full object-cover border-2 border-[#d4ff00]" />
+                  <img src={photoSrc} alt="avatar" className="w-8 h-8 rounded-full object-cover border-2 border-on-primary/60" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-[#d4ff00] flex items-center justify-center text-[#1a3a2a] font-bold text-sm">
+                  <div className="w-8 h-8 rounded-full bg-on-primary flex items-center justify-center text-primary font-bold text-sm">
                     {displayName.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span className="text-white text-sm font-medium truncate max-w-[120px]">{displayName}</span>
+                <span className="text-on-primary text-sm font-medium truncate max-w-[120px]">{displayName}</span>
               </div>
-
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-red-400 hover:bg-white/10 transition"
-              >
+              <button onClick={handleLogout}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-danger hover:bg-on-primary/10 transition-colors">
                 <FiLogOut size={15} /> Logout
               </button>
             </div>
 
-            {/* Mobile controls */}
             <div className="md:hidden flex items-center gap-2">
-              <button onClick={toggleDarkMode} className="p-2 text-white hover:bg-white/10 rounded-full">
-                {isDarkMode ? <FiSun size={18} /> : <FiMoon size={18} />}
-              </button>
-              <button
-                onClick={() => setMobileOpen(!mobileOpen)}
-                className="text-white hover:text-[#d4ff00] focus:outline-none"
-              >
+              <ThemeToggle />
+              <button onClick={() => setMobileOpen(!mobileOpen)}
+                className="text-on-primary hover:text-on-primary/80 focus:outline-none" aria-label="Toggle menu">
                 {mobileOpen ? <FiX size={22} /> : <FiMenu size={22} />}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Mobile dropdown */}
         {mobileOpen && (
-          <div className="md:hidden bg-[#1a3a2a] border-t border-white/10 px-4 pb-4 pt-2 space-y-1">
+          <div className="md:hidden bg-primary-hover border-t border-on-primary/10 px-4 pb-4 pt-2 space-y-1">
             {navItems.map(({ to, label, Icon, end }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                onClick={() => setMobileOpen(false)}
+              <NavLink key={to} to={to} end={end} onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                    isActive ? 'bg-[#d4ff00] text-[#1a3a2a]' : 'text-white/80 hover:bg-white/10 hover:text-white'
-                  }`
-                }
-              >
+                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    isActive ? 'bg-on-primary text-primary' : 'text-on-primary/80 hover:bg-on-primary/10 hover:text-on-primary'
+                  }`}>
                 <Icon size={16} /> {label}
               </NavLink>
             ))}
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:bg-white/10 transition mt-2"
-            >
+            <button onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-danger hover:bg-on-primary/10 transition-colors mt-2">
               <FiLogOut size={16} /> Logout
             </button>
           </div>
         )}
       </nav>
 
-      {/* ── Page content ── */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Outlet />
       </main>

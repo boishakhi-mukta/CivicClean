@@ -5,15 +5,7 @@ import { FiMapPin, FiThumbsUp, FiZap } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { AuthContext } from '../context/AuthContext';
 import axiosInstance from '../api/axiosInstance';
-
-const STATUS_STYLES = {
-  pending:       'bg-amber-100   text-amber-800  dark:bg-amber-900/50  dark:text-amber-300',
-  'in-progress': 'bg-blue-100    text-blue-800   dark:bg-blue-900/50   dark:text-blue-300',
-  working:       'bg-purple-100  text-purple-800 dark:bg-purple-900/50 dark:text-purple-300',
-  resolved:      'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300',
-  closed:        'bg-gray-100    text-gray-700   dark:bg-gray-700       dark:text-gray-300',
-  rejected:      'bg-red-100     text-red-800    dark:bg-red-900/50    dark:text-red-300',
-};
+import { getStatusConfig } from '../constants/statusConfig';
 
 const PRIORITY_STYLES = {
   low:    'bg-green-100  text-green-700  dark:bg-green-900/60  dark:text-green-300',
@@ -42,16 +34,12 @@ const IssueCard = ({ issue }) => {
     mutationFn: () => axiosInstance.patch(`/issues/${issue._id}/upvote`),
     onSuccess: (response) => {
       const updated = response.data;
-      // Instant cache update — no refetch needed
       queryClient.setQueriesData({ queryKey: ['issues'] }, (old) => {
         if (!old) return old;
-        // AllIssuesPage returns a plain array
         if (Array.isArray(old)) return old.map(i => i._id === updated._id ? updated : i);
-        // AdminAllIssues returns { issues, total, ... }
         if (old?.issues) return { ...old, issues: old.issues.map(i => i._id === updated._id ? updated : i) };
         return old;
       });
-      // Also keep the single-issue cache in sync (for detail page back-nav)
       queryClient.setQueryData(['issue', issue._id], updated);
       toast.success('Upvoted!');
     },
@@ -68,13 +56,12 @@ const IssueCard = ({ issue }) => {
     upvoteMutation.mutate();
   };
 
-  const statusKey   = issue.status?.toLowerCase();
+  const statusCfg  = getStatusConfig(issue.status?.toLowerCase());
   const priorityKey = issue.priority?.toLowerCase();
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-gray-100 dark:border-gray-700 flex flex-col h-full">
+    <div className="bg-surface rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-border flex flex-col h-full">
 
-      {/* Image */}
       <div className="relative h-44 overflow-hidden flex-shrink-0">
         <img
           src={issue.image || PLACEHOLDER}
@@ -83,42 +70,36 @@ const IssueCard = ({ issue }) => {
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
         />
 
-        {/* Status — top right */}
-        <span className={`absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[11px] font-semibold capitalize shadow-sm ${STATUS_STYLES[statusKey] || 'bg-gray-100 text-gray-700'}`}>
+        <span className={`absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[11px] font-semibold capitalize shadow-sm ${statusCfg.bg} ${statusCfg.text}`}>
           {issue.status || 'pending'}
         </span>
 
-        {/* Priority — top left (only if set) */}
         {priorityKey && PRIORITY_STYLES[priorityKey] && (
           <span className={`absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[11px] font-semibold capitalize shadow-sm ${PRIORITY_STYLES[priorityKey]}`}>
             {priorityKey}
           </span>
         )}
 
-        {/* Category — bottom left */}
         {issue.category && (
           <span className={`absolute bottom-3 left-3 px-2 py-0.5 rounded text-[11px] font-semibold shadow-sm ${CATEGORY_STYLES[issue.category] || 'bg-blue-500 text-white'}`}>
             {issue.category}
           </span>
         )}
 
-        {/* Boosted — bottom right */}
         {issue.isBoosted && (
           <span className="absolute bottom-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-amber-400 text-amber-900 shadow-sm">
-            <FiZap size={10} />
-            Boosted
+            <FiZap size={10} /> Boosted
           </span>
         )}
       </div>
 
-      {/* Body */}
       <div className="p-5 flex flex-col flex-grow">
-        <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 leading-snug">
+        <h3 className="text-base font-bold text-text mb-2 line-clamp-2 leading-snug">
           {issue.title}
         </h3>
 
         {issue.location && (
-          <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400 text-xs mb-3">
+          <div className="flex items-center gap-1 text-muted text-xs mb-3">
             <FiMapPin size={12} className="flex-shrink-0" />
             <span className="truncate">{issue.location}</span>
           </div>
@@ -126,10 +107,7 @@ const IssueCard = ({ issue }) => {
 
         <div className="flex-grow" />
 
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700 mt-3 gap-2">
-
-          {/* Upvote */}
+        <div className="flex items-center justify-between pt-4 border-t border-border mt-3 gap-2">
           <button
             onClick={handleUpvote}
             disabled={isOwnIssue || hasVoted || upvoteMutation.isPending}
@@ -141,18 +119,17 @@ const IssueCard = ({ issue }) => {
             }
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors
               ${hasVoted
-                ? 'bg-[#d4ff00]/20 text-[#1a3a2a] dark:bg-[#d4ff00]/10 dark:text-[#d4ff00] cursor-default'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-[#d4ff00]/30 hover:text-[#1a3a2a] dark:hover:text-[#d4ff00]'
+                ? 'bg-primary/20 text-primary cursor-default'
+                : 'bg-surface-alt text-muted hover:bg-primary/20 hover:text-primary'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             <FiThumbsUp size={14} />
             <span>{issue.upvoteCount ?? 0}</span>
           </button>
 
-          {/* View Details */}
           <Link
             to={`/all-issues/${issue._id}`}
-            className="px-4 py-1.5 bg-[#1a3a2a] text-[#d4ff00] dark:bg-[#d4ff00] dark:text-[#1a3a2a] rounded-lg text-sm font-bold hover:opacity-90 transition-opacity"
+            className="px-4 py-1.5 bg-primary text-on-primary rounded-lg text-sm font-bold hover:bg-primary-hover transition-colors"
           >
             View Details
           </Link>

@@ -9,11 +9,11 @@ import {
 
 const PhotoUploader = ({
   currentUrl,
-  displayName = '',
+  displayName   = '',
   onUploadComplete,
   onFileSelected,
-  folder = 'avatars',
-  variant = 'avatar',
+  folder        = 'avatars',
+  variant       = 'avatar',
   uploadOnSelect = true,
   successMessage = 'Photo uploaded!',
 }) => {
@@ -30,26 +30,18 @@ const PhotoUploader = ({
     if (!file) return;
 
     const validationError = validatePhotoFile(file);
-    if (validationError) {
-      toast.error(validationError);
-      return;
-    }
+    if (validationError) { toast.error(validationError); return; }
 
     setPreview(URL.createObjectURL(file));
     onFileSelected?.(file);
 
-    if (!uploadOnSelect) {
-      return;
-    }
+    if (!uploadOnSelect) return;
 
     setUploading(true);
     setProgress(0);
 
     try {
-      const url = await uploadPhotoWithFallback(file, {
-        folder,
-        onProgress: setProgress,
-      });
+      const url = await uploadPhotoWithFallback(file, { folder, onProgress: setProgress });
       onUploadComplete(url);
       setUploading(false);
       toast.success(successMessage);
@@ -60,30 +52,26 @@ const PhotoUploader = ({
     }
   };
 
+  const imgClass = variant === 'avatar'
+    ? 'w-20 h-20 rounded-full object-cover border-4 border-primary'
+    : 'w-28 h-20 rounded-lg object-cover border-4 border-primary';
+
   return (
-    <div className="flex items-center gap-5 mb-6 pb-6 border-b dark:border-gray-700">
+    <div className="flex items-center gap-5 mb-6 pb-6 border-b border-border">
       <div className="relative flex-shrink-0">
         {displaySrc ? (
-          <img
-            src={displaySrc}
-            alt={variant === 'avatar' ? 'avatar' : 'uploaded preview'}
-            className={
-              variant === 'avatar'
-                ? 'w-20 h-20 rounded-full object-cover border-4 border-[#d4ff00]'
-                : 'w-28 h-20 rounded-lg object-cover border-4 border-[#d4ff00]'
-            }
-          />
+          <img src={displaySrc} alt={variant === 'avatar' ? 'avatar' : 'uploaded preview'} className={imgClass} />
         ) : variant === 'avatar' ? (
-          <div className="w-20 h-20 rounded-full bg-[#d4ff00] flex items-center justify-center text-[#1a3a2a] font-bold text-3xl">
+          <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-3xl">
             {initial}
           </div>
         ) : (
-          <div className="w-28 h-20 rounded-lg bg-gray-100 dark:bg-gray-700 border-4 border-[#d4ff00] flex items-center justify-center text-gray-400">
+          <div className="w-28 h-20 rounded-lg bg-surface-alt border-4 border-primary flex items-center justify-center text-muted">
             <FiCamera size={24} />
           </div>
         )}
         {uploading && (
-          <div className={`absolute inset-0 ${variant === 'avatar' ? 'rounded-full' : 'rounded-lg'} bg-black/60 flex items-center justify-center`}>
+          <div className={`absolute inset-0 ${variant === 'avatar' ? 'rounded-full' : 'rounded-lg'} bg-overlay/60 flex items-center justify-center`}>
             <span className="text-white text-xs font-bold">{progress}%</span>
           </div>
         )}
@@ -94,12 +82,12 @@ const PhotoUploader = ({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm font-medium disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 bg-surface-alt text-text rounded-lg hover:bg-border/20 transition text-sm font-medium disabled:opacity-50"
         >
           <FiCamera size={15} />
           {uploading ? `Uploading ${progress}%…` : 'Choose Photo'}
         </button>
-        <p className="text-xs text-gray-400 mt-1.5">JPG, PNG or WebP · Max {MAX_PHOTO_SIZE_MB}MB</p>
+        <p className="text-xs text-muted mt-1.5">JPG, PNG or WebP · Max {MAX_PHOTO_SIZE_MB}MB</p>
         <input
           ref={inputRef}
           type="file"

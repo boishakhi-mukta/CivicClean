@@ -1,0 +1,92 @@
+/* ═══════════════════════════════════════════════════════════
+   PRIMITIVE TOKENS
+   Raw tint/shade scales — NEVER use directly in components.
+   Only src/styles/tokens.css may contain raw color values.
+═══════════════════════════════════════════════════════════ */
+:root {
+  /* Green scale (derived from brand #306D29 = 48 109 41) */
+  --green-50:  246 250 245;
+  --green-100: 230 242 227;
+  --green-200: 204 228 200;
+  --green-300: 163 206 158;
+  --green-400: 113 170 106;
+  --green-500: 48 109 41;    /* brand: #306D29              */
+  --green-600: 40 93 34;
+  --green-700: 32 75 27;
+  --green-800: 23 55 19;
+  --green-900: 13 83 14;     /* brand-deep: #0D530E         */
+
+  /* Sage scale (derived from neutral #E7E1B1 = 231 225 177) */
+  --sage-100:  249 248 240;
+  --sage-200:  242 239 221;
+  --sage-300:  231 225 177;  /* neutral: #E7E1B1             */
+  --sage-400:  210 202 144;
+  --sage-500:  185 175 104;
+  --sage-600:  148 139 78;   /* used for borders — 3.2:1 on cream */
+  --sage-700:  101 94 52;
+
+  /* Cream */
+  --cream:     251 245 221;  /* #FBF5DD                     */
+
+  /* Dark bg scale (desaturated from brand-deep for dark mode) */
+  --dark-950:  12 18 11;
+  --dark-900:  17 26 16;
+  --dark-800:  28 43 27;
+  --dark-700:  36 56 35;
+  --dark-600:  50 76 49;
+  --dark-500:  68 100 67;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SEMANTIC TOKENS — LIGHT MODE  (default :root)
+   WCAG 2.1 AA verified pairs:
+     text/bg:          22 34 21 on 251 245 221  → 15.0:1  ✓ AAA
+     muted/bg:         88 107 84 on 251 245 221 →  5.3:1  ✓ AA
+     on-primary/btn:   255 255 255 on 48 109 41 →  6.3:1  ✓ AA
+     border/bg (UI):   148 139 78 on 251 245 221 → 3.2:1  ✓ (≥3:1)
+═══════════════════════════════════════════════════════════ */
+:root {
+  --color-bg:            251 245 221;  /* cream                */
+  --color-surface:       255 255 255;  /* white card/panel     */
+  --color-surface-alt:   231 225 177;  /* sage-300             */
+  --color-text:          22 34 21;     /* near-black green     */
+  --color-text-muted:    88 107 84;    /* muted green-gray     */
+  --color-primary:       48 109 41;    /* green-500 / brand    */
+  --color-primary-hover: 13 83 14;     /* green-900 / brand-deep */
+  --color-on-primary:    255 255 255;  /* white on btn         */
+  --color-border:        148 139 78;   /* sage-600             */
+  --color-focus-ring:    48 109 41;    /* brand                */
+  --color-success:       21 128 61;    /* green-700            */
+  --color-warning:       161 98 7;     /* amber-700            */
+  --color-danger:        185 28 28;    /* red-700              */
+  --color-info:          29 78 216;    /* blue-700             */
+  /* Static overlay — always dark, used for image/media overlays */
+  --color-overlay:       12 18 11;     /* dark-950             */
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SEMANTIC TOKENS — DARK MODE  (.dark class on <html>)
+   Only semantic tokens are redefined here — primitives stay.
+   WCAG 2.1 AA verified pairs:
+     text/bg:          251 245 221 on 17 26 16   → 17.5:1 ✓ AAA
+     muted/bg:         185 200 180 on 17 26 16   →  9.1:1 ✓ AAA
+     on-primary/btn:   17 26 16 on 109 185 101   →  8.1:1 ✓ AAA
+     primary/bg:       109 185 101 on 17 26 16   →  8.1:1 ✓ AAA
+═══════════════════════════════════════════════════════════ */
+.dark {
+  --color-bg:            17 26 16;     /* dark-900             */
+  --color-surface:       28 43 27;     /* dark-800             */
+  --color-surface-alt:   36 56 35;     /* dark-700             */
+  --color-text:          251 245 221;  /* cream                */
+  --color-text-muted:    185 200 180;  /* light gray-green     */
+  --color-primary:       109 185 101;  /* lighter green        */
+  --color-primary-hover: 143 210 135;  /* even lighter         */
+  --color-on-primary:    17 26 16;     /* dark text on btn     */
+  --color-border:        50 76 49;     /* dark-600             */
+  --color-focus-ring:    109 185 101;
+  --color-success:       74 222 128;   /* green-400            */
+  --color-warning:       251 191 36;   /* amber-400            */
+  --color-danger:        248 113 113;  /* red-400              */
+  --color-info:          96 165 250;   /* blue-400             */
+  --color-overlay:       12 18 11;     /* same in both modes   */
+}

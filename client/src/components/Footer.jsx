@@ -1,82 +1,90 @@
 import { Link } from 'react-router-dom';
 import { FaXTwitter, FaFacebookF, FaInstagram, FaLinkedinIn } from 'react-icons/fa6';
 
-const Footer = () => {
-  return (
-    <footer className="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-300 pt-16 pb-8 border-t dark:border-gray-800 transition-colors duration-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-12">
-          
-          {/* Column 1: Brand & Description */}
-          <div className="space-y-4">
-            <Link to="/" className="flex items-center space-x-2">
-              <span className="text-2xl">🌿</span>
-              <span className="text-[#1a3a2a] dark:text-[#d4ff00] font-bold text-2xl tracking-wide">
-                CivicClean
-              </span>
-            </Link>
-            <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-              Empowering communities to report, track, and resolve local cleanliness issues. Together, we can build cleaner, healthier neighborhoods.
-            </p>
-          </div>
+const Footer = () => (
+  <footer className="bg-surface-alt text-text pt-16 pb-8 border-t border-border transition-colors duration-200">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-12">
 
-          {/* Column 2: Quick Links */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Links</h3>
-            <ul className="space-y-3">
-              <li><Link to="/" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Home</Link></li>
-              <li><Link to="/all-issues" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">All Issues</Link></li>
-              <li><Link to="/dashboard/citizen/report-issue" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Report an Issue</Link></li>
-              <li><Link to="/map" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Map</Link></li>
-            </ul>
-          </div>
-
-          {/* Column 3: Categories */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Categories</h3>
-            <ul className="space-y-3">
-              <li><Link to="/all-issues?category=Garbage" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Garbage</Link></li>
-              <li><Link to="/all-issues?category=Road+Damage" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Road Damage</Link></li>
-              <li><Link to="/all-issues?category=Broken+Public+Property" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Broken Public Property</Link></li>
-              <li><Link to="/all-issues?category=Illegal+Construction" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Illegal Construction</Link></li>
-            </ul>
-          </div>
-
-          {/* Column 4: Connect & Legal */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Connect With Us</h3>
-            <div className="flex space-x-4 mb-6">
-              <a href="https://twitter.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center hover:bg-[#1a3a2a] hover:text-white dark:hover:bg-[#d4ff00] dark:hover:text-[#1a3a2a] transition-all">
-                <FaXTwitter size={18} />
-              </a>
-              <a href="https://facebook.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center hover:bg-[#1a3a2a] hover:text-white dark:hover:bg-[#d4ff00] dark:hover:text-[#1a3a2a] transition-all">
-                <FaFacebookF size={18} />
-              </a>
-              <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center hover:bg-[#1a3a2a] hover:text-white dark:hover:bg-[#d4ff00] dark:hover:text-[#1a3a2a] transition-all">
-                <FaInstagram size={18} />
-              </a>
-              <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center hover:bg-[#1a3a2a] hover:text-white dark:hover:bg-[#d4ff00] dark:hover:text-[#1a3a2a] transition-all">
-                <FaLinkedinIn size={18} />
-              </a>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Legal</h3>
-            <ul className="space-y-3">
-              <li><Link to="/privacy" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="text-sm hover:text-[#1a3a2a] dark:hover:text-[#d4ff00] transition">Terms of Service</Link></li>
-            </ul>
-          </div>
-
-        </div>
-
-        {/* Copyright Line */}
-        <div className="pt-8 border-t border-gray-200 dark:border-gray-800 text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-500">
-            &copy; {new Date().getFullYear()} CivicClean. All rights reserved.
+        <div className="space-y-4">
+          <Link to="/" className="flex items-center space-x-2">
+            <span className="text-2xl">🌿</span>
+            <span className="text-primary font-bold text-2xl tracking-wide">CivicClean</span>
+          </Link>
+          <p className="text-sm leading-relaxed text-muted">
+            Empowering communities to report, track, and resolve local cleanliness issues. Together, we can build cleaner, healthier neighborhoods.
           </p>
         </div>
+
+        <div>
+          <h3 className="text-lg font-semibold text-text mb-4">Quick Links</h3>
+          <ul className="space-y-3">
+            {[
+              { to: '/', label: 'Home' },
+              { to: '/all-issues', label: 'All Issues' },
+              { to: '/dashboard/citizen/report-issue', label: 'Report an Issue' },
+              { to: '/map', label: 'Map' },
+            ].map(({ to, label }) => (
+              <li key={to}>
+                <Link to={to} className="text-sm text-muted hover:text-primary transition-colors">{label}</Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold text-text mb-4">Categories</h3>
+          <ul className="space-y-3">
+            {[
+              { to: '/all-issues?category=Garbage',                label: 'Garbage' },
+              { to: '/all-issues?category=Road+Damage',            label: 'Road Damage' },
+              { to: '/all-issues?category=Broken+Public+Property', label: 'Broken Public Property' },
+              { to: '/all-issues?category=Illegal+Construction',   label: 'Illegal Construction' },
+            ].map(({ to, label }) => (
+              <li key={to}>
+                <Link to={to} className="text-sm text-muted hover:text-primary transition-colors">{label}</Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold text-text mb-4">Connect With Us</h3>
+          <div className="flex space-x-4 mb-6">
+            {[
+              { href: 'https://twitter.com',   Icon: FaXTwitter,   label: 'Twitter' },
+              { href: 'https://facebook.com',  Icon: FaFacebookF,  label: 'Facebook' },
+              { href: 'https://instagram.com', Icon: FaInstagram,  label: 'Instagram' },
+              { href: 'https://linkedin.com',  Icon: FaLinkedinIn, label: 'LinkedIn' },
+            ].map(({ href, Icon, label }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={label}
+                className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-muted hover:bg-primary hover:text-on-primary hover:border-primary transition-all"
+              >
+                <Icon size={18} />
+              </a>
+            ))}
+          </div>
+          <h3 className="text-lg font-semibold text-text mb-4">Legal</h3>
+          <ul className="space-y-3">
+            <li><Link to="/privacy" className="text-sm text-muted hover:text-primary transition-colors">Privacy Policy</Link></li>
+            <li><Link to="/terms"   className="text-sm text-muted hover:text-primary transition-colors">Terms of Service</Link></li>
+          </ul>
+        </div>
+
       </div>
-    </footer>
-  );
-};
+
+      <div className="pt-8 border-t border-border text-center">
+        <p className="text-sm text-muted">
+          &copy; {new Date().getFullYear()} CivicClean. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </footer>
+);
 
 export default Footer;

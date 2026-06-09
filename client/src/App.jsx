@@ -50,7 +50,6 @@ import ScrollToTop from './components/ScrollToTop';
 // Redirects /dashboard to the correct role-specific dashboard
 const RoleDashboardRedirect = () => {
   const { currentUser, dbUser, loading } = useContext(AuthContext);
-  // Wait if auth is loading OR if user is authenticated but dbUser hasn't synced yet
   if (loading || (currentUser && !dbUser)) return <LoadingSpinner />;
   if (dbUser?.role === 'admin') return <Navigate to="/dashboard/admin" replace />;
   if (dbUser?.role === 'staff') return <Navigate to="/dashboard/staff" replace />;
@@ -62,7 +61,7 @@ const AppShell = () => {
   const isDashboardRoute = pathname.startsWith('/dashboard');
 
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+    <div className="flex flex-col min-h-screen bg-bg transition-colors duration-200">
       {!isDashboardRoute && <Navbar />}
 
       <main className="flex-grow">
@@ -75,16 +74,14 @@ const AppShell = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* Legacy redirects → new citizen dashboard equivalents */}
+          {/* Legacy redirects */}
           <Route path="/add-issue"        element={<Navigate to="/dashboard/citizen/report-issue" replace />} />
           <Route path="/my-issues"        element={<Navigate to="/dashboard/citizen/my-issues"    replace />} />
           <Route path="/profile"          element={<Navigate to="/dashboard/citizen/profile"      replace />} />
           <Route path="/my-contributions" element={<Navigate to="/dashboard/citizen"              replace />} />
 
-          {/* /dashboard → role-based redirect */}
           <Route path="/dashboard" element={<PrivateRoute><RoleDashboardRedirect /></PrivateRoute>} />
 
-          {/* Admin Dashboard Routes — nested under shared layout */}
           <Route path="/dashboard/admin" element={<AdminRoute><AdminDashboardLayout /></AdminRoute>}>
             <Route index element={<AdminOverview />} />
             <Route path="issues"   element={<AdminAllIssues />} />
@@ -94,14 +91,12 @@ const AppShell = () => {
             <Route path="profile"  element={<AdminProfile />} />
           </Route>
 
-          {/* Staff Dashboard Routes — nested under shared layout */}
           <Route path="/dashboard/staff" element={<StaffRoute><StaffDashboardLayout /></StaffRoute>}>
             <Route index element={<StaffOverview />} />
             <Route path="issues"  element={<StaffAssignedIssues />} />
             <Route path="profile" element={<StaffProfile />} />
           </Route>
 
-          {/* Citizen Dashboard Routes — nested under shared layout */}
           <Route path="/dashboard/citizen" element={<PrivateRoute><CitizenDashboardLayout /></PrivateRoute>}>
             <Route index element={<CitizenOverview />} />
             <Route path="my-issues"    element={<CitizenMyIssues />} />
@@ -109,7 +104,6 @@ const AppShell = () => {
             <Route path="profile"      element={<CitizenProfile />} />
           </Route>
 
-          {/* Catch-all 404 Route */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
@@ -129,18 +123,14 @@ function App() {
         toastOptions={{
           success: {
             style: {
-              background: '#d4ff00',
-              color: '#1a3a2a',
+              background: 'rgb(21 128 61)',
+              color: 'white',
               fontWeight: 'bold',
-            },
-            iconTheme: {
-              primary: '#1a3a2a',
-              secondary: '#d4ff00',
             },
           },
           error: {
             style: {
-              background: '#e3342f',
+              background: 'rgb(185 28 28)',
               color: 'white',
               fontWeight: 'bold',
             },

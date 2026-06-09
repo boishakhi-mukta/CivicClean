@@ -25,13 +25,16 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>CivicClean | Community Portal</title>
-    <!-- Anti-flash script for Dark Mode -->
+    <!-- Anti-flash theme script: runs before first paint to avoid FOIT -->
     <script>
-      if (localStorage.getItem('civicclean-theme') === 'dark' || (!('civicclean-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+      (function () {
+        var stored = localStorage.getItem('civicclean-theme');
+        var dark =
+          stored === 'dark' ||
+          (stored !== 'light' &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', dark);
+      })();
     </script>
   </head>
   <body>
