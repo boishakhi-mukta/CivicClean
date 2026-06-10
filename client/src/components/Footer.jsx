@@ -21,7 +21,8 @@ const Footer = () => (
           <ul className="space-y-3">
             {[
               { to: '/', label: 'Home' },
-              { to: '/all-issues', label: 'All Issues' },
+              { to: '/explore', label: 'Explore Issues' },
+              { to: '/about', label: 'About Us' },
               { to: '/dashboard/citizen/report-issue', label: 'Report an Issue' },
               { to: '/map', label: 'Map' },
             ].map(({ to, label }) => (
@@ -36,10 +37,10 @@ const Footer = () => (
           <h3 className="text-lg font-semibold text-text mb-4">Categories</h3>
           <ul className="space-y-3">
             {[
-              { to: '/all-issues?category=Garbage',                label: 'Garbage' },
-              { to: '/all-issues?category=Road+Damage',            label: 'Road Damage' },
-              { to: '/all-issues?category=Broken+Public+Property', label: 'Broken Public Property' },
-              { to: '/all-issues?category=Illegal+Construction',   label: 'Illegal Construction' },
+              { to: '/explore?category=Garbage',                label: 'Garbage' },
+              { to: '/explore?category=Road+Damage',            label: 'Road Damage' },
+              { to: '/explore?category=Broken+Public+Property', label: 'Broken Public Property' },
+              { to: '/explore?category=Illegal+Construction',   label: 'Illegal Construction' },
             ].map(({ to, label }) => (
               <li key={to}>
                 <Link to={to} className="text-sm text-muted hover:text-primary transition-colors">{label}</Link>

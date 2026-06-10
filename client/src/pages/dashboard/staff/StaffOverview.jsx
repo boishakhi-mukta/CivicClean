@@ -15,10 +15,10 @@ const STATUS_COLORS = {
   rejected:      '#ef4444',
 };
 
-const StatCard = ({ label, value, accent }) => (
-  <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
-    <p className="text-2xl font-black" style={{ color: accent }}>{value}</p>
-    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1 uppercase tracking-wide">
+const StatCard = ({ label, value, colorClass }) => (
+  <div className="bg-surface rounded-xl p-5 shadow-sm border border-border">
+    <p className={`text-2xl font-black ${colorClass}`}>{value}</p>
+    <p className="text-xs text-muted font-medium mt-1 uppercase tracking-wide">
       {label}
     </p>
   </div>
@@ -54,27 +54,27 @@ const StaffOverview = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#1a3a2a] dark:border-[#d4ff00]" />
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-primary" />
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-6">
+      <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">
         Overview
       </h1>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard label="Assigned Issues" value={issues.length}  accent="#3b82f6" />
-        <StatCard label="Resolved"        value={resolved}       accent="#10b981" />
-        <StatCard label="In Progress"     value={inProgress}     accent="#8b5cf6" />
-        <StatCard label="Today's Tasks"   value={todayTasks}     accent="#f59e0b" />
+        <StatCard label="Assigned Issues" value={issues.length}  colorClass="text-info" />
+        <StatCard label="Resolved"        value={resolved}       colorClass="text-success" />
+        <StatCard label="In Progress"     value={inProgress}     colorClass="text-purple-500 dark:text-purple-400" />
+        <StatCard label="Today's Tasks"   value={todayTasks}     colorClass="text-warning" />
       </div>
 
       {chartData.length > 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Issues by Status</h2>
+        <div className="bg-surface rounded-xl shadow-sm border border-border p-6">
+          <h2 className="text-lg font-bold text-text mb-4">Issues by Status</h2>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={chartData} margin={{ top: 4, right: 16, left: -10, bottom: 0 }}>
               <XAxis
@@ -102,9 +102,9 @@ const StaffOverview = () => {
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-14 text-center">
+        <div className="bg-surface rounded-xl border border-border p-14 text-center">
           <span className="text-5xl block mb-4">📋</span>
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-muted">
             No issues have been assigned to you yet.
           </p>
         </div>

@@ -55,71 +55,98 @@ const ContributionModal = ({ issue, onClose, onContributionSuccess }) => {
             <p className="text-muted mt-1">Help fund the resolution of this issue.</p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
             <div>
-              <label className="block text-sm font-semibold text-text mb-1">Issue</label>
-              <input type="text" {...register('issueTitle')} readOnly className={readonlyClass} />
+              <label htmlFor="contrib-issue" className="block text-sm font-semibold text-text mb-1">Issue</label>
+              <input id="contrib-issue" type="text" {...register('issueTitle')} readOnly className={readonlyClass} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-semibold text-text mb-1">Contribution Amount (kr) *</label>
+                <label htmlFor="contrib-amount" className="block text-sm font-semibold text-text mb-1">Contribution Amount (kr) <span className="text-danger" aria-hidden="true">*</span></label>
                 <input
+                  id="contrib-amount"
                   type="number"
+                  aria-invalid={!!errors.amount}
+                  aria-describedby={errors.amount ? 'contrib-amount-error' : undefined}
                   {...register('amount', {
                     required: 'Amount is required',
-                    min: { value: 1, message: 'Amount must be at least 1' },
+                    min: { value: 1, message: 'Amount must be at least 1 kr' },
+                    max: { value: 1000000, message: 'Amount seems unrealistically high' },
                   })}
                   className={inputClass}
                   placeholder="500"
                 />
-                {errors.amount && <p className="mt-1 text-sm text-danger">{errors.amount.message}</p>}
+                {errors.amount && <p id="contrib-amount-error" role="alert" className="mt-1 text-sm text-danger">{errors.amount.message}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-text mb-1">Contributor Name *</label>
+                <label htmlFor="contrib-name" className="block text-sm font-semibold text-text mb-1">Contributor Name <span className="text-danger" aria-hidden="true">*</span></label>
                 <input
+                  id="contrib-name"
                   type="text"
-                  {...register('name', { required: 'Name is required' })}
+                  aria-invalid={!!errors.name}
+                  aria-describedby={errors.name ? 'contrib-name-error' : undefined}
+                  {...register('name', {
+                    required: 'Name is required',
+                    minLength: { value: 2, message: 'Name must be at least 2 characters' },
+                  })}
                   className={inputClass}
                   placeholder="John Doe"
                 />
-                {errors.name && <p className="mt-1 text-sm text-danger">{errors.name.message}</p>}
+                {errors.name && <p id="contrib-name-error" role="alert" className="mt-1 text-sm text-danger">{errors.name.message}</p>}
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-semibold text-text mb-1">Email</label>
-                <input type="email" {...register('email')} readOnly className={readonlyClass} />
+                <label htmlFor="contrib-email" className="block text-sm font-semibold text-text mb-1">Email</label>
+                <input id="contrib-email" type="email" {...register('email')} readOnly className={readonlyClass} />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-text mb-1">Phone Number *</label>
+                <label htmlFor="contrib-phone" className="block text-sm font-semibold text-text mb-1">Phone Number <span className="text-danger" aria-hidden="true">*</span></label>
                 <input
+                  id="contrib-phone"
                   type="tel"
-                  {...register('phone', { required: 'Phone is required' })}
+                  autoComplete="tel"
+                  aria-invalid={!!errors.phone}
+                  aria-describedby={errors.phone ? 'contrib-phone-error' : undefined}
+                  {...register('phone', {
+                    required: 'Phone number is required',
+                    pattern: {
+                      value: /^[+]?[\d\s\-()\\.]{7,20}$/,
+                      message: 'Enter a valid phone number',
+                    },
+                  })}
                   className={inputClass}
                   placeholder="+47 123 45 678"
                 />
-                {errors.phone && <p className="mt-1 text-sm text-danger">{errors.phone.message}</p>}
+                {errors.phone && <p id="contrib-phone-error" role="alert" className="mt-1 text-sm text-danger">{errors.phone.message}</p>}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-text mb-1">Address *</label>
+              <label htmlFor="contrib-address" className="block text-sm font-semibold text-text mb-1">Address <span className="text-danger" aria-hidden="true">*</span></label>
               <input
+                id="contrib-address"
                 type="text"
-                {...register('address', { required: 'Address is required' })}
+                aria-invalid={!!errors.address}
+                aria-describedby={errors.address ? 'contrib-address-error' : undefined}
+                {...register('address', {
+                  required: 'Address is required',
+                  minLength: { value: 5, message: 'Please enter a complete address' },
+                })}
                 className={inputClass}
                 placeholder="123 Civic Street, Oslo"
               />
-              {errors.address && <p className="mt-1 text-sm text-danger">{errors.address.message}</p>}
+              {errors.address && <p id="contrib-address-error" role="alert" className="mt-1 text-sm text-danger">{errors.address.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-text mb-1">Additional Info (Optional)</label>
+              <label htmlFor="contrib-info" className="block text-sm font-semibold text-text mb-1">Additional Info (Optional)</label>
               <textarea
+                id="contrib-info"
                 rows="3"
                 {...register('additionalInfo')}
                 className={`${inputClass} resize-none`}

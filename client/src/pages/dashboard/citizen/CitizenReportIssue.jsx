@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
-import Swal from 'sweetalert2';
+import toast from 'react-hot-toast';
 import { AuthContext } from '../../../context/AuthContext';
 import axiosInstance from '../../../api/axiosInstance';
 import PhotoUploader from '../../../components/PhotoUploader';
@@ -10,18 +10,19 @@ import PhotoUploader from '../../../components/PhotoUploader';
 const CATEGORIES = ['Garbage', 'Illegal Construction', 'Broken Public Property', 'Road Damage'];
 const PRIORITIES = ['low', 'medium', 'high'];
 
-const Field = ({ label, required, error, children }) => (
+const Field = ({ label, required, error, children, id }) => (
   <div>
-    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-      {label} {required && <span className="text-red-500">*</span>}
+    <label htmlFor={id} className="block text-sm font-semibold text-text mb-1.5">
+      {label} {required && <span className="text-danger" aria-hidden="true">*</span>}
+      {required && <span className="sr-only">(required)</span>}
     </label>
     {children}
-    {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+    {error && <p id={id ? `${id}-error` : undefined} role="alert" className="text-danger text-xs mt-1">{error}</p>}
   </div>
 );
 
 const inputClass =
-  'w-full px-4 py-2.5 rounded-lg border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-[#d4ff00] transition';
+  'w-full px-4 py-2.5 rounded-lg border border-border bg-surface-alt text-text outline-none focus:ring-2 focus:ring-focus-ring transition';
 
 const CitizenReportIssue = () => {
   const { currentUser, dbUser } = useContext(AuthContext);
@@ -45,37 +46,27 @@ const CitizenReportIssue = () => {
       });
       await axiosInstance.patch('/users/increment-count');
     },
-    onSuccess: async () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['myIssues'] });
       reset();
-      await Swal.fire({
-        icon: 'success',
-        title: 'Issue Reported!',
-        text: 'Your issue has been submitted to the community.',
-        confirmButtonColor: '#1a3a2a',
-      });
+      toast.success('Issue Reported! Your issue has been submitted to the community.');
       navigate('/dashboard/citizen/my-issues');
     },
     onError: (err) => {
-      Swal.fire({
-        icon: 'error',
-        title: 'Submission Failed',
-        text: err.response?.data?.error || 'Something went wrong. Please try again.',
-        confirmButtonColor: '#e3342f',
-      });
+      toast.error(err.response?.data?.error || 'Submission failed. Please try again.');
     },
   });
 
   if (isBlocked) {
     return (
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-6">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">
           Report Issue
         </h1>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border dark:border-gray-700 p-14 text-center max-w-lg mx-auto">
+        <div className="bg-surface rounded-2xl shadow-sm border border-border p-14 text-center max-w-lg mx-auto">
           <span className="text-5xl block mb-4">🚫</span>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Account Blocked</h2>
-          <p className="text-gray-500 dark:text-gray-400">
+          <h2 className="text-xl font-bold text-text mb-2">Account Blocked</h2>
+          <p className="text-muted">
             Your account is blocked. Contact admin.
           </p>
         </div>
@@ -86,18 +77,18 @@ const CitizenReportIssue = () => {
   if (limitReached) {
     return (
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-6">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">
           Report Issue
         </h1>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border dark:border-gray-700 p-14 text-center max-w-lg mx-auto">
+        <div className="bg-surface rounded-2xl shadow-sm border border-border p-14 text-center max-w-lg mx-auto">
           <span className="text-5xl block mb-4">🔒</span>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Free Limit Reached</h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">
+          <h2 className="text-xl font-bold text-text mb-2">Free Limit Reached</h2>
+          <p className="text-muted mb-6">
             You've reached the free limit of 3 issues. Upgrade to Premium for unlimited reporting.
           </p>
           <button
             onClick={() => navigate('/dashboard/citizen/profile')}
-            className="px-8 py-3 bg-[#d4ff00] text-[#1a3a2a] font-bold rounded-lg hover:bg-[#bce600] transition"
+            className="px-8 py-3 bg-primary text-on-primary font-bold rounded-lg hover:bg-primary-hover transition"
           >
             Subscribe to Premium
           </button>
@@ -108,22 +99,32 @@ const CitizenReportIssue = () => {
 
   return (
     <div>
-      <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-6">
+      <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">
         Report an Issue
       </h1>
 
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border dark:border-gray-700 p-6 md:p-8 max-w-2xl mx-auto">
-        <form onSubmit={handleSubmit((data) => reportMutation.mutate(data))} className="space-y-5">
-          <Field label="Title" required error={errors.title?.message}>
+      <div className="bg-surface rounded-2xl shadow-sm border border-border p-6 md:p-8 max-w-2xl mx-auto">
+        <form onSubmit={handleSubmit((data) => reportMutation.mutate(data))} className="space-y-5" noValidate>
+          <Field label="Title" required error={errors.title?.message} id="cr-title">
             <input
-              {...register('title', { required: 'Title is required' })}
+              id="cr-title"
+              aria-invalid={!!errors.title}
+              aria-describedby={errors.title ? 'cr-title-error' : undefined}
+              {...register('title', {
+                required: 'Title is required',
+                minLength: { value: 5, message: 'Title must be at least 5 characters' },
+                maxLength: { value: 100, message: 'Title must be 100 characters or fewer' },
+              })}
               placeholder="e.g. Overflowing garbage bin near park"
               className={inputClass}
             />
           </Field>
 
-          <Field label="Category" required error={errors.category?.message}>
+          <Field label="Category" required error={errors.category?.message} id="cr-category">
             <select
+              id="cr-category"
+              aria-invalid={!!errors.category}
+              aria-describedby={errors.category ? 'cr-category-error' : undefined}
               {...register('category', { required: 'Category is required' })}
               className={inputClass}
             >
@@ -132,8 +133,11 @@ const CitizenReportIssue = () => {
             </select>
           </Field>
 
-          <Field label="Priority" required error={errors.priority?.message}>
+          <Field label="Priority" required error={errors.priority?.message} id="cr-priority">
             <select
+              id="cr-priority"
+              aria-invalid={!!errors.priority}
+              aria-describedby={errors.priority ? 'cr-priority-error' : undefined}
               {...register('priority', { required: 'Priority is required' })}
               className={inputClass}
             >
@@ -144,16 +148,25 @@ const CitizenReportIssue = () => {
             </select>
           </Field>
 
-          <Field label="Location" required error={errors.location?.message}>
+          <Field label="Location" required error={errors.location?.message} id="cr-location">
             <input
-              {...register('location', { required: 'Location is required' })}
+              id="cr-location"
+              aria-invalid={!!errors.location}
+              aria-describedby={errors.location ? 'cr-location-error' : undefined}
+              {...register('location', {
+                required: 'Location is required',
+                minLength: { value: 3, message: 'Location must be at least 3 characters' },
+              })}
               placeholder="e.g. Mirpur 10, Dhaka"
               className={inputClass}
             />
           </Field>
 
-          <Field label="Description" required error={errors.description?.message}>
+          <Field label="Description" required error={errors.description?.message} id="cr-description">
             <textarea
+              id="cr-description"
+              aria-invalid={!!errors.description}
+              aria-describedby={errors.description ? 'cr-description-error' : undefined}
               {...register('description', {
                 required: 'Description is required',
                 minLength: { value: 20, message: 'Minimum 20 characters required' },
@@ -164,7 +177,7 @@ const CitizenReportIssue = () => {
             />
           </Field>
 
-          <Field label="Issue Photo" required error={errors.image?.message}>
+          <Field label="Issue Photo" required error={errors.image?.message} id="cr-image">
             <input type="hidden" {...register('image', { required: 'Photo is required' })} />
             <PhotoUploader
               currentUrl={imageUrl}
@@ -178,8 +191,9 @@ const CitizenReportIssue = () => {
           <button
             type="submit"
             disabled={reportMutation.isPending}
-            className="w-full py-3 bg-[#1a3a2a] text-[#d4ff00] font-bold rounded-lg hover:bg-[#2c5f45] transition disabled:opacity-60"
+            className="w-full flex justify-center items-center gap-2 py-3 bg-primary text-on-primary font-bold rounded-lg hover:bg-primary-hover transition disabled:opacity-60"
           >
+            {reportMutation.isPending && <span className="animate-spin rounded-full h-4 w-4 border-2 border-on-primary border-t-transparent" aria-hidden="true" />}
             {reportMutation.isPending ? 'Submitting…' : 'Submit Issue'}
           </button>
         </form>

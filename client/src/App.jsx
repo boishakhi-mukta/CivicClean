@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 // Pages — public
 import HomePage from './pages/HomePage';
 import AllIssuesPage from './pages/AllIssuesPage';
+import AboutPage from './pages/AboutPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import IssueDetailPage from './pages/IssueDetailPage';
@@ -68,13 +69,16 @@ const AppShell = () => {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/all-issues" element={<AllIssuesPage />} />
-          <Route path="/all-issues/:id" element={<PrivateRoute><IssueDetailPage /></PrivateRoute>} />
+          <Route path="/explore" element={<AllIssuesPage />} />
+          <Route path="/explore/:id" element={<IssueDetailPage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/map" element={<MapPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
           {/* Legacy redirects */}
+          <Route path="/all-issues"       element={<Navigate to="/explore" replace />} />
+          <Route path="/all-issues/:id"   element={<Navigate to="/explore" replace />} />
           <Route path="/add-issue"        element={<Navigate to="/dashboard/citizen/report-issue" replace />} />
           <Route path="/my-issues"        element={<Navigate to="/dashboard/citizen/my-issues"    replace />} />
           <Route path="/profile"          element={<Navigate to="/dashboard/citizen/profile"      replace />} />

@@ -200,7 +200,7 @@ const IssueDetailPage = () => {
 
   const handleUpvote = () => {
     if (!currentUser) {
-      navigate('/login', { state: { from: { pathname: `/all-issues/${id}` } } });
+      navigate('/login', { state: { from: { pathname: `/explore/${id}` } } });
       return;
     }
     if (dbUser?.isBlocked) { toast.error('Your account is blocked. Contact admin.'); return; }
@@ -240,7 +240,7 @@ const IssueDetailPage = () => {
       axiosInstance.delete(`/issues/${id}`, { data: { email: currentUser.email } }),
     onSuccess: () => {
       toast.success('Issue deleted');
-      navigate('/all-issues');
+      navigate('/explore');
     },
     onError: (err) => toast.error(err.response?.data?.error || 'Delete failed'),
   });
@@ -418,7 +418,7 @@ const IssueDetailPage = () => {
                   <button
                     onClick={() => {
                       if (!currentUser) {
-                        navigate('/login', { state: { from: { pathname: `/all-issues/${id}` } } });
+                        navigate('/login', { state: { from: { pathname: `/explore/${id}` } } });
                         return;
                       }
                       setIsModalOpen(true);

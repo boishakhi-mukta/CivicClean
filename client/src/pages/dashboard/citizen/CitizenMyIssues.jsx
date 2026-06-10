@@ -2,7 +2,6 @@ import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
-import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
 import { FiExternalLink, FiEdit2, FiTrash2, FiX, FiZap } from 'react-icons/fi';
 import { AuthContext } from '../../../context/AuthContext';
@@ -28,13 +27,15 @@ const PRIORITY_STYLES = {
 const BOOST_PRICE = 99;
 
 const Badge = ({ value, map, fallback = '' }) => {
-  if (!value) return fallback ? <span className="text-gray-400 text-xs">{fallback}</span> : null;
+  if (!value) return fallback ? <span className="text-muted text-xs">{fallback}</span> : null;
   return (
     <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${map[value] || ''}`}>
       {value}
     </span>
   );
 };
+
+const inputClass = 'w-full px-3 py-2 rounded-lg border border-border bg-surface-alt text-text outline-none focus:ring-2 focus:ring-focus-ring';
 
 const EditModal = ({ issue, onClose, onSave, isPending }) => {
   const { register, handleSubmit, formState: { errors } } = useForm({
@@ -47,58 +48,55 @@ const EditModal = ({ issue, onClose, onSave, isPending }) => {
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg shadow-xl">
-        <div className="flex justify-between items-center px-6 py-4 border-b dark:border-gray-700">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white">Edit Issue</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/50 p-4">
+      <div className="bg-surface rounded-2xl w-full max-w-lg shadow-xl">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-border">
+          <h3 className="text-lg font-bold text-text">Edit Issue</h3>
+          <button onClick={onClose} className="text-muted hover:text-text">
             <FiX size={20} />
           </button>
         </div>
         <form onSubmit={handleSubmit(onSave)} className="p-6 space-y-4">
           {[
-            { name: 'title',    label: 'Title',    type: 'input',    rules: { required: 'Required' } },
-            { name: 'location', label: 'Location', type: 'input',    rules: { required: 'Required' } },
+            { name: 'title',    label: 'Title',    rules: { required: 'Required' } },
+            { name: 'location', label: 'Location', rules: { required: 'Required' } },
           ].map(({ name, label, rules }) => (
             <div key={name}>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
-              <input
-                {...register(name, rules)}
-                className="w-full px-3 py-2 rounded-lg border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-[#d4ff00]"
-              />
-              {errors[name] && <p className="text-red-500 text-xs mt-1">{errors[name].message}</p>}
+              <label className="block text-sm font-medium text-text mb-1">{label}</label>
+              <input {...register(name, rules)} className={inputClass} />
+              {errors[name] && <p className="text-danger text-xs mt-1">{errors[name].message}</p>}
             </div>
           ))}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+            <label className="block text-sm font-medium text-text mb-1">Category</label>
             <select
               {...register('category', { required: 'Required' })}
-              className="w-full px-3 py-2 rounded-lg border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-[#d4ff00]"
+              className={inputClass}
             >
               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+            <label className="block text-sm font-medium text-text mb-1">Description</label>
             <textarea
               {...register('description', { required: 'Required' })}
               rows={4}
-              className="w-full px-3 py-2 rounded-lg border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-[#d4ff00] resize-none"
+              className={`${inputClass} resize-none`}
             />
-            {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
+            {errors.description && <p className="text-danger text-xs mt-1">{errors.description.message}</p>}
           </div>
           <div className="flex gap-3 pt-1">
             <button
               type="submit"
               disabled={isPending}
-              className="flex-1 py-2.5 bg-[#1a3a2a] text-[#d4ff00] font-bold rounded-lg hover:bg-[#2c5f45] transition disabled:opacity-50"
+              className="flex-1 py-2.5 bg-primary text-on-primary font-bold rounded-lg hover:bg-primary-hover transition disabled:opacity-50"
             >
               {isPending ? 'Saving…' : 'Save Changes'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+              className="flex-1 py-2.5 bg-surface-alt text-text font-medium rounded-lg hover:bg-border/30 transition"
             >
               Cancel
             </button>
@@ -119,39 +117,39 @@ const BoostModal = ({ issue, onClose, onBoost, isPending }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-xl">
-        <div className="flex justify-between items-center px-6 py-4 border-b dark:border-gray-700">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <FiZap className="text-amber-500" size={18} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/50 p-4">
+      <div className="bg-surface rounded-2xl w-full max-w-md shadow-xl">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-border">
+          <h3 className="text-lg font-bold text-text flex items-center gap-2">
+            <FiZap className="text-warning" size={18} />
             Boost This Issue
           </h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+          <button onClick={onClose} className="text-muted hover:text-text">
             <FiX size={20} />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
             <p className="text-xs text-amber-700 dark:text-amber-400 font-medium mb-1">Issue</p>
-            <p className="text-sm font-bold text-gray-900 dark:text-white line-clamp-2">{issue.title}</p>
+            <p className="text-sm font-bold text-text line-clamp-2">{issue.title}</p>
           </div>
-          <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+          <div className="flex items-center justify-between bg-surface-alt rounded-xl p-4">
             <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Boost Fee</p>
-              <p className="text-2xl font-extrabold text-[#1a3a2a] dark:text-[#d4ff00]">kr {BOOST_PRICE}</p>
+              <p className="text-xs text-muted">Boost Fee</p>
+              <p className="text-2xl font-extrabold text-primary">kr {BOOST_PRICE}</p>
             </div>
-            <div className="text-right text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
-              <p className="font-medium text-gray-700 dark:text-gray-300">Your issue gets:</p>
+            <div className="text-right text-xs text-muted space-y-0.5">
+              <p className="font-medium text-text">Your issue gets:</p>
               <p>• Priority set to High</p>
               <p>• Pinned to top of All Issues</p>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Payment Method</label>
+            <label className="block text-sm font-medium text-text mb-1">Payment Method</label>
             <select
               value={paymentMethod}
               onChange={e => setPaymentMethod(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-[#d4ff00]"
+              className={inputClass}
             >
               <option value="">Select method</option>
               <option value="mobile-banking">Mobile Banking</option>
@@ -171,7 +169,7 @@ const BoostModal = ({ issue, onClose, onBoost, isPending }) => {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+              className="flex-1 py-2.5 bg-surface-alt text-text font-medium rounded-lg hover:bg-border/30 transition"
             >
               Cancel
             </button>
@@ -247,16 +245,8 @@ const CitizenMyIssues = () => {
       toast.error('Your account is blocked. Contact admin.');
       return;
     }
-    Swal.fire({
-      title: 'Delete this issue?',
-      text: 'This cannot be undone.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#e3342f',
-      confirmButtonText: 'Yes, delete',
-    }).then(({ isConfirmed }) => {
-      if (isConfirmed) deleteMutation.mutate(issue._id);
-    });
+    const confirmed = window.confirm('Delete this issue?\n\nThis cannot be undone.');
+    if (confirmed) deleteMutation.mutate(issue._id);
   };
 
   const filtered = issues.filter(i => {
@@ -266,41 +256,30 @@ const CitizenMyIssues = () => {
     return true;
   });
 
+  const filterClass = 'px-3 py-2 rounded-lg border border-border bg-surface text-text text-sm outline-none focus:ring-2 focus:ring-focus-ring';
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#1a3a2a] dark:border-[#d4ff00]" />
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-primary" />
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-6">My Issues</h1>
+      <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">My Issues</h1>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-5">
-        <select
-          value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value)}
-          className="px-3 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-white text-sm outline-none focus:ring-2 focus:ring-[#d4ff00]"
-        >
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className={filterClass}>
           <option value="">All Statuses</option>
           {Object.keys(STATUS_STYLES).map(s => <option key={s} value={s}>{s}</option>)}
         </select>
-        <select
-          value={categoryFilter}
-          onChange={e => setCategoryFilter(e.target.value)}
-          className="px-3 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-white text-sm outline-none focus:ring-2 focus:ring-[#d4ff00]"
-        >
+        <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className={filterClass}>
           <option value="">All Categories</option>
           {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-        <select
-          value={priorityFilter}
-          onChange={e => setPriorityFilter(e.target.value)}
-          className="px-3 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-white text-sm outline-none focus:ring-2 focus:ring-[#d4ff00]"
-        >
+        <select value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)} className={filterClass}>
           <option value="">All Priorities</option>
           <option value="low">Low</option>
           <option value="medium">Medium</option>
@@ -309,15 +288,15 @@ const CitizenMyIssues = () => {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-14 text-center">
+        <div className="bg-surface rounded-xl border border-border p-14 text-center">
           <span className="text-5xl block mb-4">📭</span>
-          <p className="text-gray-500 dark:text-gray-400">No issues match the selected filters.</p>
+          <p className="text-muted">No issues match the selected filters.</p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 overflow-hidden">
+        <div className="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left whitespace-nowrap">
-              <thead className="bg-gray-50 dark:bg-gray-700/50 border-b dark:border-gray-700 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+              <thead className="bg-surface-alt/50 border-b border-border text-xs uppercase tracking-wider text-muted font-semibold">
                 <tr>
                   <th className="px-5 py-4">#</th>
                   <th className="px-5 py-4">Title</th>
@@ -329,21 +308,21 @@ const CitizenMyIssues = () => {
                   <th className="px-5 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              <tbody className="divide-y divide-border">
                 {filtered.map((issue, idx) => (
-                  <tr key={issue._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                    <td className="px-5 py-4 text-sm text-gray-400">{idx + 1}</td>
-                    <td className="px-5 py-4 font-medium text-gray-900 dark:text-white max-w-[180px] truncate">
+                  <tr key={issue._id} className="hover:bg-surface-alt/60 transition-colors">
+                    <td className="px-5 py-4 text-sm text-muted">{idx + 1}</td>
+                    <td className="px-5 py-4 font-medium text-text max-w-[180px] truncate">
                       {issue.title}
                     </td>
-                    <td className="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">{issue.category}</td>
+                    <td className="px-5 py-4 text-sm text-muted">{issue.category}</td>
                     <td className="px-5 py-4">
                       <Badge value={issue.status} map={STATUS_STYLES} fallback="pending" />
                     </td>
                     <td className="px-5 py-4">
                       <Badge value={issue.priority} map={PRIORITY_STYLES} />
                     </td>
-                    <td className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
+                    <td className="px-5 py-4 text-sm text-muted">
                       {new Date(issue.date).toLocaleDateString()}
                     </td>
                     <td className="px-5 py-4">
@@ -366,9 +345,9 @@ const CitizenMyIssues = () => {
                     <td className="px-5 py-4">
                       <div className="flex justify-end gap-2">
                         <button
-                          onClick={() => navigate(`/all-issues/${issue._id}`)}
+                          onClick={() => navigate(`/explore/${issue._id}`)}
                           title="View"
-                          className="p-1.5 rounded-lg text-blue-600 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 transition"
+                          className="p-1.5 rounded-lg text-info bg-info/10 hover:bg-info/20 transition"
                         >
                           <FiExternalLink size={14} />
                         </button>
@@ -379,7 +358,7 @@ const CitizenMyIssues = () => {
                               setEditingIssue(issue);
                             }}
                             title="Edit"
-                            className="p-1.5 rounded-lg text-green-600 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 transition"
+                            className="p-1.5 rounded-lg text-success bg-success/10 hover:bg-success/20 transition"
                           >
                             <FiEdit2 size={14} />
                           </button>
@@ -387,7 +366,7 @@ const CitizenMyIssues = () => {
                         <button
                           onClick={() => handleDelete(issue)}
                           title="Delete"
-                          className="p-1.5 rounded-lg text-red-600 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 transition"
+                          className="p-1.5 rounded-lg text-danger bg-danger/10 hover:bg-danger/20 transition"
                         >
                           <FiTrash2 size={14} />
                         </button>

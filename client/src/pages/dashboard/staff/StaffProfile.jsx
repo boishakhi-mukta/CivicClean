@@ -8,7 +8,7 @@ import PhotoUploader from '../../../components/PhotoUploader';
 import { getUploadErrorMessage, uploadPhotoWithFallback } from '../../../utils/uploadPhoto';
 
 const inputClass =
-  'w-full px-4 py-2.5 rounded-lg border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-[#d4ff00] transition';
+  'w-full px-4 py-2.5 rounded-lg border border-border bg-surface-alt text-text outline-none focus:ring-2 focus:ring-focus-ring transition';
 
 const StaffProfile = () => {
   const { currentUser, dbUser, refreshDbUser, updateCurrentUserProfile } = useContext(AuthContext);
@@ -60,11 +60,10 @@ const StaffProfile = () => {
 
   return (
     <div>
-      <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-6">Profile</h1>
+      <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">Profile</h1>
 
       <div className="max-w-lg mx-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border dark:border-gray-700 p-6">
-          {/* Photo uploader */}
+        <div className="bg-surface rounded-2xl shadow-sm border border-border p-6">
           <PhotoUploader
             currentUrl={photoSrc}
             displayName={displayName}
@@ -75,34 +74,40 @@ const StaffProfile = () => {
             }}
           />
 
-          {/* Name + role */}
           <div className="mb-6">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">{displayName}</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{currentUser?.email}</p>
-            <span className="mt-1 inline-block px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-semibold">
+            <h2 className="text-lg font-bold text-text">{displayName}</h2>
+            <p className="text-sm text-muted">{currentUser?.email}</p>
+            <span className="mt-1 inline-block px-2.5 py-0.5 rounded-full bg-info/10 text-info text-xs font-semibold">
               Staff
             </span>
           </div>
 
-          {/* Edit form */}
-          <form onSubmit={handleSubmit((data) => updateMutation.mutate(data))} className="space-y-4">
+          <form onSubmit={handleSubmit((data) => updateMutation.mutate(data))} className="space-y-4" noValidate>
             <input type="hidden" {...register('avatar_url')} />
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+              <label htmlFor="staff-display-name" className="block text-sm font-semibold text-text mb-1.5">
                 Display Name
               </label>
               <input
-                {...register('name', { required: 'Name is required' })}
+                id="staff-display-name"
+                autoComplete="name"
+                aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? 'staff-display-name-error' : undefined}
+                {...register('name', {
+                  required: 'Name is required',
+                  minLength: { value: 2, message: 'Name must be at least 2 characters' },
+                  maxLength: { value: 60, message: 'Name must be 60 characters or fewer' },
+                })}
                 className={inputClass}
               />
               {errors.name && (
-                <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+                <p id="staff-display-name-error" role="alert" className="text-danger text-xs mt-1">{errors.name.message}</p>
               )}
             </div>
             <button
               type="submit"
               disabled={updateMutation.isPending}
-              className="w-full py-2.5 bg-[#1a3a2a] text-[#d4ff00] font-bold rounded-lg hover:bg-[#2c5f45] transition disabled:opacity-60"
+              className="w-full py-2.5 bg-primary text-on-primary font-bold rounded-lg hover:bg-primary-hover transition disabled:opacity-60"
             >
               {updateMutation.isPending ? 'Uploading and saving…' : 'Save Profile'}
             </button>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosInstance';
@@ -6,7 +6,139 @@ import { Fade, Slide } from 'react-awesome-reveal';
 import { Typewriter } from 'react-simple-typewriter';
 import { FiTrash2, FiAlertTriangle, FiPenTool, FiMap } from 'react-icons/fi';
 import { AuthContext } from '../context/AuthContext';
-import IssueCard from '../components/IssueCard';
+import IssueCard, { IssueCardSkeleton } from '../components/IssueCard';
+
+const useCountUp = (target, duration = 2000) => {
+  const [count, setCount] = useState(0);
+  const triggered = useRef(false);
+  useEffect(() => {
+    if (!target || triggered.current) return;
+    triggered.current = true;
+    const start = performance.now();
+    const tick = (now) => {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setCount(Math.round(eased * target));
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [target, duration]);
+  return count;
+};
+
+const FAQ_ITEMS = [
+  {
+    q: 'What is CivicClean?',
+    a: 'CivicClean is a community platform that lets citizens report public infrastructure issues — garbage, road damage, broken property, illegal construction — and track them through to resolution. Admins and staff work together to verify and fix each report.',
+  },
+  {
+    q: 'Do I need an account to report an issue?',
+    a: 'Yes, a free account is required to submit reports so we can keep you updated on progress. You can browse and view all existing issues without signing in.',
+  },
+  {
+    q: 'How long does it take for an issue to be resolved?',
+    a: 'Resolution time varies by severity and location. Once submitted, an admin reviews the report within 1–2 business days and assigns it to a staff member. You can track the live status — Pending → In Progress → Resolved — at any time.',
+  },
+  {
+    q: 'What is the Premium subscription?',
+    a: 'Free accounts can submit up to 3 reports. A one-time Premium subscription (1,000 kr) removes that limit, giving you unlimited reporting and the ability to boost issues for faster review.',
+  },
+  {
+    q: 'What does "Boosting" an issue do?',
+    a: "Boosting (100 kr) flags your issue for priority review by the admin team. Boosted issues appear at the top of the queue and receive a visual badge so the community can see they're high priority.",
+  },
+  {
+    q: 'Can I contribute to an issue I did not report?',
+    a: 'Yes! Any logged-in citizen can make a financial contribution toward the clean-up budget of any open issue. Contributions are tracked and visible on the issue detail page.',
+  },
+  {
+    q: 'Who reviews and resolves the reports?',
+    a: 'Administrators review incoming reports, verify them, and assign them to trained staff members. Staff confirm the issue on-site and mark it resolved once the work is complete.',
+  },
+  {
+    q: 'Is my personal information kept private?',
+    a: 'Your email address is used only for authentication and notifications. It is never displayed publicly. Only your display name and avatar appear alongside your reports.',
+  },
+];
+
+const AccordionItem = ({ item, isOpen, onToggle }) => (
+  <div className={`border border-border rounded-xl overflow-hidden transition-colors duration-200 ${isOpen ? 'bg-surface' : 'bg-surface hover:bg-surface-alt'}`}>
+    <button
+      onClick={onToggle}
+      className="w-full flex items-center justify-between px-6 py-5 text-left gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+      aria-expanded={isOpen}
+    >
+      <span className="font-semibold text-text text-sm sm:text-base">{item.q}</span>
+      <span
+        className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 ${
+          isOpen ? 'bg-primary text-on-primary rotate-45' : 'bg-surface-alt text-muted'
+        }`}
+        aria-hidden="true"
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </span>
+    </button>
+    <div
+      className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+    >
+      <div className="overflow-hidden">
+        <p className="px-6 pb-5 text-sm text-muted leading-relaxed">{item.a}</p>
+      </div>
+    </div>
+  </div>
+);
+
+const FAQ = () => {
+  const [openIdx, setOpenIdx] = useState(null);
+  const toggle = useCallback((i) => setOpenIdx(prev => prev === i ? null : i), []);
+
+  const half = Math.ceil(FAQ_ITEMS.length / 2);
+  const col1 = FAQ_ITEMS.slice(0, half);
+  const col2 = FAQ_ITEMS.slice(half);
+
+  return (
+    <section className="py-20 bg-surface-alt transition-colors duration-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-14">
+          <Fade direction="up" triggerOnce>
+            <span className="inline-block text-sm font-bold uppercase tracking-widest text-primary mb-3">FAQ</span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-text mb-4">Frequently Asked Questions</h2>
+            <p className="text-muted max-w-2xl mx-auto">
+              Everything you need to know about CivicClean. Can't find an answer? Reach out to our team.
+            </p>
+          </Fade>
+        </div>
+
+        <Fade direction="up" triggerOnce>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              {col1.map((item, i) => (
+                <AccordionItem
+                  key={i}
+                  item={item}
+                  isOpen={openIdx === i}
+                  onToggle={() => toggle(i)}
+                />
+              ))}
+            </div>
+            <div className="space-y-3">
+              {col2.map((item, i) => (
+                <AccordionItem
+                  key={half + i}
+                  item={item}
+                  isOpen={openIdx === half + i}
+                  onToggle={() => toggle(half + i)}
+                />
+              ))}
+            </div>
+          </div>
+        </Fade>
+      </div>
+    </section>
+  );
+};
 
 const HomePage = () => {
   const { currentUser } = useContext(AuthContext);
@@ -20,7 +152,7 @@ const HomePage = () => {
       subtitle: 'See a pile of trash? Don\'t ignore it. Report it instantly and help us maintain a clean city.',
       ctaText: 'Report Now',
       ctaLink: '/dashboard/citizen/report-issue',
-      bgImage: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&q=80',
+      bgImage: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1920&q=85',
     },
     {
       title: 'Join Clean Drive Events',
@@ -28,15 +160,15 @@ const HomePage = () => {
       subtitle: 'Volunteer for community-driven cleanliness events and make a tangible impact in your neighborhood.',
       ctaText: 'Volunteer Today',
       ctaLink: '/register',
-      bgImage: 'https://images.unsplash.com/photo-1594834749740-74b3f69606de?auto=format&fit=crop&q=80',
+      bgImage: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=1920&q=85',
     },
     {
       title: 'Build a Greener Community',
       emoji: '🌱',
       subtitle: 'Track issues, make a difference, and help build a cleaner community.',
-      ctaText: 'See All Issues',
-      ctaLink: '/all-issues',
-      bgImage: 'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?auto=format&fit=crop&q=80',
+      ctaText: 'Explore Issues',
+      ctaLink: '/explore',
+      bgImage: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1920&q=85',
     },
   ];
 
@@ -54,6 +186,11 @@ const HomePage = () => {
     staleTime: 5 * 60 * 1000,
   });
 
+  const animatedUsers         = useCountUp(stats.totalUsers);
+  const animatedReported      = useCountUp(stats.issuesReported);
+  const animatedResolved      = useCountUp(stats.issuesResolved);
+  const animatedContributions = useCountUp(stats.totalContributions);
+
   const { data: recentIssues = [], isLoading: loadingIssues } = useQuery({
     queryKey: ['homeResolvedIssues'],
     queryFn: async () => (await axiosInstance.get('/issues?status=resolved&limit=6')).data.issues,
@@ -70,7 +207,7 @@ const HomePage = () => {
     <div className="bg-bg transition-colors duration-200">
 
       {/* 1. BANNER */}
-      <section className="relative h-[600px] w-full overflow-hidden">
+      <section className="relative h-[65vh] min-h-[500px] max-h-[780px] w-full overflow-hidden">
         {slides.map((slide, index) => (
           <div
             key={index}
@@ -82,13 +219,13 @@ const HomePage = () => {
               className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: `url(${slide.bgImage})` }}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-overlay/90 to-overlay/50" />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-primary/40" />
             </div>
 
             <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-start text-white">
               <Fade direction="up" cascade damping={0.2} triggerOnce={false} key={currentSlide}>
-                <span className="text-6xl md:text-8xl mb-6">{slide.emoji}</span>
-                <h1 className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight max-w-3xl">
+                <span className="text-5xl sm:text-6xl md:text-8xl mb-4 sm:mb-6">{slide.emoji}</span>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-3 sm:mb-4 leading-tight max-w-3xl">
                   {index === 0 ? (
                     <Typewriter
                       words={[slide.title]}
@@ -103,10 +240,10 @@ const HomePage = () => {
                     slide.title
                   )}
                 </h1>
-                <p className="text-xl md:text-2xl mb-8 max-w-2xl text-white/80 font-light">{slide.subtitle}</p>
+                <p className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 max-w-2xl text-white/80 font-light">{slide.subtitle}</p>
                 <button
                   onClick={() => navigate(slide.ctaLink)}
-                  className="px-8 py-4 bg-primary text-on-primary text-lg font-bold rounded-lg hover:bg-primary-hover transition transform hover:-translate-y-1 hover:shadow-xl"
+                  className="px-6 sm:px-8 py-3 sm:py-4 bg-on-primary text-primary text-base sm:text-lg font-bold rounded-xl hover:bg-on-primary/90 transition transform hover:-translate-y-1 hover:shadow-xl"
                 >
                   {slide.ctaText}
                 </button>
@@ -115,7 +252,7 @@ const HomePage = () => {
           </div>
         ))}
 
-        <div className="absolute bottom-8 left-0 right-0 z-20 flex justify-center space-x-3">
+        <div className="absolute bottom-6 sm:bottom-8 left-0 right-0 z-20 flex justify-center space-x-3">
           {slides.map((_, idx) => (
             <button
               key={idx}
@@ -135,19 +272,19 @@ const HomePage = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <Fade cascade damping={0.1}>
               <div className="flex flex-col items-center">
-                <span className="text-4xl font-extrabold text-on-primary mb-2">{stats.totalUsers}</span>
+                <span className="text-4xl font-extrabold text-on-primary mb-2">{animatedUsers.toLocaleString()}</span>
                 <span className="text-on-primary/70 text-sm uppercase tracking-widest">Total Users</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-4xl font-extrabold text-on-primary mb-2">{stats.issuesReported}</span>
+                <span className="text-4xl font-extrabold text-on-primary mb-2">{animatedReported.toLocaleString()}</span>
                 <span className="text-on-primary/70 text-sm uppercase tracking-widest">Issues Reported</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-4xl font-extrabold text-on-primary mb-2">{stats.issuesResolved}</span>
+                <span className="text-4xl font-extrabold text-on-primary mb-2">{animatedResolved.toLocaleString()}</span>
                 <span className="text-on-primary/70 text-sm uppercase tracking-widest">Issues Resolved</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-4xl font-extrabold text-on-primary mb-2">{stats.totalContributions}</span>
+                <span className="text-4xl font-extrabold text-on-primary mb-2">{animatedContributions.toLocaleString()}</span>
                 <span className="text-on-primary/70 text-sm uppercase tracking-widest">Total Contributions</span>
               </div>
             </Fade>
@@ -170,7 +307,7 @@ const HomePage = () => {
               {categories.map(({ name, Icon, query }) => (
                 <Link
                   key={name}
-                  to={`/all-issues?category=${encodeURIComponent(query)}`}
+                  to={`/explore?category=${encodeURIComponent(query)}`}
                   className="bg-surface p-8 rounded-2xl shadow-lg hover:shadow-2xl transition duration-300 flex flex-col items-center text-center group border border-border"
                 >
                   <div className="p-4 rounded-full bg-primary group-hover:scale-110 transition-transform duration-300">
@@ -195,15 +332,17 @@ const HomePage = () => {
               </div>
             </Fade>
             <Fade direction="right">
-              <Link to="/all-issues" className="hidden md:inline-flex items-center text-primary font-bold hover:underline">
+              <Link to="/explore" className="hidden md:inline-flex items-center text-primary font-bold hover:underline">
                 View All Issues &rarr;
               </Link>
             </Fade>
           </div>
 
           {loadingIssues ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <IssueCardSkeleton key={i} />
+              ))}
             </div>
           ) : recentIssues.length === 0 ? (
             <div className="text-center py-20 bg-surface-alt rounded-2xl">
@@ -212,7 +351,7 @@ const HomePage = () => {
               <p className="text-muted">Be the first to report and help resolve a community issue.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8">
               <Fade cascade damping={0.1}>
                 {recentIssues.map(issue => (
                   <IssueCard key={issue._id} issue={issue} />
@@ -223,7 +362,7 @@ const HomePage = () => {
 
           <div className="mt-10 text-center md:hidden">
             <Link
-              to="/all-issues"
+              to="/explore"
               className="inline-flex px-6 py-3 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-on-primary transition"
             >
               View All Issues
@@ -309,7 +448,10 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* 7. CTA */}
+      {/* 7. FAQ */}
+      <FAQ />
+
+      {/* 8. CTA */}
       <section className="bg-primary py-24 relative overflow-hidden">
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-on-primary/5 blur-3xl" />
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-on-primary/10 blur-3xl" />

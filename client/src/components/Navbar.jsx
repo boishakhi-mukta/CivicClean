@@ -45,8 +45,9 @@ const Navbar = () => {
           {/* Desktop nav links */}
           <div className="hidden md:flex items-center space-x-8">
             <NavLink to="/" className={navLinkClass}>Home</NavLink>
-            <NavLink to="/all-issues" className={navLinkClass}>All Issues</NavLink>
+            <NavLink to="/explore" className={navLinkClass}>Explore</NavLink>
             <NavLink to="/map" className={navLinkClass}>Map</NavLink>
+            <NavLink to="/about" className={navLinkClass}>About</NavLink>
             {currentUser && (!dbUser?.role || dbUser?.role === 'citizen') && (
               <>
                 <NavLink to="/dashboard/citizen/report-issue" className={navLinkClass}>Report Issue</NavLink>
@@ -147,8 +148,9 @@ const Navbar = () => {
           <div className="px-2 pt-2 pb-3 space-y-1">
             {[
               { to: '/', label: 'Home' },
-              { to: '/all-issues', label: 'All Issues' },
+              { to: '/explore', label: 'Explore' },
               { to: '/map', label: 'Map' },
+              { to: '/about', label: 'About' },
             ].map(({ to, label }) => (
               <NavLink
                 key={to}

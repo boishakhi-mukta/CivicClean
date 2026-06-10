@@ -1,29 +1,28 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
-import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
 import { FiPlus, FiEdit2, FiTrash2, FiX, FiAlertCircle, FiEye, FiEyeOff } from 'react-icons/fi';
 import axiosInstance from '../../../api/axiosInstance';
 import PhotoUploader from '../../../components/PhotoUploader';
 
 const inputClass =
-  'w-full px-3 py-2.5 rounded-lg border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-[#d4ff00] transition text-sm';
+  'w-full px-3 py-2.5 rounded-lg border border-border bg-surface-alt text-text outline-none focus:ring-2 focus:ring-focus-ring transition text-sm';
 
 const StaffFormModal = ({ title, defaultValues, onClose, onSubmit, isPending }) => {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm({ defaultValues });
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-xl">
-        <div className="flex justify-between items-center px-6 py-4 border-b dark:border-gray-700">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/50 p-4">
+      <div className="bg-surface rounded-2xl w-full max-w-md shadow-xl">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-border">
+          <h3 className="text-lg font-bold text-text">{title}</h3>
+          <button onClick={onClose} className="text-muted hover:text-text">
             <FiX size={20} />
           </button>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4" noValidate>
           <input type="hidden" {...register('avatar_url')} />
           <PhotoUploader
             currentUrl={defaultValues?.avatar_url}
@@ -31,30 +30,52 @@ const StaffFormModal = ({ title, defaultValues, onClose, onSubmit, isPending }) 
             onUploadComplete={(url) => setValue('avatar_url', url)}
           />
           <div>
-            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Name</label>
-            <input {...register('name', { required: 'Required' })} className={inputClass} />
-            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+            <label htmlFor="staff-name" className="block text-xs font-semibold text-muted mb-1">Name <span className="text-danger" aria-hidden="true">*</span></label>
+            <input
+              id="staff-name"
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? 'staff-name-error' : undefined}
+              {...register('name', {
+                required: 'Name is required',
+                minLength: { value: 2, message: 'Name must be at least 2 characters' },
+              })}
+              className={inputClass}
+            />
+            {errors.name && <p id="staff-name-error" role="alert" className="text-danger text-xs mt-1">{errors.name.message}</p>}
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Email</label>
+            <label htmlFor="staff-email" className="block text-xs font-semibold text-muted mb-1">Email <span className="text-danger" aria-hidden="true">*</span></label>
             <input
-              {...register('email', { required: 'Required', pattern: { value: /\S+@\S+\.\S+/, message: 'Invalid email' } })}
+              id="staff-email"
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? 'staff-email-error' : undefined}
+              {...register('email', {
+                required: 'Email is required',
+                pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Enter a valid email address' },
+              })}
               type="email"
               className={inputClass}
               disabled={!!defaultValues?.email}
             />
-            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+            {errors.email && <p id="staff-email-error" role="alert" className="text-danger text-xs mt-1">{errors.email.message}</p>}
           </div>
           {!defaultValues?.email && (
             <div>
-              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
-                Password <span className="text-red-500">*</span>
+              <label htmlFor="staff-password" className="block text-xs font-semibold text-muted mb-1">
+                Password <span className="text-danger" aria-hidden="true">*</span>
               </label>
               <div className="relative">
                 <input
+                  id="staff-password"
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? 'staff-password-error' : undefined}
                   {...register('password', {
-                    required: 'Required',
-                    minLength: { value: 6, message: 'Min 6 characters' },
+                    required: 'Password is required',
+                    minLength: { value: 6, message: 'Password must be at least 6 characters' },
+                    pattern: {
+                      value: /^(?=.*[a-z])(?=.*[A-Z])/,
+                      message: 'Must contain at least one uppercase and one lowercase letter',
+                    },
                   })}
                   type={showPassword ? 'text' : 'password'}
                   className={`${inputClass} pr-10`}
@@ -63,26 +84,27 @@ const StaffFormModal = ({ title, defaultValues, onClose, onSubmit, isPending }) 
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
-                  className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute inset-y-0 right-3 flex items-center text-muted hover:text-text"
                 >
                   {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
                 </button>
               </div>
-              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+              {errors.password && <p id="staff-password-error" role="alert" className="text-danger text-xs mt-1">{errors.password.message}</p>}
             </div>
           )}
           <div className="flex gap-3 pt-1">
             <button
               type="submit"
               disabled={isPending}
-              className="flex-1 py-2.5 bg-[#1a3a2a] text-[#d4ff00] font-bold rounded-lg hover:bg-[#2c5f45] transition disabled:opacity-50"
+              className="flex-1 py-2.5 bg-primary text-on-primary font-bold rounded-lg hover:bg-primary-hover transition disabled:opacity-50"
             >
               {isPending ? 'Saving…' : 'Save'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition"
+              className="flex-1 py-2.5 bg-surface-alt text-text font-medium rounded-lg transition"
             >
               Cancel
             </button>
@@ -133,22 +155,17 @@ const AdminManageStaff = () => {
     onError: (err) => toast.error(err.response?.data?.message || 'Delete failed'),
   });
 
-  const handleDelete = async (user) => {
-    const { isConfirmed } = await Swal.fire({
-      title: 'Remove staff member?',
-      text: `${user.name || user.email} will be removed from the database. Their login account will remain active.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, remove',
-      confirmButtonColor: '#e3342f',
-    });
-    if (isConfirmed) deleteMutation.mutate(user._id);
+  const handleDelete = (user) => {
+    const confirmed = window.confirm(
+      `Remove staff member?\n\n${user.name || user.email} will be removed from the database. Their login account will remain active.`
+    );
+    if (confirmed) deleteMutation.mutate(user._id);
   };
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#1a3a2a] dark:border-[#d4ff00]" />
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-primary" />
       </div>
     );
   }
@@ -156,12 +173,12 @@ const AdminManageStaff = () => {
   if (isError) {
     return (
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-6">Manage Staff</h1>
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 flex items-start gap-3">
-          <FiAlertCircle className="text-red-500 mt-0.5 flex-shrink-0" size={20} />
+        <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">Manage Staff</h1>
+        <div className="bg-danger/5 border border-danger/30 rounded-xl p-6 flex items-start gap-3">
+          <FiAlertCircle className="text-danger mt-0.5 flex-shrink-0" size={20} />
           <div>
-            <p className="font-semibold text-red-700 dark:text-red-400">Failed to load staff list</p>
-            <p className="text-sm text-red-600 dark:text-red-400 mt-1">
+            <p className="font-semibold text-danger">Failed to load staff list</p>
+            <p className="text-sm text-danger mt-1">
               {error?.response?.data?.message || error?.message || 'Unknown error'}
             </p>
           </div>
@@ -173,61 +190,61 @@ const AdminManageStaff = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white">Manage Staff</h1>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-text">Manage Staff</h1>
         <button
           onClick={() => setAddOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#1a3a2a] text-[#d4ff00] font-bold rounded-xl hover:bg-[#2c5f45] transition text-sm"
+          className="flex items-center gap-2 px-4 py-2.5 bg-primary text-on-primary font-bold rounded-xl hover:bg-primary-hover transition text-sm"
         >
           <FiPlus size={16} /> Add Staff
         </button>
       </div>
 
       {staffList.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-14 text-center">
+        <div className="bg-surface rounded-xl border border-border p-14 text-center">
           <span className="text-5xl block mb-4">👷</span>
-          <p className="text-gray-500 dark:text-gray-400">No staff members yet. Add one to get started.</p>
+          <p className="text-muted">No staff members yet. Add one to get started.</p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 overflow-hidden">
+        <div className="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left whitespace-nowrap">
-              <thead className="bg-gray-50 dark:bg-gray-700/50 border-b dark:border-gray-700 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+              <thead className="bg-surface-alt/50 border-b border-border text-xs uppercase tracking-wider text-muted font-semibold">
                 <tr>
                   <th className="px-5 py-4">Staff Member</th>
                   <th className="px-5 py-4">Email</th>
                   <th className="px-5 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              <tbody className="divide-y divide-border">
                 {staffList.map(user => (
-                  <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                  <tr key={user._id} className="hover:bg-surface-alt/60 transition-colors">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         {user.avatar_url ? (
                           <img src={user.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
                         ) : (
-                          <div className="w-8 h-8 rounded-full bg-[#d4ff00] flex items-center justify-center text-[#1a3a2a] text-xs font-bold">
+                          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary text-xs font-bold">
                             {(user.name || user.email).charAt(0).toUpperCase()}
                           </div>
                         )}
-                        <span className="font-medium text-gray-900 dark:text-white text-sm">
+                        <span className="font-medium text-text text-sm">
                           {user.name || '—'}
                         </span>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{user.email}</td>
+                    <td className="px-5 py-4 text-sm text-muted">{user.email}</td>
                     <td className="px-5 py-4">
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => setEditUser(user)}
-                          className="p-1.5 rounded-lg text-blue-600 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 transition"
+                          className="p-1.5 rounded-lg text-info bg-info/10 hover:bg-info/20 transition"
                         >
                           <FiEdit2 size={14} />
                         </button>
                         <button
                           onClick={() => handleDelete(user)}
                           disabled={deleteMutation.isPending}
-                          className="p-1.5 rounded-lg text-red-600 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 transition disabled:opacity-50"
+                          className="p-1.5 rounded-lg text-danger bg-danger/10 hover:bg-danger/20 transition disabled:opacity-50"
                         >
                           <FiTrash2 size={14} />
                         </button>

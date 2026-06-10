@@ -15,11 +15,11 @@ const STATUS_COLORS = {
   rejected:    '#ef4444',
 };
 
-const StatCard = ({ label, value, color }) => (
-  <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
-    <div className={`w-3 h-3 rounded-full mb-3 ${color}`} />
-    <p className="text-2xl font-black text-gray-900 dark:text-white">{value}</p>
-    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1 uppercase tracking-wide">
+const StatCard = ({ label, value, colorClass }) => (
+  <div className="bg-surface rounded-xl p-5 shadow-sm border border-border">
+    <div className={`w-3 h-3 rounded-full mb-3 ${colorClass}`} />
+    <p className="text-2xl font-black text-text">{value}</p>
+    <p className="text-xs text-muted font-medium mt-1 uppercase tracking-wide">
       {label}
     </p>
   </div>
@@ -60,24 +60,24 @@ const CitizenOverview = () => {
   const pieData = Object.entries(statusGroups).map(([name, value]) => ({ name, value }));
 
   const stats = [
-    { label: 'Total Submitted', value: issues.length,     color: 'bg-blue-500' },
-    { label: 'Pending',         value: pending,            color: 'bg-amber-500' },
-    { label: 'In Progress',     value: inProgress,         color: 'bg-purple-500' },
-    { label: 'Resolved',        value: resolved,           color: 'bg-emerald-500' },
-    { label: 'Total Payments',  value: `kr${totalPaid}`,   color: 'bg-[#1a3a2a]' },
+    { label: 'Total Submitted', value: issues.length,   colorClass: 'bg-info' },
+    { label: 'Pending',         value: pending,          colorClass: 'bg-warning' },
+    { label: 'In Progress',     value: inProgress,       colorClass: 'bg-purple-500' },
+    { label: 'Resolved',        value: resolved,         colorClass: 'bg-success' },
+    { label: 'Total Payments',  value: `kr${totalPaid}`, colorClass: 'bg-primary' },
   ];
 
   if (issuesLoading || paymentsLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#1a3a2a] dark:border-[#d4ff00]" />
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-primary" />
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-6">
+      <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">
         Overview
       </h1>
 
@@ -86,8 +86,8 @@ const CitizenOverview = () => {
       </div>
 
       {pieData.length > 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Issues by Status</h2>
+        <div className="bg-surface rounded-xl shadow-sm border border-border p-6">
+          <h2 className="text-lg font-bold text-text mb-4">Issues by Status</h2>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -110,9 +110,9 @@ const CitizenOverview = () => {
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-14 text-center">
+        <div className="bg-surface rounded-xl border border-border p-14 text-center">
           <span className="text-5xl block mb-4">📋</span>
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-muted">
             No issues yet. Head to <strong>Report Issue</strong> to get started.
           </p>
         </div>

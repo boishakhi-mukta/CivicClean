@@ -6,7 +6,7 @@ import ThemeToggle from '../../../../components/ThemeToggle';
 
 const navItems = [
   { to: '/dashboard/citizen',              label: 'Overview',     Icon: FiGrid,       end: true },
-  { to: '/all-issues',                     label: 'All Issues',   Icon: FiGlobe },
+  { to: '/explore',                         label: 'Explore',      Icon: FiGlobe },
   { to: '/dashboard/citizen/my-issues',    label: 'My Issues',    Icon: FiList },
   { to: '/dashboard/citizen/report-issue', label: 'Report Issue', Icon: FiPlusCircle },
   { to: '/dashboard/citizen/profile',      label: 'Profile',      Icon: FiUser },

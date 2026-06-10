@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Fade } from 'react-awesome-reveal';
+import { FiLogOut } from 'react-icons/fi';
 
 const ProfilePage = () => {
   const { currentUser, dbUser, logout } = useContext(AuthContext);
@@ -9,45 +10,58 @@ const ProfilePage = () => {
     document.title = "CivicClean | Profile";
   }, []);
 
-  if (!currentUser) return <div>Please login.</div>;
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-bg flex items-center justify-center">
+        <p className="text-muted">Please log in to view your profile.</p>
+      </div>
+    );
+  }
 
   const displayName = dbUser?.name || currentUser.displayName || 'User';
-  const photoSrc = dbUser?.avatar_url || currentUser.photoURL || 'https://via.placeholder.com/150';
+  const photoSrc = dbUser?.avatar_url || currentUser.photoURL || null;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 transition-colors">
+    <div className="min-h-screen bg-bg py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       <div className="max-w-3xl mx-auto">
         <Fade direction="down" triggerOnce>
-          <h1 className="text-4xl font-extrabold text-[#1a3a2a] dark:text-white mb-8">My Profile</h1>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-text mb-8">My Profile</h1>
         </Fade>
 
         <Fade direction="up" triggerOnce>
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row items-center gap-8">
-            <img 
-              src={photoSrc}
-              alt="Profile" 
-              className="w-40 h-40 rounded-full border-4 border-[#d4ff00] shadow-md object-cover"
-            />
-            
-            <div className="flex-grow">
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{displayName}</h2>
-              <p className="text-lg text-gray-500 dark:text-gray-400 mb-6">{currentUser.email}</p>
-              
+          <div className="bg-surface p-6 sm:p-8 rounded-xl shadow-sm border border-border flex flex-col md:flex-row items-center gap-8">
+            {photoSrc ? (
+              <img
+                src={photoSrc}
+                alt="Profile"
+                className="w-36 h-36 rounded-full border-4 border-primary shadow-md object-cover flex-shrink-0"
+              />
+            ) : (
+              <div className="w-36 h-36 rounded-full bg-primary flex items-center justify-center text-on-primary text-4xl font-extrabold flex-shrink-0">
+                {displayName.charAt(0).toUpperCase()}
+              </div>
+            )}
+
+            <div className="flex-grow min-w-0 w-full">
+              <h2 className="text-2xl sm:text-3xl font-bold text-text mb-1 truncate">{displayName}</h2>
+              <p className="text-muted mb-6 truncate">{currentUser.email}</p>
+
               <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-4">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider mb-1">Issues Reported</p>
-                  <p className="text-2xl font-black text-[#1a3a2a] dark:text-[#d4ff00]">{dbUser?.issueCount || 0}</p>
+                <div className="bg-surface-alt rounded-xl p-4 border border-border">
+                  <p className="text-xs text-muted uppercase font-semibold tracking-wider mb-1">Issues Reported</p>
+                  <p className="text-2xl font-black text-primary">{dbUser?.issueCount || 0}</p>
                 </div>
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-4">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wider mb-1">Role</p>
-                  <p className="text-2xl font-black text-[#1a3a2a] dark:text-[#d4ff00] capitalize">{dbUser?.role || 'citizen'}</p>
+                <div className="bg-surface-alt rounded-xl p-4 border border-border">
+                  <p className="text-xs text-muted uppercase font-semibold tracking-wider mb-1">Role</p>
+                  <p className="text-2xl font-black text-primary capitalize">{dbUser?.role || 'citizen'}</p>
                 </div>
               </div>
-              
-              <button 
+
+              <button
                 onClick={logout}
-                className="px-6 py-3 bg-red-600 text-white font-bold rounded-lg shadow-md hover:bg-red-700 transition w-full md:w-auto"
+                className="flex items-center gap-2 px-6 py-2.5 bg-danger/10 text-danger font-bold rounded-lg hover:bg-danger/20 transition-colors w-full md:w-auto justify-center md:justify-start"
               >
+                <FiLogOut size={16} />
                 Log Out
               </button>
             </div>

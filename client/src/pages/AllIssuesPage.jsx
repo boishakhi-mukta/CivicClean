@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import axiosInstance from '../api/axiosInstance';
-import IssueCard from '../components/IssueCard';
+import IssueCard, { IssueCardSkeleton } from '../components/IssueCard';
 import { Fade } from 'react-awesome-reveal';
 
-const LIMIT = 6;
+const LIMIT = 8;
 
 function getPageNumbers(current, total) {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
@@ -113,9 +113,10 @@ const AllIssuesPage = () => {
         </div>
 
         {isLoading ? (
-          <div className="flex flex-col justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary" />
-            <p className="mt-4 text-muted font-medium">Loading issues...</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8">
+            {Array.from({ length: LIMIT }).map((_, i) => (
+              <IssueCardSkeleton key={i} />
+            ))}
           </div>
         ) : issues.length === 0 ? (
           <div className="text-center py-20 bg-surface rounded-2xl shadow-sm border border-border">
@@ -125,7 +126,7 @@ const AllIssuesPage = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8">
               <Fade cascade damping={0.05} triggerOnce key={`${category}-${debouncedSearch}-${page}`}>
                 {issues.map(issue => (
                   <IssueCard key={issue._id} issue={issue} />

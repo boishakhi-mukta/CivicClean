@@ -16,73 +16,81 @@ const LeaderboardPage = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#1a3a2a] dark:border-[#d4ff00]"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary" />
       </div>
     );
   }
 
+  const rankBadge = (index) => {
+    if (index === 0) return 'bg-yellow-400 text-yellow-900';
+    if (index === 1) return 'bg-gray-300 text-gray-800';
+    if (index === 2) return 'bg-amber-600 text-white';
+    return 'bg-surface-alt text-muted';
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 transition-colors">
+    <div className="min-h-screen bg-bg py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       <div className="max-w-4xl mx-auto">
         <Fade direction="down" triggerOnce>
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-[#1a3a2a] dark:text-white mb-4">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-text mb-4">
               Community Leaderboard
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
+            <p className="text-lg text-muted">
               Recognizing our top contributors making the community a better place.
             </p>
           </div>
         </Fade>
 
         <Fade direction="up" triggerOnce>
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+          <div className="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left whitespace-nowrap">
                 <thead>
-                  <tr className="bg-[#1a3a2a] text-[#d4ff00] uppercase text-sm tracking-wider">
+                  <tr className="bg-primary text-on-primary text-sm uppercase tracking-wider">
                     <th className="py-5 px-6 font-bold">Rank</th>
                     <th className="py-5 px-6 font-bold">Citizen</th>
                     <th className="py-5 px-6 font-bold text-right">Contribution Points</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                <tbody className="divide-y divide-border">
                   {users.map((user, index) => (
                     <tr
                       key={user._id}
-                      className={`hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${index < 3 ? 'bg-yellow-50/50 dark:bg-yellow-900/10' : ''}`}
+                      className={`hover:bg-surface-alt/60 transition-colors ${index < 3 ? 'bg-warning/5' : ''}`}
                     >
                       <td className="py-5 px-6">
-                        <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm ${
-                          index === 0 ? 'bg-yellow-400 text-yellow-900' :
-                          index === 1 ? 'bg-gray-300 text-gray-800' :
-                          index === 2 ? 'bg-amber-600 text-white' :
-                          'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
-                        }`}>
+                        <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm ${rankBadge(index)}`}>
                           {index + 1}
                         </span>
                       </td>
                       <td className="py-5 px-6">
-                        <div className="flex items-center">
-                          <img
-                            src={user.avatar_url || 'https://via.placeholder.com/40'}
-                            alt={user.name}
-                            className="w-10 h-10 rounded-full mr-4 border-2 border-gray-200 dark:border-gray-600"
-                          />
-                          <div>
-                            <p className="font-bold text-gray-900 dark:text-white">{user.name}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Joined {new Date(user.created_at).getFullYear()}</p>
+                        <div className="flex items-center gap-4">
+                          {user.avatar_url ? (
+                            <img
+                              src={user.avatar_url}
+                              alt={user.name}
+                              className="w-10 h-10 rounded-full object-cover border-2 border-border flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm flex-shrink-0">
+                              {(user.name || user.email || '?').charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-bold text-text truncate">{user.name}</p>
+                            <p className="text-xs text-muted">Joined {new Date(user.created_at).getFullYear()}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="py-5 px-6 text-right font-black text-2xl text-[#1a3a2a] dark:text-[#d4ff00]">
+                      <td className="py-5 px-6 text-right font-black text-2xl text-primary">
                         {user.total_points}
                       </td>
                     </tr>
                   ))}
                   {users.length === 0 && (
                     <tr>
-                      <td colSpan="3" className="py-8 text-center text-gray-500 dark:text-gray-400 italic">
+                      <td colSpan="3" className="py-12 text-center text-muted italic">
                         No contributors yet.
                       </td>
                     </tr>

@@ -17,7 +17,7 @@ const RegisterPage = () => {
     document.title = 'CivicClean | Register';
   }, []);
 
-  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm();
+  const { register, handleSubmit, formState: { errors, isSubmitting }, setValue, watch } = useForm();
 
   const onSubmit = async (data) => {
     try {
@@ -52,27 +52,42 @@ const RegisterPage = () => {
             <p className="mt-2 text-sm text-muted">Join the community to start reporting issues.</p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <div>
-              <label className="block text-sm font-medium text-text">Full Name</label>
+              <label htmlFor="reg-name" className="block text-sm font-medium text-text">Full Name</label>
               <input
+                id="reg-name"
                 type="text"
-                {...register('name', { required: 'Name is required' })}
-                className="mt-1 block w-full px-4 py-3 bg-surface-alt border border-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-focus-ring focus:border-focus-ring transition-colors"
+                autoComplete="name"
+                aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? 'reg-name-error' : undefined}
+                {...register('name', {
+                  required: 'Name is required',
+                  minLength: { value: 2, message: 'Name must be at least 2 characters' },
+                  maxLength: { value: 60, message: 'Name must be 60 characters or fewer' },
+                })}
+                className="mt-1 block w-full px-4 py-3 bg-surface-alt border border-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-focus-ring focus:border-focus-ring transition-colors aria-invalid:border-danger"
                 placeholder="John Doe"
               />
-              {errors.name && <p className="mt-1 text-sm text-danger">{errors.name.message}</p>}
+              {errors.name && <p id="reg-name-error" role="alert" className="mt-1 text-sm text-danger">{errors.name.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text">Email address</label>
+              <label htmlFor="reg-email" className="block text-sm font-medium text-text">Email address</label>
               <input
+                id="reg-email"
                 type="email"
-                {...register('email', { required: 'Email is required' })}
-                className="mt-1 block w-full px-4 py-3 bg-surface-alt border border-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-focus-ring focus:border-focus-ring transition-colors"
+                autoComplete="email"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'reg-email-error' : undefined}
+                {...register('email', {
+                  required: 'Email is required',
+                  pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Enter a valid email address' },
+                })}
+                className="mt-1 block w-full px-4 py-3 bg-surface-alt border border-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-focus-ring focus:border-focus-ring transition-colors aria-invalid:border-danger"
                 placeholder="you@example.com"
               />
-              {errors.email && <p className="mt-1 text-sm text-danger">{errors.email.message}</p>}
+              {errors.email && <p id="reg-email-error" role="alert" className="mt-1 text-sm text-danger">{errors.email.message}</p>}
             </div>
 
             <div>
@@ -87,14 +102,18 @@ const RegisterPage = () => {
                 }}
               />
               <input type="hidden" {...register('photoURL', { required: 'Profile photo is required' })} />
-              {errors.photoURL && <p className="mt-1 text-sm text-danger">{errors.photoURL.message}</p>}
+              {errors.photoURL && <p role="alert" className="mt-1 text-sm text-danger">{errors.photoURL.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text">Password</label>
+              <label htmlFor="reg-password" className="block text-sm font-medium text-text">Password</label>
               <div className="relative mt-1">
                 <input
+                  id="reg-password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  aria-invalid={!!errors.password}
+                  aria-describedby="reg-password-hint reg-password-error"
                   {...register('password', {
                     required: 'Password is required',
                     minLength: { value: 6, message: 'Password must be at least 6 characters' },
@@ -103,20 +122,21 @@ const RegisterPage = () => {
                       message: 'Password must contain at least one uppercase and one lowercase letter',
                     },
                   })}
-                  className="block w-full px-4 py-3 pr-11 bg-surface-alt border border-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-focus-ring focus:border-focus-ring transition-colors"
+                  className="block w-full px-4 py-3 pr-11 bg-surface-alt border border-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-focus-ring focus:border-focus-ring transition-colors aria-invalid:border-danger"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   className="absolute inset-y-0 right-3 flex items-center text-muted hover:text-text"
                 >
                   {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
                 </button>
               </div>
-              {errors.password && <p className="mt-1 text-sm text-danger">{errors.password.message}</p>}
+              {errors.password && <p id="reg-password-error" role="alert" className="mt-1 text-sm text-danger">{errors.password.message}</p>}
 
-              <div className="mt-2 p-3 bg-surface-alt rounded-lg border border-border text-xs text-muted">
+              <div id="reg-password-hint" className="mt-2 p-3 bg-surface-alt rounded-lg border border-border text-xs text-muted">
                 <p className="font-semibold mb-1">Password Requirements:</p>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>At least 6 characters long</li>
@@ -128,9 +148,11 @@ const RegisterPage = () => {
 
             <button
               type="submit"
-              className="w-full flex justify-center py-3 px-4 rounded-lg shadow-sm text-lg font-bold bg-primary text-on-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-focus-ring transition-colors"
+              disabled={isSubmitting}
+              className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-lg shadow-sm text-lg font-bold bg-primary text-on-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-focus-ring transition-colors disabled:opacity-60"
             >
-              Sign Up
+              {isSubmitting && <span className="animate-spin rounded-full h-4 w-4 border-2 border-on-primary border-t-transparent" aria-hidden="true" />}
+              {isSubmitting ? 'Creating account…' : 'Sign Up'}
             </button>
           </form>
 

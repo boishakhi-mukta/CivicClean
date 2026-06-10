@@ -35,14 +35,14 @@ const AdminPayments = () => {
       const doc = new jsPDF();
 
       doc.setFontSize(18);
-      doc.setTextColor(26, 58, 42);
+      doc.setTextColor(48, 109, 41);
       doc.text('CivicClean', 14, 18);
 
       doc.setFontSize(11);
       doc.setTextColor(80);
       doc.text('Official Payment Invoice', 14, 26);
 
-      doc.setDrawColor(212, 255, 0);
+      doc.setDrawColor(48, 109, 41);
       doc.setLineWidth(0.8);
       doc.line(14, 30, 196, 30);
 
@@ -59,7 +59,7 @@ const AdminPayments = () => {
         theme: 'plain',
         styles: { fontSize: 10 },
         columnStyles: {
-          0: { fontStyle: 'bold', textColor: [26, 58, 42], cellWidth: 50 },
+          0: { fontStyle: 'bold', textColor: [48, 109, 41], cellWidth: 50 },
           1: { textColor: [50, 50, 50] },
         },
       });
@@ -78,7 +78,7 @@ const AdminPayments = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#1a3a2a] dark:border-[#d4ff00]" />
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-primary" />
       </div>
     );
   }
@@ -86,11 +86,11 @@ const AdminPayments = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white">Payments</h1>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-text">Payments</h1>
         <select
           value={typeFilter}
           onChange={e => setTypeFilter(e.target.value)}
-          className="px-3 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-white text-sm outline-none focus:ring-2 focus:ring-[#d4ff00]"
+          className="px-3 py-2 rounded-lg border border-border bg-surface text-text text-sm outline-none focus:ring-2 focus:ring-focus-ring"
         >
           <option value="">All Types</option>
           <option value="boost">Boost</option>
@@ -99,15 +99,15 @@ const AdminPayments = () => {
       </div>
 
       {payments.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-14 text-center">
+        <div className="bg-surface rounded-xl border border-border p-14 text-center">
           <span className="text-5xl block mb-4">💳</span>
-          <p className="text-gray-500 dark:text-gray-400">No payments found.</p>
+          <p className="text-muted">No payments found.</p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 overflow-hidden">
+        <div className="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left whitespace-nowrap">
-              <thead className="bg-gray-50 dark:bg-gray-700/50 border-b dark:border-gray-700 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
+              <thead className="bg-surface-alt/50 border-b border-border text-xs uppercase tracking-wider text-muted font-semibold">
                 <tr>
                   <th className="px-5 py-4">#</th>
                   <th className="px-5 py-4">User</th>
@@ -120,11 +120,11 @@ const AdminPayments = () => {
                   <th className="px-5 py-4 text-right">Invoice</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              <tbody className="divide-y divide-border">
                 {payments.map((p, idx) => (
-                  <tr key={p._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                    <td className="px-5 py-4 text-sm text-gray-400">{idx + 1}</td>
-                    <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300 max-w-[140px] truncate">
+                  <tr key={p._id} className="hover:bg-surface-alt/60 transition-colors">
+                    <td className="px-5 py-4 text-sm text-muted">{idx + 1}</td>
+                    <td className="px-5 py-4 text-sm text-text max-w-[140px] truncate">
                       {p.userEmail}
                     </td>
                     <td className="px-5 py-4">
@@ -132,24 +132,24 @@ const AdminPayments = () => {
                         {p.type}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-sm font-bold text-gray-900 dark:text-white">kr{p.amount}</td>
-                    <td className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
+                    <td className="px-5 py-4 text-sm font-bold text-text">kr{p.amount}</td>
+                    <td className="px-5 py-4 text-sm text-muted">
                       {METHOD_LABELS[p.paymentMethod] || '—'}
                     </td>
-                    <td className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-[140px] truncate">
+                    <td className="px-5 py-4 text-sm text-muted max-w-[140px] truncate">
                       {p.issueTitle || '—'}
                     </td>
-                    <td className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
+                    <td className="px-5 py-4 text-sm text-muted">
                       {new Date(p.date).toLocaleDateString()}
                     </td>
-                    <td className="px-5 py-4 text-xs text-gray-400 font-mono">
+                    <td className="px-5 py-4 text-xs text-muted font-mono">
                       {p.transactionId ? p.transactionId.slice(0, 16) + '…' : '—'}
                     </td>
                     <td className="px-5 py-4 text-right">
                       <button
                         onClick={() => downloadInvoice(p)}
                         title="Download Invoice"
-                        className="p-1.5 rounded-lg text-[#1a3a2a] bg-[#d4ff00]/20 hover:bg-[#d4ff00]/40 dark:text-[#d4ff00] transition"
+                        className="p-1.5 rounded-lg text-primary bg-primary/10 hover:bg-primary/20 transition"
                       >
                         <FiDownload size={15} />
                       </button>

@@ -4,7 +4,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AuthContext } from '../context/AuthContext';
 import axiosInstance from '../api/axiosInstance';
 import { Fade } from 'react-awesome-reveal';
-import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
 import { FiEdit2, FiTrash2, FiExternalLink } from 'react-icons/fi';
 import UpdateIssueModal from '../components/UpdateIssueModal';
@@ -56,44 +55,34 @@ const MyIssuesPage = () => {
     setIsUpdateModalOpen(true);
   };
 
-  const handleDeleteClick = (issue) => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "This action cannot be undone.",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#e3342f',
-      cancelButtonColor: '#6cb2eb',
-      confirmButtonText: 'Yes, delete it!'
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axiosInstance.delete(`/issues/${issue._id}`, {
-            data: { email: currentUser.email }
-          });
-          toast.success('Issue deleted successfully!');
-          queryClient.invalidateQueries({ queryKey: ['myIssuesLegacy'] });
-        } catch (error) {
-          toast.error(error.response?.data?.error || 'Failed to delete issue.');
-        }
-      }
-    });
+  const handleDeleteClick = async (issue) => {
+    const confirmed = window.confirm('Are you sure?\n\nThis action cannot be undone.');
+    if (!confirmed) return;
+    try {
+      await axiosInstance.delete(`/issues/${issue._id}`, {
+        data: { email: currentUser.email }
+      });
+      toast.success('Issue deleted successfully!');
+      queryClient.invalidateQueries({ queryKey: ['myIssuesLegacy'] });
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Failed to delete issue.');
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
+    <div className="min-h-screen bg-bg py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       <div className="max-w-7xl mx-auto">
         <div className="mb-10 flex flex-col md:flex-row justify-between items-center gap-4">
           <Fade direction="left" triggerOnce>
             <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-[#1a3a2a] dark:text-white mb-2">My Reported Issues</h1>
-              <p className="text-gray-600 dark:text-gray-400">Manage and track the progress of the issues you've reported.</p>
+              <h1 className="text-3xl md:text-4xl font-extrabold text-text mb-2">My Reported Issues</h1>
+              <p className="text-muted">Manage and track the progress of the issues you've reported.</p>
             </div>
           </Fade>
           <Fade direction="right" triggerOnce>
             <Link
               to="/add-issue"
-              className="px-6 py-3 bg-[#d4ff00] text-[#1a3a2a] font-bold rounded-lg shadow-md hover:bg-[#bce600] transition-colors"
+              className="px-6 py-3 bg-primary text-on-primary font-bold rounded-lg shadow-md hover:bg-primary-hover transition-colors"
             >
               + Report New Issue
             </Link>
@@ -102,19 +91,19 @@ const MyIssuesPage = () => {
 
         {isLoading ? (
           <div className="flex flex-col justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#1a3a2a] dark:border-[#d4ff00]"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary" />
           </div>
         ) : issues.length === 0 ? (
           <Fade triggerOnce>
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-12 text-center">
+            <div className="bg-surface rounded-2xl shadow-sm border border-border p-12 text-center">
               <span className="text-6xl mb-6 block">📝</span>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">You haven't reported any issues yet.</h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">
+              <h3 className="text-2xl font-bold text-text mb-3">You haven't reported any issues yet.</h3>
+              <p className="text-muted mb-8 max-w-md mx-auto">
                 Be a local hero! If you see something wrong in your neighborhood, let us know and help make it right.
               </p>
               <Link
                 to="/add-issue"
-                className="inline-block px-8 py-4 bg-[#1a3a2a] text-[#d4ff00] dark:bg-[#d4ff00] dark:text-[#1a3a2a] text-lg font-bold rounded-lg shadow-lg hover:opacity-90 transition-opacity"
+                className="inline-block px-8 py-4 bg-primary text-on-primary text-lg font-bold rounded-lg shadow-lg hover:bg-primary-hover transition"
               >
                 Report Your First Issue
               </Link>
@@ -122,11 +111,11 @@ const MyIssuesPage = () => {
           </Fade>
         ) : (
           <Fade direction="up" triggerOnce>
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div className="bg-surface rounded-2xl shadow-sm border border-border overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse whitespace-nowrap">
                   <thead>
-                    <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wider font-semibold">
+                    <tr className="bg-surface-alt/50 border-b border-border text-muted uppercase text-xs tracking-wider font-semibold">
                       <th className="py-4 px-6">#</th>
                       <th className="py-4 px-6">Title</th>
                       <th className="py-4 px-6">Category</th>
@@ -137,54 +126,54 @@ const MyIssuesPage = () => {
                       <th className="py-4 px-6 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                  <tbody className="divide-y divide-border">
                     {issues.map((issue, index) => (
-                      <tr key={issue._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                        <td className="py-4 px-6 text-sm text-gray-500 dark:text-gray-400 font-medium">
+                      <tr key={issue._id} className="hover:bg-surface-alt/60 transition-colors">
+                        <td className="py-4 px-6 text-sm text-muted font-medium">
                           {index + 1}
                         </td>
                         <td className="py-4 px-6">
-                          <div className="font-bold text-gray-900 dark:text-white max-w-[200px] truncate" title={issue.title}>
+                          <div className="font-bold text-text max-w-[200px] truncate" title={issue.title}>
                             {issue.title}
                           </div>
                         </td>
                         <td className="py-4 px-6 flex items-center mt-2">
-                          <span className={`inline-block w-3 h-3 rounded-full mr-2 shadow-sm ${getCategoryColor(issue.category)}`}></span>
-                          <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{issue.category}</span>
+                          <span className={`inline-block w-3 h-3 rounded-full mr-2 shadow-sm ${getCategoryColor(issue.category)}`} />
+                          <span className="text-sm text-text font-medium">{issue.category}</span>
                         </td>
                         <td className="py-4 px-6">
-                          <span className="text-sm text-gray-600 dark:text-gray-400 max-w-[150px] truncate block" title={issue.location}>
+                          <span className="text-sm text-muted max-w-[150px] truncate block" title={issue.location}>
                             {issue.location}
                           </span>
                         </td>
-                        <td className="py-4 px-6 font-semibold text-[#1a3a2a] dark:text-[#d4ff00]">
+                        <td className="py-4 px-6 font-semibold text-primary">
                           {issue.amount || 0}
                         </td>
                         <td className="py-4 px-6">
                           {getStatusBadge(issue.status)}
                         </td>
-                        <td className="py-4 px-6 text-sm text-gray-500 dark:text-gray-400">
+                        <td className="py-4 px-6 text-sm text-muted">
                           {new Date(issue.date).toLocaleDateString()}
                         </td>
                         <td className="py-4 px-6 text-right">
                           <div className="flex justify-end gap-2">
                             <button
-                              onClick={() => navigate(`/all-issues/${issue._id}`)}
-                              className="p-2 text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+                              onClick={() => navigate(`/explore/${issue._id}`)}
+                              className="p-2 text-info bg-info/10 rounded-lg hover:bg-info/20 transition-colors"
                               title="View Details"
                             >
                               <FiExternalLink />
                             </button>
                             <button
                               onClick={() => handleUpdateClick(issue)}
-                              className="p-2 text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors"
+                              className="p-2 text-success bg-success/10 rounded-lg hover:bg-success/20 transition-colors"
                               title="Update Issue"
                             >
                               <FiEdit2 />
                             </button>
                             <button
                               onClick={() => handleDeleteClick(issue)}
-                              className="p-2 text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                              className="p-2 text-danger bg-danger/10 rounded-lg hover:bg-danger/20 transition-colors"
                               title="Delete Issue"
                             >
                               <FiTrash2 />
