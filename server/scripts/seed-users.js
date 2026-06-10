@@ -11,8 +11,9 @@ const mongoose = require('mongoose');
 const User     = require('../models/User');
 
 const USERS = [
-  { name: 'CivicClean Admin', email: 'admin@civicclean.com',  password: 'Admin@123', role: 'admin'  },
-  { name: 'CivicClean Staff', email: 'staff@civicclean.com',  password: 'Staff@123', role: 'staff'  },
+  { name: 'CivicClean Admin',   email: 'admin@civicclean.com',   password: 'Admin@123',   role: 'admin'   },
+  { name: 'CivicClean Staff',   email: 'staff@civicclean.com',   password: 'Staff@123',   role: 'staff'   },
+  { name: 'Demo Citizen',       email: 'citizen@civicclean.com', password: 'Citizen@123', role: 'citizen' },
 ];
 
 // ── Firebase Admin init ──────────────────────────────────────────────────────

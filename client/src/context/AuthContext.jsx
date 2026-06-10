@@ -6,7 +6,10 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
-  updateProfile
+  updateProfile,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from 'firebase/auth';
 import auth from '../firebase/firebase.config';
 import axiosInstance from '../api/axiosInstance';
@@ -110,6 +113,13 @@ export const AuthProvider = ({ children }) => {
     return signOut(auth);
   };
 
+  const changePassword = async (currentPassword, newPassword) => {
+    const user = auth.currentUser;
+    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+    await reauthenticateWithCredential(user, credential);
+    await updatePassword(user, newPassword);
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -134,6 +144,7 @@ export const AuthProvider = ({ children }) => {
     loginWithEmail,
     loginWithGoogle,
     logout,
+    changePassword,
   };
 
   return (

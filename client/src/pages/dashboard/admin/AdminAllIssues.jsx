@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { FiSearch, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiSearch, FiX, FiChevronLeft, FiChevronRight, FiEye, FiMapPin, FiCalendar, FiUser, FiTag, FiAlertCircle } from 'react-icons/fi';
 import axiosInstance from '../../../api/axiosInstance';
 
 const CATEGORIES = ['Garbage', 'Illegal Construction', 'Broken Public Property', 'Road Damage'];
@@ -34,6 +34,196 @@ const Badge = ({ value, map }) => {
     <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${map[key] || 'bg-surface-alt text-muted'}`}>
       {value}
     </span>
+  );
+};
+
+const ViewIssueModal = ({ issue, onClose }) => {
+  const [imgExpanded, setImgExpanded] = useState(false);
+  if (!issue) return null;
+
+  const statusStyle   = STATUS_STYLES[issue.status?.toLowerCase()]   || 'bg-surface-alt text-muted';
+  const priorityStyle = PRIORITY_STYLES[issue.priority?.toLowerCase()] || '';
+  const reportedDate  = issue.date ? new Date(issue.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+
+  const meta = [
+    { icon: FiTag,      label: 'Category',    value: issue.category },
+    { icon: FiMapPin,   label: 'Location',    value: issue.location },
+    { icon: FiUser,     label: 'Reported by', value: issue.email },
+    { icon: FiUser,     label: 'Assigned to', value: issue.assignedStaff?.staffName },
+    { icon: FiUser,     label: 'Staff email',  value: issue.assignedStaff?.staffEmail },
+    { icon: FiCalendar, label: 'Reported on', value: reportedDate },
+  ].filter(r => r.value);
+
+  return (
+    <>
+      {/* Main modal */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/50 p-4">
+        <div className="bg-surface rounded-2xl w-full max-w-2xl shadow-2xl max-h-[92vh] flex flex-col">
+
+          {/* Header */}
+          <div className="flex justify-between items-start px-6 py-5 border-b border-border flex-shrink-0">
+            <div className="flex-1 pr-4">
+              <p className="text-xs font-bold text-muted uppercase tracking-widest mb-1">Issue Report</p>
+              <h3 className="text-xl font-extrabold text-text leading-snug">{issue.title}</h3>
+              <div className="flex flex-wrap gap-2 mt-2.5">
+                {issue.status && (
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${statusStyle}`}>
+                    {issue.status}
+                  </span>
+                )}
+                {issue.priority && (
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${priorityStyle}`}>
+                    {issue.priority} priority
+                  </span>
+                )}
+                {issue.isBoosted && (
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                    Boosted
+                  </span>
+                )}
+                {issue.upvoteCount > 0 && (
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-surface-alt text-muted">
+                    ▲ {issue.upvoteCount} upvotes
+                  </span>
+                )}
+              </div>
+            </div>
+            <button onClick={onClose} className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-alt transition flex-shrink-0">
+              <FiX size={18} />
+            </button>
+          </div>
+
+          {/* Scrollable body */}
+          <div className="overflow-y-auto flex-1 divide-y divide-border">
+
+            {/* Image */}
+            {issue.image && (
+              <div className="p-4">
+                <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2">Photo</p>
+                <div
+                  className="relative overflow-hidden rounded-xl border border-border bg-surface-alt cursor-zoom-in group"
+                  onClick={() => setImgExpanded(true)}
+                >
+                  <img
+                    src={issue.image}
+                    alt="Issue photo"
+                    loading="lazy"
+                    className="w-full max-h-72 object-cover transition duration-200 group-hover:brightness-95"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                    <span className="bg-black/60 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
+                      Click to expand
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!issue.image && (
+              <div className="p-4">
+                <div className="w-full h-24 rounded-xl border border-dashed border-border bg-surface-alt flex items-center justify-center">
+                  <p className="text-sm text-muted">No photo attached</p>
+                </div>
+              </div>
+            )}
+
+            {/* Description */}
+            <div className="p-6">
+              <p className="text-xs font-bold text-muted uppercase tracking-wider mb-2">Description</p>
+              {issue.description ? (
+                <p className="text-sm text-text leading-relaxed">{issue.description}</p>
+              ) : (
+                <p className="text-sm text-muted italic">No description provided.</p>
+              )}
+            </div>
+
+            {/* Meta details */}
+            <div className="p-6">
+              <p className="text-xs font-bold text-muted uppercase tracking-wider mb-4">Details</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {meta.map(({ icon: Icon, label, value }) => (
+                  <div key={label} className="flex items-start gap-3 p-3 bg-surface-alt rounded-xl">
+                    <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Icon size={13} className="text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted font-medium">{label}</p>
+                      <p className="text-sm text-text font-semibold truncate">{value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Rejection reason */}
+            {issue.rejectedReason && (
+              <div className="p-6">
+                <div className="flex items-start gap-3 p-4 bg-danger/5 border border-danger/20 rounded-xl">
+                  <FiAlertCircle size={16} className="text-danger flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold text-danger uppercase tracking-wider mb-1">Rejection Reason</p>
+                    <p className="text-sm text-text">{issue.rejectedReason}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Timeline */}
+            {issue.timeline?.length > 0 && (
+              <div className="p-6">
+                <p className="text-xs font-bold text-muted uppercase tracking-wider mb-4">Activity Timeline</p>
+                <div className="space-y-3">
+                  {[...issue.timeline].reverse().map((entry, i) => (
+                    <div key={i} className="flex gap-3">
+                      <div className="flex flex-col items-center">
+                        <div className="w-2 h-2 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                        {i < issue.timeline.length - 1 && <div className="w-px flex-1 bg-border mt-1" />}
+                      </div>
+                      <div className="pb-3 flex-1 min-w-0">
+                        <p className="text-sm text-text leading-snug">{entry.message}</p>
+                        <p className="text-xs text-muted mt-0.5">
+                          {entry.updatedBy} · {entry.createdAt ? new Date(entry.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="px-6 py-4 border-t border-border flex-shrink-0">
+            <button
+              onClick={onClose}
+              className="w-full py-2.5 bg-surface-alt text-text font-semibold rounded-xl hover:bg-border/40 transition text-sm"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Full-screen image lightbox */}
+      {imgExpanded && issue.image && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out"
+          onClick={() => setImgExpanded(false)}
+        >
+          <img
+            src={issue.image}
+            alt="Issue photo full"
+            className="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
+          />
+          <button
+            onClick={() => setImgExpanded(false)}
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition"
+          >
+            <FiX size={20} />
+          </button>
+        </div>
+      )}
+    </>
   );
 };
 
@@ -113,6 +303,7 @@ const AdminAllIssues = () => {
   const [searchInput,     setSearchInput]     = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [assignModal,     setAssignModal]     = useState(null);
+  const [viewModal,       setViewModal]       = useState(null);
 
   const hasActiveFilters = statusFilter || categoryFilter || priorityFilter || searchInput;
 
@@ -178,7 +369,10 @@ const AdminAllIssues = () => {
 
   return (
     <div>
-      <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">All Issues</h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-extrabold text-text">All Issues</h1>
+        <p className="text-sm text-muted mt-0.5">Review, assign, and manage community reports</p>
+      </div>
 
       <div className="flex flex-wrap gap-3 mb-5">
         <div className="relative">
@@ -224,8 +418,39 @@ const AdminAllIssues = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center h-48">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary" />
+        <div className="animate-pulse bg-surface rounded-xl border border-border overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-surface-alt/50 border-b border-border">
+                <tr>
+                  {Array.from({ length: 7 }).map((_, i) => (
+                    <th key={i} className="px-4 py-4">
+                      <div className="h-3 w-16 bg-surface-alt rounded" />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-4 py-4"><div className="h-4 w-5 bg-surface-alt rounded" /></td>
+                    <td className="px-4 py-4"><div className="h-4 w-36 bg-surface-alt rounded" /></td>
+                    <td className="px-4 py-4"><div className="h-4 w-20 bg-surface-alt rounded" /></td>
+                    <td className="px-4 py-4"><div className="h-5 w-18 bg-surface-alt rounded-full" /></td>
+                    <td className="px-4 py-4"><div className="h-5 w-14 bg-surface-alt rounded-full" /></td>
+                    <td className="px-4 py-4"><div className="h-4 w-24 bg-surface-alt rounded" /></td>
+                    <td className="px-4 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <div className="h-7 w-7 bg-surface-alt rounded-lg" />
+                        <div className="h-7 w-7 bg-surface-alt rounded-lg" />
+                        <div className="h-7 w-7 bg-surface-alt rounded-lg" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : issues.length === 0 ? (
         <div className="bg-surface rounded-xl border border-border p-14 text-center">
@@ -265,6 +490,13 @@ const AdminAllIssues = () => {
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => setViewModal(issue)}
+                            title="View details"
+                            className="p-1.5 rounded-lg text-muted bg-surface-alt hover:bg-border/40 hover:text-text transition"
+                          >
+                            <FiEye size={14} />
+                          </button>
                           {!issue.assignedStaff?.staffId && (
                             <button
                               onClick={() => issue.status?.toLowerCase() !== 'rejected' && setAssignModal(issue)}
@@ -331,6 +563,10 @@ const AdminAllIssues = () => {
             </div>
           </div>
         </>
+      )}
+
+      {viewModal && (
+        <ViewIssueModal issue={viewModal} onClose={() => setViewModal(null)} />
       )}
 
       {assignModal && (

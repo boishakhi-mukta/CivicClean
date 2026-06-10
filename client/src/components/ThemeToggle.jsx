@@ -10,8 +10,8 @@ const ThemeToggle = ({ className = '' }) => {
       aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
       className={`
-        p-2 rounded-lg border border-on-primary/30 text-on-primary
-        hover:bg-on-primary/10 transition-colors duration-150
+        p-2 rounded-lg text-muted
+        hover:bg-surface-alt transition-colors duration-150
         focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring
         ${className}
       `}

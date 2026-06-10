@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useCallback, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { FiMapPin, FiThumbsUp, FiZap, FiCalendar, FiDollarSign } from 'react-icons/fi';
@@ -76,7 +76,7 @@ const IssueCard = ({ issue }) => {
     onError: (err) => toast.error(err.response?.data?.message || 'Could not upvote'),
   });
 
-  const handleUpvote = (e) => {
+  const handleUpvote = useCallback((e) => {
     e.preventDefault();
     if (!currentUser) {
       navigate('/login', { state: { from: { pathname: `/explore/${issue._id}` } } });
@@ -84,7 +84,7 @@ const IssueCard = ({ issue }) => {
     }
     if (isOwnIssue || hasVoted || upvoteMutation.isPending) return;
     upvoteMutation.mutate();
-  };
+  }, [currentUser, isOwnIssue, hasVoted, upvoteMutation, navigate, issue._id]);
 
   const statusCfg   = getStatusConfig(issue.status?.toLowerCase());
   const priorityKey = issue.priority?.toLowerCase();
@@ -99,6 +99,7 @@ const IssueCard = ({ issue }) => {
           src={issue.image || PLACEHOLDER}
           onError={(e) => { e.target.onerror = null; e.target.src = PLACEHOLDER; }}
           alt={issue.title}
+          loading="lazy"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
@@ -199,4 +200,4 @@ const IssueCard = ({ issue }) => {
   );
 };
 
-export default IssueCard;
+export default memo(IssueCard);

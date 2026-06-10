@@ -60,9 +60,10 @@ const CitizenReportIssue = () => {
   if (isBlocked) {
     return (
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">
-          Report Issue
-        </h1>
+        <div className="mb-6">
+          <h1 className="text-2xl font-extrabold text-text">Report Issue</h1>
+          <p className="text-sm text-muted mt-0.5">Submit a new civic issue in your community</p>
+        </div>
         <div className="bg-surface rounded-2xl shadow-sm border border-border p-14 text-center max-w-lg mx-auto">
           <span className="text-5xl block mb-4">🚫</span>
           <h2 className="text-xl font-bold text-text mb-2">Account Blocked</h2>
@@ -77,9 +78,10 @@ const CitizenReportIssue = () => {
   if (limitReached) {
     return (
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">
-          Report Issue
-        </h1>
+        <div className="mb-6">
+          <h1 className="text-2xl font-extrabold text-text">Report Issue</h1>
+          <p className="text-sm text-muted mt-0.5">Submit a new civic issue in your community</p>
+        </div>
         <div className="bg-surface rounded-2xl shadow-sm border border-border p-14 text-center max-w-lg mx-auto">
           <span className="text-5xl block mb-4">🔒</span>
           <h2 className="text-xl font-bold text-text mb-2">Free Limit Reached</h2>
@@ -99,9 +101,10 @@ const CitizenReportIssue = () => {
 
   return (
     <div>
-      <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">
-        Report an Issue
-      </h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-extrabold text-text">Report an Issue</h1>
+        <p className="text-sm text-muted mt-0.5">Submit a new civic issue in your community</p>
+      </div>
 
       <div className="bg-surface rounded-2xl shadow-sm border border-border p-6 md:p-8 max-w-2xl mx-auto">
         <form onSubmit={handleSubmit((data) => reportMutation.mutate(data))} className="space-y-5" noValidate>

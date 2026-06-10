@@ -211,7 +211,7 @@ const IssueDetailPage = () => {
   const boostMutation = useMutation({
     mutationFn: () =>
       axiosInstance.post('/payments', {
-        type: 'boost', amount: 100, issueId: id, issueTitle: issue.title,
+        type: 'boost', amount: 99, issueId: id, issueTitle: issue.title,
         paymentMethod: boostPaymentMethod,
       }),
     onSuccess: () => {
@@ -253,9 +253,58 @@ const IssueDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-[calc(100vh-64px)] flex flex-col justify-center items-center bg-bg transition-colors">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary" />
-        <p className="mt-4 text-muted font-medium">Loading issue details…</p>
+      <div className="min-h-screen bg-bg py-12 px-4 sm:px-6 lg:px-8 animate-pulse">
+        <div className="max-w-6xl mx-auto space-y-8">
+          {/* Hero card */}
+          <div className="bg-surface rounded-2xl border border-border overflow-hidden shadow-sm">
+            <div className="grid grid-cols-1 lg:grid-cols-2">
+              <div className="h-72 lg:h-96 bg-surface-alt" />
+              <div className="p-8 md:p-10 flex flex-col gap-5">
+                <div className="flex gap-2">
+                  <div className="h-7 w-24 bg-surface-alt rounded-md" />
+                  <div className="h-7 w-20 bg-surface-alt rounded-md" />
+                </div>
+                <div className="h-10 w-4/5 bg-surface-alt rounded-xl" />
+                <div className="space-y-2.5">
+                  <div className="h-4 w-full bg-surface-alt rounded-lg" />
+                  <div className="h-4 w-5/6 bg-surface-alt rounded-lg" />
+                  <div className="h-4 w-4/6 bg-surface-alt rounded-lg" />
+                </div>
+                <div className="flex gap-3 mt-2">
+                  <div className="h-4 w-32 bg-surface-alt rounded-md" />
+                  <div className="h-4 w-28 bg-surface-alt rounded-md" />
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Content + sidebar */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-surface rounded-2xl border border-border p-6 space-y-3">
+                <div className="h-5 w-40 bg-surface-alt rounded-lg" />
+                <div className="h-4 w-full bg-surface-alt rounded-md" />
+                <div className="h-4 w-5/6 bg-surface-alt rounded-md" />
+                <div className="h-4 w-3/4 bg-surface-alt rounded-md" />
+              </div>
+              <div className="bg-surface rounded-2xl border border-border p-6">
+                <div className="h-5 w-32 bg-surface-alt rounded-lg mb-4" />
+                <div className="h-40 bg-surface-alt rounded-xl" />
+              </div>
+            </div>
+            <div className="space-y-6">
+              <div className="bg-surface rounded-2xl border border-border p-6 space-y-3">
+                <div className="h-5 w-36 bg-surface-alt rounded-lg" />
+                <div className="h-4 w-full bg-surface-alt rounded-md" />
+                <div className="h-4 w-4/5 bg-surface-alt rounded-md" />
+                <div className="h-10 w-full bg-surface-alt rounded-xl mt-2" />
+              </div>
+              <div className="bg-surface rounded-2xl border border-border p-6 space-y-3">
+                <div className="h-5 w-28 bg-surface-alt rounded-lg" />
+                <div className="h-24 bg-surface-alt rounded-xl" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -271,7 +320,7 @@ const IssueDetailPage = () => {
     );
   }
 
-  const totalCollected  = contributions.reduce((sum, c) => sum + c.amount, 0);
+  const totalCollected  = (contributions || []).reduce((sum, c) => sum + c.amount, 0);
   const suggestedBudget = issue.amount || 1;
   const progressPercent = Math.min(Math.round((totalCollected / suggestedBudget) * 100), 100);
   const placeholderImage = 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?auto=format&fit=crop&q=80&w=1200';
@@ -312,7 +361,7 @@ const IssueDetailPage = () => {
                         onClick={() => setShowBoostModal(true)}
                         className="px-3 py-1 bg-warning/10 text-warning rounded-md text-sm font-bold shadow-sm flex items-center gap-1.5 hover:bg-warning/20 transition-colors"
                       >
-                        <FiZap size={13} /> Boost 100 kr
+                        <FiZap size={13} /> Boost 99 kr
                       </button>
                     )}
                     {issue.isBoosted && (

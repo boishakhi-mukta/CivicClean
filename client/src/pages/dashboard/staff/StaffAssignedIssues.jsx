@@ -10,8 +10,9 @@ const NEXT_STATUS = {
   'pending':     'in-progress',
   'in-progress': 'working',
   'working':     'resolved',
-  'resolved':    'closed',
 };
+
+const FILTER_STATUSES = ['pending', 'in-progress', 'working', 'rejected'];
 
 const STATUS_STYLES = {
   pending:       'bg-amber-100  text-amber-800  dark:bg-amber-900/30  dark:text-amber-400',
@@ -118,22 +119,50 @@ const StaffAssignedIssues = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-primary" />
+      <div className="animate-pulse">
+        <div className="mb-6">
+          <div className="h-7 w-40 bg-surface-alt rounded-lg mb-2" />
+          <div className="h-4 w-60 bg-surface-alt rounded-lg" />
+        </div>
+        <div className="flex gap-3 mb-5">
+          <div className="h-9 w-28 bg-surface-alt rounded-lg" />
+          <div className="h-9 w-28 bg-surface-alt rounded-lg" />
+        </div>
+        <div className="bg-surface rounded-xl border border-border overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-surface-alt/50 border-b border-border">
+              <tr>{Array.from({ length: 7 }).map((_, i) => <th key={i} className="px-5 py-4"><div className="h-3 w-16 bg-surface-alt rounded" /></th>)}</tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {Array.from({ length: 7 }).map((_, i) => (
+                <tr key={i}>
+                  <td className="px-5 py-4"><div className="h-4 w-5 bg-surface-alt rounded" /></td>
+                  <td className="px-5 py-4"><div className="h-4 w-36 bg-surface-alt rounded" /></td>
+                  <td className="px-5 py-4"><div className="h-4 w-20 bg-surface-alt rounded" /></td>
+                  <td className="px-5 py-4"><div className="h-5 w-14 bg-surface-alt rounded-full" /></td>
+                  <td className="px-5 py-4"><div className="h-5 w-16 bg-surface-alt rounded-full" /></td>
+                  <td className="px-5 py-4"><div className="h-4 w-20 bg-surface-alt rounded" /></td>
+                  <td className="px-5 py-4 text-right"><div className="h-7 w-20 bg-surface-alt rounded-lg ml-auto" /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">
-        Assigned Issues
-      </h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-extrabold text-text">Assigned Issues</h1>
+        <p className="text-sm text-muted mt-0.5">Issues assigned to you for resolution</p>
+      </div>
 
       <div className="flex flex-wrap gap-3 mb-5">
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className={filterClass}>
           <option value="">All Statuses</option>
-          {Object.keys(STATUS_STYLES).map(s => <option key={s} value={s}>{s}</option>)}
+          {FILTER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
         <select value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)} className={filterClass}>
           <option value="">All Priorities</option>

@@ -1,10 +1,13 @@
 import { useState, useContext } from 'react';
-import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
-import { FiGrid, FiList, FiUsers, FiUserCheck, FiCreditCard, FiUser, FiMenu, FiX, FiLogOut } from 'react-icons/fi';
+import { NavLink, Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
+import {
+  FiGrid, FiList, FiUsers, FiUserCheck, FiCreditCard, FiUser,
+  FiMenu, FiX, FiLogOut, FiChevronRight,
+} from 'react-icons/fi';
 import { AuthContext } from '../../../../context/AuthContext';
 import ThemeToggle from '../../../../components/ThemeToggle';
 
-const navItems = [
+const NAV_ITEMS = [
   { to: '/dashboard/admin',          label: 'Overview',      Icon: FiGrid,       end: true },
   { to: '/dashboard/admin/issues',   label: 'All Issues',    Icon: FiList },
   { to: '/dashboard/admin/users',    label: 'Manage Users',  Icon: FiUsers },
@@ -13,92 +16,169 @@ const navItems = [
   { to: '/dashboard/admin/profile',  label: 'Profile',       Icon: FiUser },
 ];
 
+const PAGE_TITLES = {
+  '/dashboard/admin':          'Overview',
+  '/dashboard/admin/issues':   'All Issues',
+  '/dashboard/admin/users':    'Manage Users',
+  '/dashboard/admin/staff':    'Manage Staff',
+  '/dashboard/admin/payments': 'Payments',
+  '/dashboard/admin/profile':  'Profile',
+};
+
+const SidebarContent = ({ displayName, photoSrc, dbUser, onLogout, onClose }) => (
+  <div className="flex flex-col h-full">
+    {/* Logo */}
+    <div className="flex items-center justify-between px-5 h-16 border-b border-border flex-shrink-0">
+      <Link to="/" onClick={onClose} className="flex items-center gap-2.5">
+        <span className="text-xl">🌿</span>
+        <div>
+          <span className="font-bold text-text text-base leading-none block">CivicClean</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-primary leading-none block mt-0.5">Admin</span>
+        </div>
+      </Link>
+      {onClose && (
+        <button onClick={onClose} className="text-muted hover:text-text lg:hidden">
+          <FiX size={20} />
+        </button>
+      )}
+    </div>
+
+    {/* Nav */}
+    <nav className="flex-1 py-4 px-3 space-y-0.5 overflow-y-auto">
+      <p className="text-[10px] font-bold uppercase tracking-widest text-muted px-3 mb-2">Navigation</p>
+      {NAV_ITEMS.map(({ to, label, Icon, end }) => (
+        <NavLink
+          key={to}
+          to={to}
+          end={end}
+          onClick={onClose}
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group ${
+              isActive
+                ? 'bg-primary text-on-primary shadow-sm'
+                : 'text-muted hover:text-text hover:bg-surface-alt'
+            }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <Icon size={16} className="flex-shrink-0" />
+              <span className="flex-1">{label}</span>
+              {isActive && <FiChevronRight size={13} className="opacity-60" />}
+            </>
+          )}
+        </NavLink>
+      ))}
+    </nav>
+
+    {/* User panel */}
+    <div className="px-3 py-4 border-t border-border flex-shrink-0">
+      <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-surface-alt transition-colors">
+        {photoSrc ? (
+          <img src={photoSrc} alt="avatar" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary text-xs font-bold flex-shrink-0">
+            {displayName.charAt(0).toUpperCase()}
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-text truncate leading-tight">{displayName}</p>
+          <p className="text-[10px] text-muted capitalize leading-tight mt-0.5">{dbUser?.role || 'Admin'}</p>
+        </div>
+        <button
+          onClick={onLogout}
+          title="Logout"
+          className="text-muted hover:text-danger transition-colors flex-shrink-0"
+        >
+          <FiLogOut size={15} />
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
 const AdminDashboardLayout = () => {
   const { currentUser, dbUser, logout } = useContext(AuthContext);
-  const [mobileOpen, setMobileOpen]     = useState(false);
-  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen]   = useState(false);
+  const navigate   = useNavigate();
+  const { pathname } = useLocation();
 
   const displayName = dbUser?.name || currentUser?.displayName || 'Admin';
   const photoSrc    = dbUser?.avatar_url || currentUser?.photoURL || null;
+  const pageTitle   = PAGE_TITLES[pathname] || 'Dashboard';
 
   const handleLogout = () => {
-    setMobileOpen(false);
+    setSidebarOpen(false);
     logout().then(() => navigate('/'));
   };
 
-  const linkClass = ({ isActive }) =>
-    isActive
-      ? 'text-on-primary font-semibold border-b-2 border-on-primary/60 transition-colors duration-150'
-      : 'text-on-primary/70 hover:text-on-primary transition-colors duration-150';
-
   return (
-    <div className="flex flex-col min-h-screen bg-bg">
-      <nav className="sticky top-0 z-50 bg-primary shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+    <div className="flex h-screen bg-surface overflow-hidden">
 
-            <Link to="/dashboard/admin" className="flex items-center gap-2 flex-shrink-0">
-              <span className="text-2xl">🌿</span>
-              <span className="text-on-primary font-bold text-xl tracking-wide hidden sm:block">CivicClean</span>
-              <span className="ml-2 text-xs font-semibold uppercase tracking-widest text-on-primary/50 hidden sm:block">Admin</span>
-            </Link>
+      {/* ── Desktop sidebar ── */}
+      <aside className="hidden lg:flex flex-col w-56 xl:w-60 flex-shrink-0 bg-bg border-r border-border">
+        <SidebarContent
+          displayName={displayName}
+          photoSrc={photoSrc}
+          dbUser={dbUser}
+          onLogout={handleLogout}
+        />
+      </aside>
 
-            <div className="hidden md:flex items-center gap-6">
-              {navItems.map(({ to, label, end }) => (
-                <NavLink key={to} to={to} end={end} className={linkClass}>{label}</NavLink>
-              ))}
-            </div>
-
-            <div className="hidden md:flex items-center gap-3">
-              <ThemeToggle />
-              <div className="flex items-center gap-2">
-                {photoSrc ? (
-                  <img src={photoSrc} alt="avatar" className="w-8 h-8 rounded-full object-cover border-2 border-on-primary/60" />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-on-primary flex items-center justify-center text-primary font-bold text-sm">
-                    {displayName.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <span className="text-on-primary text-sm font-medium truncate max-w-[120px]">{displayName}</span>
-              </div>
-              <button onClick={handleLogout}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-danger hover:bg-on-primary/10 transition-colors">
-                <FiLogOut size={15} /> Logout
-              </button>
-            </div>
-
-            <div className="md:hidden flex items-center gap-2">
-              <ThemeToggle />
-              <button onClick={() => setMobileOpen(!mobileOpen)}
-                className="text-on-primary hover:text-on-primary/80 focus:outline-none" aria-label="Toggle menu">
-                {mobileOpen ? <FiX size={22} /> : <FiMenu size={22} />}
-              </button>
-            </div>
-          </div>
+      {/* ── Mobile sidebar drawer ── */}
+      {sidebarOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
+          <aside className="relative w-64 bg-bg border-r border-border flex-shrink-0 flex flex-col shadow-2xl">
+            <SidebarContent
+              displayName={displayName}
+              photoSrc={photoSrc}
+              dbUser={dbUser}
+              onLogout={handleLogout}
+              onClose={() => setSidebarOpen(false)}
+            />
+          </aside>
         </div>
+      )}
 
-        {mobileOpen && (
-          <div className="md:hidden bg-primary-hover border-t border-on-primary/10 px-4 pb-4 pt-2 space-y-1">
-            {navItems.map(({ to, label, Icon, end }) => (
-              <NavLink key={to} to={to} end={end} onClick={() => setMobileOpen(false)}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                    isActive ? 'bg-on-primary text-primary' : 'text-on-primary/80 hover:bg-on-primary/10 hover:text-on-primary'
-                  }`}>
-                <Icon size={16} /> {label}
-              </NavLink>
-            ))}
-            <button onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-danger hover:bg-on-primary/10 transition-colors mt-2">
-              <FiLogOut size={16} /> Logout
+      {/* ── Main area ── */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        {/* Top header */}
+        <header className="h-14 flex items-center justify-between px-4 sm:px-6 border-b border-border bg-surface/80 backdrop-blur-sm flex-shrink-0 gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-alt transition-colors"
+              aria-label="Open menu"
+            >
+              <FiMenu size={20} />
             </button>
+            <div>
+              <h1 className="text-sm font-bold text-text leading-none">{pageTitle}</h1>
+              <p className="text-[11px] text-muted leading-none mt-0.5 hidden sm:block">Admin Dashboard</p>
+            </div>
           </div>
-        )}
-      </nav>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Outlet />
-      </main>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            {photoSrc ? (
+              <img src={photoSrc} alt="avatar" className="w-7 h-7 rounded-full object-cover" />
+            ) : (
+              <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-on-primary text-xs font-bold">
+                {displayName.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   );
 };

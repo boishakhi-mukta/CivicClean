@@ -4,7 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosInstance';
 import { Fade, Slide } from 'react-awesome-reveal';
 import { Typewriter } from 'react-simple-typewriter';
-import { FiTrash2, FiAlertTriangle, FiPenTool, FiMap } from 'react-icons/fi';
+import { FiArrowUpRight, FiFileText, FiMap, FiActivity, FiUsers, FiZap, FiStar } from 'react-icons/fi';
+import { FaTrashCan, FaHelmetSafety, FaWrench, FaRoad } from 'react-icons/fa6';
 import { AuthContext } from '../context/AuthContext';
 import IssueCard, { IssueCardSkeleton } from '../components/IssueCard';
 
@@ -69,20 +70,15 @@ const AccordionItem = ({ item, isOpen, onToggle }) => (
       aria-expanded={isOpen}
     >
       <span className="font-semibold text-text text-sm sm:text-base">{item.q}</span>
-      <span
-        className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 ${
-          isOpen ? 'bg-primary text-on-primary rotate-45' : 'bg-surface-alt text-muted'
-        }`}
+      <svg
+        className={`flex-shrink-0 w-5 h-5 text-muted transition-transform duration-300 ${isOpen ? 'rotate-180 text-primary' : ''}`}
+        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
         aria-hidden="true"
       >
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      </span>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+      </svg>
     </button>
-    <div
-      className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
-    >
+    <div className={`grid transition-all duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
       <div className="overflow-hidden">
         <p className="px-6 pb-5 text-sm text-muted leading-relaxed">{item.a}</p>
       </div>
@@ -94,16 +90,11 @@ const FAQ = () => {
   const [openIdx, setOpenIdx] = useState(null);
   const toggle = useCallback((i) => setOpenIdx(prev => prev === i ? null : i), []);
 
-  const half = Math.ceil(FAQ_ITEMS.length / 2);
-  const col1 = FAQ_ITEMS.slice(0, half);
-  const col2 = FAQ_ITEMS.slice(half);
-
   return (
     <section className="py-20 bg-surface-alt transition-colors duration-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
           <Fade direction="up" triggerOnce>
-            <span className="inline-block text-sm font-bold uppercase tracking-widest text-primary mb-3">FAQ</span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-text mb-4">Frequently Asked Questions</h2>
             <p className="text-muted max-w-2xl mx-auto">
               Everything you need to know about CivicClean. Can't find an answer? Reach out to our team.
@@ -112,26 +103,148 @@ const FAQ = () => {
         </div>
 
         <Fade direction="up" triggerOnce>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              {col1.map((item, i) => (
-                <AccordionItem
-                  key={i}
-                  item={item}
-                  isOpen={openIdx === i}
-                  onToggle={() => toggle(i)}
-                />
+          <div className="space-y-3">
+            {FAQ_ITEMS.map((item, i) => (
+              <AccordionItem
+                key={i}
+                item={item}
+                isOpen={openIdx === i}
+                onToggle={() => toggle(i)}
+              />
+            ))}
+          </div>
+        </Fade>
+      </div>
+    </section>
+  );
+};
+
+const PLATFORM_FEATURES = [
+  {
+    Icon: FiFileText,
+    title: 'Easy Issue Reporting',
+    tag: 'Core',
+    short: 'Submit in under a minute',
+    desc: 'Citizens can report any public infrastructure problem — with a photo, title, category, and precise location — right from their phone or desktop. The whole process takes under a minute and your report is instantly visible to admins.',
+  },
+  {
+    Icon: FiMap,
+    title: 'Interactive Map View',
+    tag: 'Core',
+    short: 'See every issue on a live map',
+    desc: 'Every reported issue is plotted on an interactive map in real time. Spot problem hotspots in your neighbourhood, understand which areas have the most activity, and navigate directly to any issue from the map.',
+  },
+  {
+    Icon: FiActivity,
+    title: 'Live Status Tracking',
+    tag: 'Core',
+    short: 'Full audit trail from report to close',
+    desc: "Follow every issue through its complete lifecycle — Pending → In Progress → Working → Resolved. Each stage is timestamped and logged so there's a transparent, traceable record from the moment a report is submitted.",
+  },
+  {
+    Icon: FiUsers,
+    title: 'Role-Based Dashboards',
+    tag: 'Access',
+    short: 'Tailored portals for every role',
+    desc: 'Citizens, Staff, and Admins each get a dedicated dashboard built around their workflow. Citizens track their reports; Staff manage assigned issues; Admins oversee the entire platform, users, and payments.',
+  },
+  {
+    Icon: FiZap,
+    title: 'Priority Boosting',
+    tag: 'Premium',
+    short: 'Move your issue to the front of the queue',
+    desc: 'Pay 100 kr to boost any issue to high priority. Boosted issues are flagged with a visible badge and surface first in the admin review queue — ideal for urgent problems that need immediate attention.',
+  },
+  {
+    Icon: FiStar,
+    title: 'Premium Membership',
+    tag: 'Premium',
+    short: 'Unlimited reporting, one payment',
+    desc: 'Free accounts can submit up to 3 reports. A single one-time 1,000 kr Premium subscription removes that cap entirely — unlimited reports, priority support, and access to issue boosting, forever.',
+  },
+];
+
+const FeatureShowcase = () => {
+  const [active, setActive] = useState(0);
+  const feat = PLATFORM_FEATURES[active];
+
+  return (
+    <section className="py-24 bg-bg transition-colors duration-200">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div className="text-center mb-14">
+          <Fade direction="up" triggerOnce>
+            <span className="inline-block text-xs font-bold uppercase tracking-widest text-primary mb-3">Features</span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-text mb-4">Everything in One Platform</h2>
+            <p className="text-muted max-w-xl mx-auto">
+              A complete civic toolkit — from instant reporting to role-based dashboards, live tracking, and priority resolution.
+            </p>
+          </Fade>
+        </div>
+
+        <Fade direction="up" triggerOnce delay={100}>
+          <div className="flex flex-col lg:flex-row gap-3 lg:gap-6 bg-surface border border-border rounded-2xl shadow-sm overflow-hidden">
+
+            {/* Left — tab nav */}
+            <div className="lg:w-60 xl:w-72 flex-shrink-0 flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-0 border-b lg:border-b-0 lg:border-r border-border p-3 lg:p-4">
+              {PLATFORM_FEATURES.map((f, idx) => (
+                <button
+                  key={f.title}
+                  onClick={() => setActive(idx)}
+                  className={`group flex-shrink-0 flex items-center gap-3 px-3.5 py-3 rounded-xl text-left w-full transition-all duration-200 ${
+                    active === idx
+                      ? 'bg-primary text-on-primary'
+                      : 'text-muted hover:text-text hover:bg-surface-alt'
+                  }`}
+                >
+                  <f.Icon size={15} className="flex-shrink-0" />
+                  <span className="text-sm font-semibold leading-tight whitespace-nowrap lg:whitespace-normal">{f.title}</span>
+                  {active === idx && (
+                    <FiArrowUpRight size={13} className="ml-auto flex-shrink-0 opacity-70 hidden lg:block" />
+                  )}
+                </button>
               ))}
             </div>
-            <div className="space-y-3">
-              {col2.map((item, i) => (
-                <AccordionItem
-                  key={half + i}
-                  item={item}
-                  isOpen={openIdx === half + i}
-                  onToggle={() => toggle(half + i)}
-                />
-              ))}
+
+            {/* Right — detail panel */}
+            <div className="flex-1 p-8 lg:p-10 flex flex-col justify-between min-h-[340px]" key={active}>
+              <div>
+                {/* Tag + icon */}
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-3 bg-primary/10 rounded-xl">
+                    <feat.Icon size={22} className="text-primary" />
+                  </div>
+                  <span className="text-xs font-black uppercase tracking-widest text-primary bg-primary/10 px-2.5 py-1 rounded-full">
+                    {feat.tag}
+                  </span>
+                </div>
+
+                {/* Short headline */}
+                <p className="text-xs font-bold uppercase tracking-widest text-muted mb-2">{feat.short}</p>
+
+                {/* Title */}
+                <h3 className="text-2xl font-extrabold text-text mb-4 leading-snug">{feat.title}</h3>
+
+                {/* Description */}
+                <p className="text-muted leading-relaxed max-w-lg">{feat.desc}</p>
+              </div>
+
+              {/* Bottom step indicator */}
+              <div className="flex items-center gap-2 mt-8">
+                {PLATFORM_FEATURES.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActive(idx)}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      active === idx ? 'w-8 bg-primary' : 'w-3 bg-border hover:bg-muted'
+                    }`}
+                    aria-label={`Go to feature ${idx + 1}`}
+                  />
+                ))}
+                <span className="ml-3 text-xs text-muted font-medium">
+                  {active + 1} / {PLATFORM_FEATURES.length}
+                </span>
+              </div>
             </div>
           </div>
         </Fade>
@@ -197,10 +310,46 @@ const HomePage = () => {
   });
 
   const categories = [
-    { name: 'Garbage',               Icon: FiTrash2,       query: 'Garbage' },
-    { name: 'Illegal Construction',  Icon: FiPenTool,      query: 'Illegal Construction' },
-    { name: 'Broken Public Property',Icon: FiAlertTriangle,query: 'Broken Public Property' },
-    { name: 'Road Damage',           Icon: FiMap,          query: 'Road Damage' },
+    {
+      name: 'Garbage',
+      query: 'Garbage',
+      Icon: FaTrashCan,
+      description: 'Overflowing bins, illegal dumping, littered streets and public spaces.',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
+      bar: 'from-primary to-primary-hover',
+      ring: 'hover:ring-primary/20',
+    },
+    {
+      name: 'Illegal Construction',
+      query: 'Illegal Construction',
+      Icon: FaHelmetSafety,
+      description: 'Unauthorized building works, code violations, unsafe structures.',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
+      bar: 'from-primary to-primary-hover',
+      ring: 'hover:ring-primary/20',
+    },
+    {
+      name: 'Broken Public Property',
+      query: 'Broken Public Property',
+      Icon: FaWrench,
+      description: 'Damaged benches, broken streetlights, vandalized public infrastructure.',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
+      bar: 'from-primary to-primary-hover',
+      ring: 'hover:ring-primary/20',
+    },
+    {
+      name: 'Road Damage',
+      query: 'Road Damage',
+      Icon: FaRoad,
+      description: 'Potholes, cracked pavement, faded road markings, unsafe intersections.',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
+      bar: 'from-primary to-primary-hover',
+      ring: 'hover:ring-primary/20',
+    },
   ];
 
   return (
@@ -296,24 +445,40 @@ const HomePage = () => {
       <section className="py-20 bg-surface-alt transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <Fade direction="up">
-              <h2 className="text-3xl md:text-4xl font-bold text-text mb-4">Report by Category</h2>
+            <Fade direction="up" triggerOnce>
+              <span className="inline-block text-xs font-bold uppercase tracking-widest text-primary mb-3">Categories</span>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-text mb-4">Report by Category</h2>
               <p className="text-muted max-w-2xl mx-auto">Select a specific issue category to view related complaints or report a new one in your neighborhood.</p>
             </Fade>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Fade cascade damping={0.1}>
-              {categories.map(({ name, Icon, query }) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Fade cascade damping={0.12} triggerOnce direction="up">
+              {categories.map(({ name, Icon, query, description, iconBg, iconColor, bar, ring }) => (
                 <Link
                   key={name}
                   to={`/explore?category=${encodeURIComponent(query)}`}
-                  className="bg-surface p-8 rounded-2xl shadow-lg hover:shadow-2xl transition duration-300 flex flex-col items-center text-center group border border-border"
+                  className={`group relative bg-surface rounded-2xl border border-border overflow-hidden flex flex-col h-[220px] ring-2 ring-transparent ${ring} hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300`}
                 >
-                  <div className="p-4 rounded-full bg-primary group-hover:scale-110 transition-transform duration-300">
-                    <Icon className="text-4xl text-on-primary" />
+                  {/* Sliding accent bar */}
+                  <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${bar} origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500`} />
+
+                  {/* Icon row */}
+                  <div className="flex items-start justify-between px-6 pt-6 pb-2">
+                    <div className={`p-3.5 rounded-xl ${iconBg} transition-transform duration-300 group-hover:scale-110`}>
+                      <Icon className={`w-6 h-6 ${iconColor}`} />
+                    </div>
+                    <FiArrowUpRight
+                      size={18}
+                      className="text-border group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200"
+                    />
                   </div>
-                  <h3 className="text-xl font-bold text-text mt-6">{name}</h3>
+
+                  {/* Text */}
+                  <div className="px-6 pb-6 flex flex-col flex-1 justify-end">
+                    <h3 className="font-bold text-text text-base mb-1.5 leading-snug">{name}</h3>
+                    <p className="text-xs text-muted leading-relaxed line-clamp-2">{description}</p>
+                  </div>
                 </Link>
               ))}
             </Fade>
@@ -325,9 +490,10 @@ const HomePage = () => {
       <section className="py-20 bg-bg transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-12">
-            <Fade direction="left">
+            <Fade direction="left" triggerOnce>
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-text mb-4">Latest Resolved Issues</h2>
+                <span className="inline-block text-xs font-bold uppercase tracking-widest text-primary mb-3">Community</span>
+                <h2 className="text-3xl md:text-4xl font-extrabold text-text mb-4">Latest Resolved Issues</h2>
                 <p className="text-muted">Issues our community has successfully resolved.</p>
               </div>
             </Fade>
@@ -372,111 +538,103 @@ const HomePage = () => {
       </section>
 
       {/* 5. HOW IT WORKS */}
-      <section className="py-20 bg-surface-alt transition-colors duration-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+      <section className="py-24 bg-surface-alt transition-colors duration-200 overflow-hidden">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
             <Fade direction="up" triggerOnce>
-              <h2 className="text-3xl md:text-4xl font-bold text-text mb-4">How It Works</h2>
-              <p className="text-muted max-w-2xl mx-auto">
-                From report to resolution — a simple, transparent process that keeps everyone in the loop.
+              <span className="inline-block text-xs font-bold uppercase tracking-widest text-primary mb-3">Process</span>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-text mb-4">How It Works</h2>
+              <p className="text-muted max-w-xl mx-auto">
+                From report to resolution — a transparent, six-step process that keeps everyone in the loop.
               </p>
             </Fade>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Fade cascade damping={0.1} triggerOnce>
+          {/* Timeline rail */}
+          <div className="relative">
+            {/* Vertical line */}
+            <div className="absolute left-[27px] sm:left-1/2 sm:-translate-x-px top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-primary/40 to-transparent" />
+
+            <div className="space-y-0">
               {[
-                { step: '01', icon: '📸', title: 'Submit a Report',         desc: 'Citizens submit an issue with a title, description, photo, and location. Takes less than a minute.' },
-                { step: '02', icon: '🔍', title: 'Admin Reviews & Assigns', desc: 'An admin reviews the report and assigns it to the right government staff member.' },
-                { step: '03', icon: '🛠️', title: 'Staff Takes Action',      desc: 'The assigned staff verifies the issue on-site and starts working on the fix.' },
-                { step: '04', icon: '📊', title: 'Track Progress',           desc: 'The issue moves through Pending → In-Progress → Resolved → Closed with live timeline updates.' },
-                { step: '05', icon: '🔔', title: 'Stay Updated',             desc: 'Citizens can check the status and full timeline of their reported issue at any time.' },
-                { step: '06', icon: '⭐', title: 'Premium Priority',         desc: 'Premium citizens can boost issue priority for faster resolution and submit unlimited reports.' },
-              ].map(({ step, icon, title, desc }) => (
-                <div
-                  key={step}
-                  className="relative bg-surface rounded-2xl p-8 shadow-md border border-border hover:shadow-xl transition-shadow duration-300"
-                >
-                  <span className="absolute top-4 right-4 text-xs font-bold text-border tracking-widest">{step}</span>
-                  <div className="text-4xl mb-4">{icon}</div>
-                  <h3 className="text-lg font-bold text-text mb-2">{title}</h3>
-                  <p className="text-sm text-muted leading-relaxed">{desc}</p>
-                </div>
-              ))}
-            </Fade>
+                { step: 1, title: 'Submit a Report',         desc: 'Citizens submit an issue with a title, description, photo, and location. Takes less than a minute.',               icon: '📸' },
+                { step: 2, title: 'Admin Reviews & Assigns', desc: 'An admin verifies the report and assigns it to the right government staff member for action.',                             icon: '🔍' },
+                { step: 3, title: 'Staff Takes Action',      desc: 'The assigned staff member verifies the issue on-site and begins the physical fix or clean-up.',                            icon: '🛠️' },
+                { step: 4, title: 'Track Progress Live',     desc: 'The issue moves through Pending → In Progress → Resolved with a full timestamp audit trail.',                             icon: '📊' },
+                { step: 5, title: 'Stay Notified',           desc: 'Citizens can check the live status and complete timeline of every report at any time from their dashboard.',             icon: '🔔' },
+                { step: 6, title: 'Premium Priority',        desc: 'Premium citizens can boost issues for faster government response and submit unlimited reports without caps.',             icon: '⭐' },
+              ].map(({ step, title, desc, icon }, idx) => {
+                const isRight = idx % 2 === 0;
+                return (
+                  <Fade key={step} direction={isRight ? 'left' : 'right'} triggerOnce delay={idx * 80}>
+                    <div className={`relative flex items-start gap-6 pb-12 last:pb-0 ${isRight ? 'sm:flex-row' : 'sm:flex-row-reverse'} flex-row`}>
+
+                      {/* Node dot */}
+                      <div className="relative z-10 flex-shrink-0">
+                        <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shadow-lg text-2xl">
+                          {icon}
+                        </div>
+                      </div>
+
+                      {/* Content card */}
+                      <div className={`flex-1 bg-surface border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300 ${isRight ? 'sm:mr-8' : 'sm:ml-8'}`}>
+                        <span className="inline-block text-[10px] font-black uppercase tracking-widest text-primary mb-1.5">
+                          Step {String(step).padStart(2, '0')}
+                        </span>
+                        <h3 className="text-base font-bold text-text mb-2">{title}</h3>
+                        <p className="text-sm text-muted leading-relaxed">{desc}</p>
+                      </div>
+                    </div>
+                  </Fade>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
 
       {/* 6. PLATFORM FEATURES */}
-      <section className="py-20 bg-bg transition-colors duration-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Fade direction="up" triggerOnce>
-              <h2 className="text-3xl md:text-4xl font-bold text-text mb-4">Platform Features</h2>
-              <p className="text-muted max-w-2xl mx-auto">
-                Everything you need to report, manage, and resolve public infrastructure issues efficiently.
-              </p>
-            </Fade>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Fade cascade damping={0.1} triggerOnce>
-              {[
-                { icon: '📝', title: 'Easy Issue Reporting',    desc: 'Submit reports with photos, title, category, and precise location in under a minute.',                            color: 'from-blue-500 to-blue-600' },
-                { icon: '🗺️', title: 'Interactive Map View',    desc: 'Visualize all reported issues on an interactive map to understand problem hotspots.',                             color: 'from-green-500 to-green-600' },
-                { icon: '📊', title: 'Live Status Tracking',    desc: 'Follow every issue through its lifecycle with a full audit timeline — Pending to Closed.',                        color: 'from-purple-500 to-purple-600' },
-                { icon: '👥', title: 'Role-Based Dashboards',   desc: 'Separate dashboards for Citizens, Staff, and Admins — each tailored to their workflow.',                          color: 'from-amber-500 to-amber-600' },
-                { icon: '⚡', title: 'Priority Boosting',       desc: 'Citizens can pay 100 kr to boost an issue to high priority for faster government response.',                       color: 'from-red-500 to-red-600' },
-                { icon: '🌟', title: 'Premium Membership',      desc: 'Unlock unlimited issue reporting and priority support with a one-time 1,000 kr subscription.',                    color: 'from-primary to-primary-hover' },
-              ].map(({ icon, title, desc, color }) => (
-                <div
-                  key={title}
-                  className="bg-surface rounded-2xl shadow-md border border-border overflow-hidden hover:shadow-xl transition-shadow duration-300"
-                >
-                  <div className={`bg-gradient-to-r ${color} p-5`}>
-                    <span className="text-3xl">{icon}</span>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-bold text-text mb-2">{title}</h3>
-                    <p className="text-sm text-muted leading-relaxed">{desc}</p>
-                  </div>
-                </div>
-              ))}
-            </Fade>
-          </div>
-        </div>
-      </section>
+      <FeatureShowcase />
 
       {/* 7. FAQ */}
       <FAQ />
 
       {/* 8. CTA */}
-      <section className="bg-primary py-24 relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-on-primary/5 blur-3xl" />
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-on-primary/10 blur-3xl" />
+      <section className="relative py-28 bg-primary overflow-hidden">
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-on-primary/5 pointer-events-none" />
+        <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-on-primary/5 pointer-events-none" />
+        <div className="absolute top-20 left-8 w-32 h-32 rounded-full border border-on-primary/10 pointer-events-none" />
+        <div className="absolute bottom-16 right-1/4 w-20 h-20 rounded-full border border-on-primary/10 pointer-events-none" />
+        <div
+          className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          style={{
+            backgroundImage: 'linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)',
+            backgroundSize: '50px 50px',
+          }}
+        />
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <Slide direction="up">
-            <h2 className="text-4xl md:text-5xl font-extrabold text-on-primary mb-6">
-              Ready to Make a Difference?
+        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <Slide direction="up" triggerOnce>
+            <span className="inline-block text-xs font-bold uppercase tracking-widest text-on-primary/50 mb-5">Get Involved</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-on-primary mb-6 leading-tight">
+              Ready to Make a<br />Difference?
             </h2>
-            <p className="text-xl text-on-primary/80 mb-10 max-w-2xl mx-auto">
-              Join thousands of community members actively making their neighborhoods cleaner, safer, and more beautiful. Every report counts.
+            <p className="text-on-primary/70 text-lg mb-10 max-w-xl mx-auto leading-relaxed">
+              Join thousands of community members actively making their neighbourhoods cleaner, safer, and more beautiful. Every report counts.
             </p>
 
             {!currentUser ? (
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <Link
                   to="/register"
-                  className="px-8 py-4 w-full sm:w-auto bg-on-primary text-primary font-bold rounded-lg hover:bg-on-primary/90 transition shadow-lg text-lg"
+                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 w-full sm:w-auto bg-on-primary text-primary font-bold rounded-xl hover:bg-on-primary/90 transition-all hover:shadow-2xl hover:-translate-y-0.5 text-base"
                 >
                   Join the Community
+                  <FiArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200" />
                 </Link>
-                <span className="text-on-primary/50">or</span>
                 <Link
                   to="/login"
-                  className="px-8 py-4 w-full sm:w-auto border-2 border-on-primary/60 text-on-primary font-bold rounded-lg hover:bg-on-primary/10 transition shadow-lg text-lg"
+                  className="inline-flex items-center justify-center px-8 py-4 w-full sm:w-auto border-2 border-on-primary/30 text-on-primary font-bold rounded-xl hover:bg-on-primary/10 hover:border-on-primary/50 transition-all text-base"
                 >
                   Sign In
                 </Link>
@@ -484,9 +642,10 @@ const HomePage = () => {
             ) : (
               <Link
                 to="/dashboard/citizen/report-issue"
-                className="inline-block px-10 py-5 bg-on-primary text-primary font-bold rounded-lg hover:bg-on-primary/90 transition shadow-lg text-xl transform hover:-translate-y-1"
+                className="group inline-flex items-center justify-center gap-2 px-10 py-4 bg-on-primary text-primary font-bold rounded-xl hover:bg-on-primary/90 transition-all hover:shadow-2xl hover:-translate-y-0.5 text-lg"
               >
                 Report an Issue Now
+                <FiArrowUpRight size={20} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200" />
               </Link>
             )}
           </Slide>

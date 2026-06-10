@@ -164,8 +164,48 @@ const AdminManageStaff = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-primary" />
+      <div className="animate-pulse">
+        <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
+          <div>
+            <div className="h-7 w-32 bg-surface-alt rounded-lg mb-2" />
+            <div className="h-4 w-52 bg-surface-alt rounded-lg" />
+          </div>
+          <div className="h-9 w-28 bg-surface-alt rounded-xl" />
+        </div>
+        <div className="bg-surface rounded-xl border border-border overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-surface-alt/50 border-b border-border">
+                <tr>
+                  {['Staff Member', 'Email', 'Actions'].map((_, i) => (
+                    <th key={i} className="px-5 py-4">
+                      <div className="h-3 w-20 bg-surface-alt rounded" />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-surface-alt flex-shrink-0" />
+                        <div className="h-4 w-28 bg-surface-alt rounded" />
+                      </div>
+                    </td>
+                    <td className="px-5 py-4"><div className="h-4 w-40 bg-surface-alt rounded" /></td>
+                    <td className="px-5 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <div className="h-7 w-16 bg-surface-alt rounded-lg" />
+                        <div className="h-7 w-16 bg-surface-alt rounded-lg" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     );
   }
@@ -173,8 +213,8 @@ const AdminManageStaff = () => {
   if (isError) {
     return (
       <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">Manage Staff</h1>
-        <div className="bg-danger/5 border border-danger/30 rounded-xl p-6 flex items-start gap-3">
+        <h1 className="text-2xl font-extrabold text-text">Manage Staff</h1>
+        <div className="bg-danger/5 border border-danger/30 rounded-xl p-6 flex items-start gap-3 mt-6">
           <FiAlertCircle className="text-danger mt-0.5 flex-shrink-0" size={20} />
           <div>
             <p className="font-semibold text-danger">Failed to load staff list</p>
@@ -189,8 +229,11 @@ const AdminManageStaff = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-text">Manage Staff</h1>
+      <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-extrabold text-text">Manage Staff</h1>
+          <p className="text-sm text-muted mt-0.5">Add, edit, and remove staff members</p>
+        </div>
         <button
           onClick={() => setAddOpen(true)}
           className="flex items-center gap-2 px-4 py-2.5 bg-primary text-on-primary font-bold rounded-xl hover:bg-primary-hover transition text-sm"
@@ -221,7 +264,7 @@ const AdminManageStaff = () => {
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         {user.avatar_url ? (
-                          <img src={user.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                          <img src={user.avatar_url} alt="" loading="lazy" className="w-8 h-8 rounded-full object-cover" />
                         ) : (
                           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary text-xs font-bold">
                             {(user.name || user.email).charAt(0).toUpperCase()}

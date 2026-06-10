@@ -15,8 +15,33 @@ const LeaderboardPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary" />
+      <div className="min-h-screen bg-bg py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto animate-pulse">
+          <div className="text-center mb-12 space-y-3">
+            <div className="h-12 w-80 bg-surface rounded-xl mx-auto" />
+            <div className="h-5 w-64 bg-surface rounded-lg mx-auto" />
+          </div>
+          <div className="bg-surface rounded-xl border border-border overflow-hidden shadow-sm">
+            <div className="bg-surface-alt/60 px-6 py-5 flex gap-8">
+              <div className="h-4 w-10 bg-surface-alt rounded" />
+              <div className="h-4 w-24 bg-surface-alt rounded" />
+              <div className="h-4 w-36 bg-surface-alt rounded ml-auto" />
+            </div>
+            <div className="divide-y divide-border">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="px-6 py-5 flex items-center gap-4">
+                  <div className="w-8 h-8 bg-surface-alt rounded-full flex-shrink-0" />
+                  <div className="w-10 h-10 bg-surface-alt rounded-full flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-32 bg-surface-alt rounded-md" />
+                    <div className="h-3 w-20 bg-surface-alt rounded" />
+                  </div>
+                  <div className="h-7 w-14 bg-surface-alt rounded-md ml-auto" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

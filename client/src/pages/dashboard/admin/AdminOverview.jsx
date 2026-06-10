@@ -1,20 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
+  LineChart, Line, CartesianGrid,
+  XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
   PieChart, Pie, Legend,
 } from 'recharts';
+import { FiList, FiCheckCircle, FiClock, FiXCircle, FiDollarSign } from 'react-icons/fi';
 import axiosInstance from '../../../api/axiosInstance';
 
 const STATUS_COLORS = {
-  pending:       '#f59e0b',
-  'in-progress': '#3b82f6',
-  'in progress': '#3b82f6',
-  open:          '#0ea5e9',
-  working:       '#8b5cf6',
-  ongoing:       '#8b5cf6',
-  resolved:      '#10b981',
-  closed:        '#6b7280',
-  ended:         '#6b7280',
+  pending:       '#86efac',
+  'in-progress': '#4ade80',
+  'in progress': '#4ade80',
+  open:          '#4ade80',
+  working:       '#22c55e',
+  ongoing:       '#22c55e',
+  resolved:      '#16a34a',
+  closed:        '#166534',
+  ended:         '#166534',
   rejected:      '#ef4444',
 };
 
@@ -31,46 +33,94 @@ const STATUS_STYLES = {
   rejected:      'bg-red-100    text-red-800    dark:bg-red-900/40    dark:text-red-300',
 };
 
-const StatCard = ({ label, value, colorClass }) => (
-  <div className="bg-surface rounded-xl p-5 shadow-sm border border-border">
-    <p className={`text-2xl font-black ${colorClass}`}>{value}</p>
-    <p className="text-xs text-muted font-medium mt-1 uppercase tracking-wide">{label}</p>
+const StatCard = ({ label, value, Icon, accent }) => (
+  <div className={`bg-surface rounded-2xl border border-border p-5 flex items-center gap-4 hover:shadow-md transition-shadow duration-200`}>
+    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${accent}`}>
+      <Icon size={20} className="text-on-primary" />
+    </div>
+    <div className="min-w-0">
+      <p className="text-2xl font-extrabold text-text leading-none">{value}</p>
+      <p className="text-xs text-muted font-medium mt-1 uppercase tracking-wide truncate">{label}</p>
+    </div>
   </div>
 );
 
-const SectionTitle = ({ children }) => (
-  <h2 className="text-base font-bold text-text mb-3">{children}</h2>
+const PanelCard = ({ title, children, className = '' }) => (
+  <div className={`bg-surface rounded-2xl border border-border overflow-hidden ${className}`}>
+    <div className="px-5 py-4 border-b border-border">
+      <h2 className="text-sm font-bold text-text">{title}</h2>
+    </div>
+    <div className="p-5">{children}</div>
+  </div>
 );
 
 const AdminOverview = () => {
   const { data: issuesData, isLoading: issuesLoading } = useQuery({
     queryKey: ['adminIssuesAll'],
-    queryFn: async () => {
-      const res = await axiosInstance.get('/issues?limit=1000');
-      return res.data;
-    },
+    queryFn: async () => (await axiosInstance.get('/issues?limit=1000')).data,
   });
 
   const { data: paymentsData, isLoading: paymentsLoading } = useQuery({
     queryKey: ['adminPaymentsAll'],
-    queryFn: async () => {
-      const res = await axiosInstance.get('/payments');
-      return res.data;
-    },
+    queryFn: async () => (await axiosInstance.get('/payments')).data,
   });
 
   const { data: users = [], isLoading: usersLoading } = useQuery({
     queryKey: ['adminUsers'],
-    queryFn: async () => {
-      const res = await axiosInstance.get('/users?role=citizen');
-      return res.data;
-    },
+    queryFn: async () => (await axiosInstance.get('/users?role=citizen')).data,
   });
 
   if (issuesLoading || paymentsLoading || usersLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-primary" />
+      <div className="space-y-6 animate-pulse">
+        {/* Header */}
+        <div>
+          <div className="h-7 w-32 bg-surface-alt rounded-lg mb-2" />
+          <div className="h-4 w-56 bg-surface-alt rounded-lg" />
+        </div>
+        {/* Stat cards */}
+        <div className="grid grid-cols-2 xl:grid-cols-5 gap-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="bg-surface rounded-2xl border border-border p-5 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-surface-alt flex-shrink-0" />
+              <div className="flex-1 min-w-0 space-y-2">
+                <div className="h-6 w-12 bg-surface-alt rounded" />
+                <div className="h-3 w-20 bg-surface-alt rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="bg-surface rounded-2xl border border-border overflow-hidden">
+              <div className="px-5 py-4 border-b border-border">
+                <div className="h-4 w-36 bg-surface-alt rounded" />
+              </div>
+              <div className="p-5">
+                <div className="h-[220px] bg-surface-alt rounded-xl" />
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Activity panels */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-surface rounded-2xl border border-border overflow-hidden">
+              <div className="px-5 py-4 border-b border-border">
+                <div className="h-4 w-28 bg-surface-alt rounded" />
+              </div>
+              <div className="p-5 space-y-3">
+                {Array.from({ length: 6 }).map((_, j) => (
+                  <div key={j} className="flex items-center justify-between gap-3">
+                    <div className="h-4 flex-1 bg-surface-alt rounded" />
+                    <div className="h-5 w-16 bg-surface-alt rounded-full flex-shrink-0" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -91,50 +141,70 @@ const AdminOverview = () => {
   const pieData = Object.entries(statusGroups).map(([name, value]) => ({ name, value }));
 
   const monthlyMap = payments.reduce((acc, p) => {
-    const key = new Date(p.date).toLocaleString('default', { month: 'short', year: '2-digit' });
-    acc[key] = (acc[key] || 0) + p.amount;
+    const d = new Date(p.date);
+    // Numeric sort key so months are always chronological
+    const sortKey = d.getFullYear() * 100 + (d.getMonth() + 1);
+    const label   = d.toLocaleString('default', { month: 'short', year: '2-digit' });
+    if (!acc[sortKey]) acc[sortKey] = { month: label, total: 0 };
+    acc[sortKey].total += p.amount;
     return acc;
   }, {});
-  const barData = Object.entries(monthlyMap).map(([month, total]) => ({ month, total }));
+  const barData = Object.keys(monthlyMap)
+    .map(Number)
+    .sort((a, b) => a - b)
+    .map(k => monthlyMap[k]);
 
-  const latestIssues   = issues.slice(0, 5);
-  const latestPayments = payments.slice(0, 5);
-  const latestUsers    = users.slice(0, 5);
+  const latestIssues   = issues.slice(0, 6);
+  const latestPayments = payments.slice(0, 6);
+  const latestUsers    = users.slice(0, 6);
 
   return (
-    <div>
-      <h1 className="text-2xl md:text-3xl font-extrabold text-text mb-6">Overview</h1>
+    <div className="space-y-6">
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        <StatCard label="Total Issues"  value={issues.length}    colorClass="text-info" />
-        <StatCard label="Resolved"      value={resolved}         colorClass="text-success" />
-        <StatCard label="Pending"       value={pending}          colorClass="text-warning" />
-        <StatCard label="Rejected"      value={rejected}         colorClass="text-danger" />
-        <StatCard label="Total Revenue" value={`kr${totalPaid}`} colorClass="text-primary" />
+      {/* Page header */}
+      <div>
+        <h1 className="text-2xl font-extrabold text-text">Overview</h1>
+        <p className="text-sm text-muted mt-0.5">Platform summary and recent activity</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div className="bg-surface rounded-xl shadow-sm border border-border p-6">
-          <SectionTitle>Revenue by Month (kr)</SectionTitle>
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 xl:grid-cols-5 gap-4">
+        <StatCard label="Total Issues"  value={issues.length}          Icon={FiList}         accent="bg-primary" />
+        <StatCard label="Resolved"      value={resolved}               Icon={FiCheckCircle}  accent="bg-green-600" />
+        <StatCard label="Pending"       value={pending}                Icon={FiClock}        accent="bg-green-400" />
+        <StatCard label="Rejected"      value={rejected}               Icon={FiXCircle}      accent="bg-red-500" />
+        <StatCard label="Total Revenue" value={`kr${totalPaid.toLocaleString()}`} Icon={FiDollarSign} accent="bg-violet-500" />
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <PanelCard title="Revenue by Month (kr)">
           {barData.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={barData} margin={{ top: 4, right: 8, left: -10, bottom: 0 }}>
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6b7280' }} tickLine={false} axisLine={false} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#6b7280' }} tickLine={false} axisLine={false} />
+              <LineChart data={barData} margin={{ top: 8, right: 12, left: -16, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#9ca3af' }} tickLine={false} axisLine={false} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#9ca3af' }} tickLine={false} axisLine={false} />
                 <Tooltip
                   formatter={(v) => [`kr${v}`, 'Revenue']}
-                  contentStyle={{ borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.12)' }}
+                  contentStyle={{ borderRadius: 10, border: '1px solid var(--color-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: 12 }}
                 />
-                <Bar dataKey="total" fill="rgb(48 109 41)" radius={[6, 6, 0, 0]} />
-              </BarChart>
+                <Line
+                  type="monotone"
+                  dataKey="total"
+                  stroke="rgb(48 109 41)"
+                  strokeWidth={2.5}
+                  dot={{ r: 4, fill: 'rgb(48 109 41)', strokeWidth: 0 }}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           ) : (
             <p className="text-muted text-sm text-center py-10">No payment data yet.</p>
           )}
-        </div>
+        </PanelCard>
 
-        <div className="bg-surface rounded-xl shadow-sm border border-border p-6">
-          <SectionTitle>Issues by Status</SectionTitle>
+        <PanelCard title="Issues by Status">
           {pieData.length > 0 ? (
             <ResponsiveContainer width="100%" height={240}>
               <PieChart>
@@ -144,97 +214,95 @@ const AdminOverview = () => {
                   nameKey="name"
                   cx="50%"
                   cy="45%"
-                  outerRadius={75}
-                  label={({ cx, cy, midAngle, outerRadius, percent }) => {
-                    if (percent < 0.05) return null;
-                    const RADIAN = Math.PI / 180;
-                    const r = outerRadius + 22;
-                    const x = cx + r * Math.cos(-midAngle * RADIAN);
-                    const y = cy + r * Math.sin(-midAngle * RADIAN);
-                    return (
-                      <text x={x} y={y} fill="currentColor" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11} fontWeight={600} className="text-muted">
-                        {`${(percent * 100).toFixed(0)}%`}
-                      </text>
-                    );
-                  }}
-                  labelLine={{ stroke: 'currentColor', strokeWidth: 1 }}
+                  outerRadius={80}
+                  innerRadius={40}
+                  paddingAngle={2}
+                  label={({ percent }) => percent > 0.05 ? `${(percent * 100).toFixed(0)}%` : null}
+                  labelLine={false}
                 >
                   {pieData.map(entry => (
                     <Cell key={entry.name} fill={STATUS_COLORS[entry.name?.toLowerCase()] || '#94a3b8'} />
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value) => [value]}
-                  contentStyle={{ borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.12)' }}
+                  contentStyle={{ borderRadius: 10, border: '1px solid var(--color-border)', fontSize: 12 }}
                 />
                 <Legend
-                  iconSize={10}
-                  wrapperStyle={{ paddingTop: 8, fontSize: 12 }}
-                  formatter={(value) => (
-                    <span style={{ color: '#9ca3af' }}>{value}</span>
-                  )}
+                  iconSize={8}
+                  iconType="circle"
+                  wrapperStyle={{ paddingTop: 8, fontSize: 11 }}
+                  formatter={(value) => <span style={{ color: 'var(--color-muted)' }}>{value}</span>}
                 />
               </PieChart>
             </ResponsiveContainer>
           ) : (
             <p className="text-muted text-sm text-center py-10">No issue data yet.</p>
           )}
-        </div>
+        </PanelCard>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-surface rounded-xl shadow-sm border border-border p-5">
-          <SectionTitle>Latest Issues</SectionTitle>
-          <div className="space-y-3">
-            {latestIssues.length === 0 ? (
-              <p className="text-muted text-sm">None yet.</p>
-            ) : latestIssues.map(issue => (
-              <div key={issue._id} className="flex items-center justify-between gap-2">
-                <p className="text-sm text-text truncate max-w-[60%]">{issue.title}</p>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold capitalize shrink-0 ${STATUS_STYLES[issue.status?.toLowerCase()] || 'bg-surface-alt text-muted'}`}>
-                  {issue.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* Recent activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
-        <div className="bg-surface rounded-xl shadow-sm border border-border p-5">
-          <SectionTitle>Latest Payments</SectionTitle>
-          <div className="space-y-3">
-            {latestPayments.length === 0 ? (
-              <p className="text-muted text-sm">None yet.</p>
-            ) : latestPayments.map(p => (
-              <div key={p._id} className="flex items-center justify-between gap-2">
-                <p className="text-xs text-muted truncate max-w-[60%]">{p.userEmail}</p>
-                <span className="text-sm font-bold text-primary shrink-0">kr{p.amount}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-surface rounded-xl shadow-sm border border-border p-5">
-          <SectionTitle>Recent Users</SectionTitle>
-          <div className="space-y-3">
-            {latestUsers.length === 0 ? (
-              <p className="text-muted text-sm">None yet.</p>
-            ) : latestUsers.map(u => (
-              <div key={u._id} className="flex items-center gap-2">
-                {u.avatar_url ? (
-                  <img src={u.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover shrink-0" />
-                ) : (
-                  <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-on-primary text-xs font-bold shrink-0">
-                    {(u.name || u.email).charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-text truncate leading-tight">{u.name || u.email}</p>
-                  {u.name && <p className="text-xs text-muted truncate leading-tight">{u.email}</p>}
+        <PanelCard title="Latest Issues">
+          {latestIssues.length === 0 ? (
+            <p className="text-muted text-sm">None yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {latestIssues.map(issue => (
+                <div key={issue._id} className="flex items-center justify-between gap-3">
+                  <p className="text-sm text-text truncate flex-1 min-w-0">{issue.title}</p>
+                  <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold capitalize flex-shrink-0 ${STATUS_STYLES[issue.status?.toLowerCase()] || 'bg-surface-alt text-muted'}`}>
+                    {issue.status}
+                  </span>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          )}
+        </PanelCard>
+
+        <PanelCard title="Latest Payments">
+          {latestPayments.length === 0 ? (
+            <p className="text-muted text-sm">None yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {latestPayments.map(p => (
+                <div key={p._id} className="flex items-center justify-between gap-3">
+                  <p className="text-xs text-muted truncate flex-1 min-w-0">{p.userEmail}</p>
+                  <span className="text-sm font-bold text-primary flex-shrink-0">kr{p.amount}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </PanelCard>
+
+        <PanelCard title="Recent Users">
+          {latestUsers.length === 0 ? (
+            <p className="text-muted text-sm">None yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {latestUsers.map(u => (
+                <div key={u._id} className="flex items-center gap-3">
+                  {u.avatar_url ? (
+                    <img src={u.avatar_url} alt="" loading="lazy" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
+                      {(u.name || u.email).charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-text truncate leading-tight font-medium">{u.name || '—'}</p>
+                    <p className="text-xs text-muted truncate leading-tight">{u.email}</p>
+                  </div>
+                  {u.isPremium && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 flex-shrink-0">Pro</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </PanelCard>
+
       </div>
     </div>
   );
