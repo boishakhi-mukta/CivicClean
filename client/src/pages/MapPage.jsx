@@ -149,11 +149,8 @@ const MapPage = () => {
         {/* Skeleton hero */}
         <div className="bg-primary py-14">
           <div className="max-w-5xl mx-auto px-4 text-center animate-pulse">
-            <div className="h-10 w-72 bg-on-primary/20 rounded-xl mx-auto mb-3" />
-            <div className="h-5 w-56 bg-on-primary/20 rounded-lg mx-auto mb-8" />
-            <div className="flex justify-center gap-4">
-              {[1,2,3].map(i => <div key={i} className="h-12 w-32 bg-on-primary/20 rounded-2xl" />)}
-            </div>
+            <div className="h-10 w-72 bg-on-primary/20 rounded-xl mx-auto mb-4" />
+            <div className="h-5 w-80 max-w-full bg-on-primary/20 rounded-lg mx-auto" />
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
@@ -169,9 +166,6 @@ const MapPage = () => {
       </div>
     );
   }
-
-  const resolved = issues.filter(i => ['resolved','closed'].includes(i.status)).length;
-  const pending  = issues.filter(i => i.status === 'pending').length;
 
   return (
     <div className="min-h-screen bg-bg transition-colors duration-200">
@@ -196,19 +190,6 @@ const MapPage = () => {
           <p className="text-on-primary/70 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
             Explore every civic issue reported in your community — updated in real time.
           </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
-            {[
-              { label: 'Total Issues',   value: issues.length },
-              { label: 'Resolved',       value: resolved },
-              { label: 'Pending Review', value: pending },
-            ].map(({ label, value }) => (
-              <div key={label} className="flex items-center gap-2.5 px-5 py-2.5 bg-on-primary/10 border border-on-primary/20 rounded-2xl">
-                <span className="text-xl font-extrabold text-on-primary tabular-nums">{value}</span>
-                <span className="text-xs text-on-primary/60 font-medium">{label}</span>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
