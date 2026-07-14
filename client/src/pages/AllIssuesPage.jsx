@@ -1,3 +1,26 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// AllIssuesPage.jsx — The public "Explore Issues" page at /explore.
+//
+// Shows a paginated, filterable list of all community-reported issues.
+// This is where any visitor (even without an account) can browse what
+// problems have been reported in the community.
+//
+// Key behaviours:
+//   • Search bar — typing triggers a debounced search (300 ms delay) so
+//     the API is not called on every keystroke, only when the user pauses.
+//   • Three filter dropdowns (Category, Status, Priority) can be combined
+//     freely. The FilterPanel component groups them behind a "Filters" button
+//     on mobile; on desktop they sit inline in a single row.
+//   • CompactDropdown — a lightweight dropdown (not the full Dropdown UI
+//     component) used inside FilterPanel because it needs tighter sizing.
+//   • LIMIT=8: only 8 issues are fetched per page. Pagination arrows and
+//     numbered page buttons appear below the grid when there are multiple pages.
+//   • getPageNumbers() — builds the visible page number list (e.g. 1 2 3 …
+//     8 9), inserting "…" in the middle when there are many pages.
+//   • The ref-based "click outside to close" pattern on FilterPanel means
+//     clicking anywhere outside the filter box closes it automatically.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useDebounce } from '../hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';

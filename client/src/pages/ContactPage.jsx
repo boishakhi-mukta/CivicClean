@@ -1,3 +1,19 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// ContactPage.jsx — The "Get in Touch" page for user enquiries.
+//
+// Layout: two columns.
+//   Left (3/5 width) — the contact form: name, email, subject, and message.
+//     After the user submits, the form is replaced with a "Message Sent!" success
+//     screen. The user can then click "Send Another Message" to reset and send
+//     a second enquiry.
+//   Right (2/5 width) — contact info cards showing email, location (Oslo), and
+//     response time, plus a link to the Help Centre.
+//
+// Form submission posts to the /contact API endpoint. If the server returns an
+// error (e.g. mail service down), a neutral notice banner is shown instead of
+// turning the form border red — keeping the design calm and informative.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';

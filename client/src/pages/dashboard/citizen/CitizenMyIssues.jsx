@@ -1,3 +1,31 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// CitizenMyIssues.jsx — The citizen's issue management page at
+// /dashboard/citizen/my-issues.
+//
+// Shows all issues the logged-in citizen has reported, with search filtering
+// and three action modals per issue.
+//
+// EditModal:
+//   Lets the citizen update the title, location, category, and description of
+//   an issue — but ONLY while the issue is still "pending". Once an admin
+//   assigns it to staff (status changes), editing is locked. The Edit button
+//   is hidden for non-pending issues.
+//
+// BoostModal (BOOST_PRICE = 99 kr):
+//   Paying to "boost" an issue marks it with a special flag in the database.
+//   Boosted issues are sorted to the top of the All Issues page and appear
+//   highlighted in the staff dashboard, so they get resolved faster.
+//   On success, the issue list is refreshed to show the new "Boosted" badge.
+//
+// Delete:
+//   A browser confirm dialog appears before deletion. The issue is permanently
+//   removed from the database and the list is refreshed.
+//
+// The table shows title, category, location, suggested budget (kr), status
+// badge, date, and a "Boosted" amber badge for boosted issues. The View button
+// navigates to /explore/:id for full details.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';

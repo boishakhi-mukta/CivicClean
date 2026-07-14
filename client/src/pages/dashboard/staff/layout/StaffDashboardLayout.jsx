@@ -1,3 +1,17 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// StaffDashboardLayout.jsx — The shell layout wrapping all staff dashboard
+// pages under /dashboard/staff/*.
+//
+// Same desktop sidebar + mobile drawer structure as AdminDashboardLayout and
+// CitizenDashboardLayout. The key difference is the nav items:
+// staff only see three links — Overview, Assigned Issues, and Profile.
+// Staff cannot access user management, payment records, or the all-issues
+// admin table; those are admin-only.
+//
+// PAGE_TITLES maps each staff dashboard route to a display heading shown in
+// the top bar.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useState, useContext } from 'react';
 import { NavLink, Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import {

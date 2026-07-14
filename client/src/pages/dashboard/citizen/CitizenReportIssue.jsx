@@ -1,3 +1,34 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// CitizenReportIssue.jsx — The "Report an Issue" form at
+// /dashboard/citizen/report.
+//
+// Lets a citizen fill in and submit a new civic issue report. Before showing
+// the form, two guard conditions are checked:
+//
+//   1. isBlocked guard:
+//      If the citizen's account is blocked by the admin, they see a 🚫 "Account
+//      Blocked" screen instead of the form. Blocked citizens cannot submit issues.
+//
+//   2. limitReached guard:
+//      Free plan citizens are limited to 3 issues. If they've hit the limit,
+//      they see a 🔒 "Free Limit Reached" screen with a button to upgrade to
+//      Premium. Premium citizens have no limit.
+//
+// The form fields are: Title, Category (dropdown), Location (text), Description
+//   (textarea), Suggested Budget (number in kr), Priority (dropdown), and Photo
+//   (optional, via PhotoUploader).
+//
+// Field — a small helper component that wraps a label + input + error message
+//   together with consistent spacing, so each field follows the same layout.
+//
+// On submit (two-step):
+//   1. POST /issues — creates the issue in the database.
+//   2. PATCH /users/increment-count — bumps the citizen's issue count by 1
+//      so the free-plan limit guard stays accurate.
+//   Both steps must succeed; if the issue creation fails, the count is not
+//   incremented.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

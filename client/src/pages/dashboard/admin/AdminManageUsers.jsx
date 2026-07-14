@@ -1,3 +1,25 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// AdminManageUsers.jsx — Admin tool for managing citizen accounts at
+// /dashboard/admin/users.
+//
+// Fetches all citizen accounts (role=citizen) and displays them in a table
+// with their name, email, plan (Free/Premium), issue count, and block status.
+//
+// Blocking / Unblocking:
+//   Each row has a block toggle button. Pressing it shows a browser confirm
+//   dialog with the citizen's name and email so the admin doesn't accidentally
+//   block the wrong person. Confirming sends a PATCH /users/:id/block request.
+//   Blocked citizens cannot submit new issues — they see a "Your account has
+//   been blocked" screen when they try to report.
+//
+// Pagination is handled client-side:
+//   PAGE_SIZE=10 means the first 10 citizens are shown on page 1, the next
+//   10 on page 2, etc. No server round-trip is needed to change pages.
+//
+// The table shows an "isBlocked" badge in red if a citizen is blocked,
+// and a green "Active" badge otherwise.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';

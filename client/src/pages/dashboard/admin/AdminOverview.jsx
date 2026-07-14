@@ -1,3 +1,37 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// AdminOverview.jsx — The main "home" page of the admin dashboard at
+// /dashboard/admin.
+//
+// Gives the admin a bird's-eye view of the whole platform in one glance.
+// It fetches data from three separate API endpoints in parallel and combines
+// them into a single dashboard with charts, stat cards, and recent-activity
+// tables.
+//
+// Data sources:
+//   • /issues (all issues) — total count, counts by status, recent 6
+//   • /payments (all payments) — total revenue, revenue by month, recent 6
+//   • /users?role=citizen (all citizens) — total registered users, recent 6
+//
+// StatCard — a small card showing one headline number (e.g., "Total Issues:
+//   142"). The coloured left border changes depending on which stat it represents.
+//
+// PanelCard — a wrapper card used for the charts and the "Latest" tables.
+//
+// Revenue Line Chart:
+//   Builds a monthlyMap from all payments, keyed by a numeric sort key
+//   (YYYYMM) so months are always in chronological order even if payments
+//   arrive out of order. Each month's total is summed and fed to Recharts'
+//   LineChart.
+//
+// Issues Pie Chart:
+//   Counts how many issues are in each status (pending, in-progress, etc.) and
+//   draws a PieChart with colour-coded slices defined by STATUS_COLORS.
+//
+// Bottom tables:
+//   The six most recent issues, payments, and users are shown side-by-side
+//   so the admin can quickly spot new activity without navigating away.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useQuery } from '@tanstack/react-query';
 import {
   LineChart, Line, CartesianGrid,

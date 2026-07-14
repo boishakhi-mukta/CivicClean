@@ -1,3 +1,13 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// NotFoundPage.jsx — The 404 "page not found" screen.
+//
+// Shown whenever someone navigates to a URL that doesn't match any route in
+// the app — for example typing the wrong address, or following a dead link.
+//
+// Keeps the layout simple: a large emoji, the "404" number, a plain-English
+// explanation, and a button to go back to the homepage so the user isn't stuck.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Fade } from 'react-awesome-reveal';

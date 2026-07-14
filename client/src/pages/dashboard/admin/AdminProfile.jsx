@@ -1,3 +1,28 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// AdminProfile.jsx — The admin's personal profile page at
+// /dashboard/admin/profile.
+//
+// Layout:
+//   • A green banner hero section with a decorative grid overlay and circular
+//     background shapes. The avatar overlaps the banner with a negative margin
+//     (-mt-10) to create the "floating over the banner" visual effect.
+//   • Below the hero: three cards side-by-side (on desktop) showing:
+//       – Edit Profile: name, phone, location, bio fields + photo upload
+//       – Permissions: a read-only list of what the admin can do
+//       – Security: a "Change Password" button → opens ChangePasswordModal
+//
+// EditProfileModal:
+//   Uses React Hook Form with uploadOnSelect=false on PhotoUploader — the photo
+//   is not uploaded to Firebase Storage when selected, but held in local state
+//   as a file. On submit, if a photo file is present it is uploaded first and
+//   the resulting URL is included in the PATCH /users/:id request body.
+//
+// updateMutation:
+//   Calls AuthContext's updateUserProfile() to keep the in-memory user object
+//   in sync after a successful profile update, so the navbar avatar updates
+//   without requiring a page refresh.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useContext, useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';

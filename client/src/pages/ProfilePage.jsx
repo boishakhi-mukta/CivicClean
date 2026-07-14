@@ -1,3 +1,20 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// ProfilePage.jsx — A legacy read-only profile page at the /profile route.
+//
+// This is a simpler, older version of the profile experience. The main
+// profile pages for each role (CitizenProfile, StaffProfile, AdminProfile)
+// inside the respective dashboards are richer and fully editable.
+//
+// This page shows:
+//   • The user's avatar or first-initial placeholder
+//   • Display name and email
+//   • Two stat tiles: how many issues they've reported, and their role
+//   • A log-out button
+//
+// If the user is not logged in, a short "Please log in" message is shown
+// instead of the profile.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import React, { useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Fade } from 'react-awesome-reveal';

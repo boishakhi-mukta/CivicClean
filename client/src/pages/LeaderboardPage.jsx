@@ -1,3 +1,23 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// LeaderboardPage.jsx — A ranked table of the top 20 contributing citizens.
+//
+// "Contribution points" come from the server — the more issues a citizen
+// has reported and the more community engagement they have, the higher their
+// score (total_points field from the /users/leaderboard endpoint).
+//
+// rankBadge() colours the rank circle differently for each podium position:
+//   1st — gold (yellow)
+//   2nd — silver (grey)
+//   3rd — bronze (amber/brown)
+//   4th+ — plain grey badge
+//
+// While the data is loading, grey placeholder rows (skeleton) are shown so
+// the page doesn't look blank or jump in layout when the data arrives.
+//
+// Avatar: if a user has a profile photo, it's shown in a small circle.
+//         If not, their first initial is shown in a coloured circle instead.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosInstance';

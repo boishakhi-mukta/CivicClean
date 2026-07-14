@@ -1,3 +1,30 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// AdminDashboardLayout.jsx — The shell layout that wraps all admin dashboard
+// pages under /dashboard/admin/*.
+//
+// Think of it as the "frame" of the admin interface: a sidebar on the left and
+// a content area on the right. The content area renders whichever child page
+// is currently active (via React Router's <Outlet>).
+//
+// NAV_ITEMS — the list of sidebar links (Overview, All Issues, Users, Staff,
+//   Payments, Profile). Each NavLink automatically highlights when its route
+//   is active (React Router handles the active class).
+//
+// PAGE_TITLES — maps each URL path to a human-readable title shown in the
+//   top header bar. Uses useLocation() to know which page is current.
+//
+// SidebarContent — a reusable sub-component containing the logo, nav links,
+//   and logout button. Rendered twice: once in the desktop sidebar and once
+//   inside the mobile drawer panel. Reusing the same component keeps both
+//   menus identical without duplicating markup.
+//
+// Mobile drawer:
+//   On small screens the sidebar is hidden. A hamburger (☰) button in the
+//   top bar opens a full-screen overlay drawer. Tapping the X or navigating
+//   closes the drawer. The overlay uses a z-50 fixed position so it sits on
+//   top of everything else.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useState, useContext } from 'react';
 import { NavLink, Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import {

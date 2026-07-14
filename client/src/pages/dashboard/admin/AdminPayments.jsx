@@ -1,3 +1,29 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// AdminPayments.jsx — Admin view of all payment transactions at
+// /dashboard/admin/payments.
+//
+// Shows a paginated table of every payment made on the platform:
+//   • Premium subscriptions (citizens upgrading to paid plan)
+//   • Boost payments (citizens paying 99 kr to highlight an issue)
+//   • Contributions (donations toward a specific issue's clean-up)
+//
+// TYPE_STYLES — maps each payment type to a colour-coded badge so the admin
+//   can visually distinguish them at a glance.
+//
+// METHOD_LABELS — maps the internal payment method value (e.g. "card") to
+//   a friendly label ("Credit Card") for display in the table.
+//
+// typeFilter dropdown — lets the admin filter by payment type (All / Premium
+//   Subscription / Issue Boost / Contribution). Filtering happens client-side
+//   after the full list is fetched.
+//
+// downloadInvoice(payment):
+//   Dynamically imports jsPDF and jsPDF-autotable only when needed (lazy
+//   loading — avoids making users download the PDF library just to view the
+//   page). Generates a branded PDF invoice with the CivicClean logo text,
+//   payment details, and a summary table, then saves it to the user's computer.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';

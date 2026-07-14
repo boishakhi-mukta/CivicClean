@@ -1,3 +1,31 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// MapPage.jsx — An interactive map at /map showing all reported issues as pins.
+//
+// Uses Leaflet (an open-source mapping library) to render an OpenStreetMap base
+// map centred on Oslo, Norway ([59.9139, 10.7522]).
+//
+// The marker icon fix at the top (delete L.Icon.Default.prototype._getIconUrl)
+// is a known workaround for a Leaflet + Webpack compatibility issue where the
+// default marker images fail to load — this forces Leaflet to use the correct
+// bundled image paths.
+//
+// How issues appear on the map:
+//   Each issue with lat/lng coordinates becomes a pin. If an issue has no
+//   coordinates stored (most legacy issues are text-only locations like
+//   "Main Street"), the pin is placed at a random offset from Oslo's centre
+//   so the map still shows something meaningful.
+//   Clicking a pin opens a popup with the issue title, category, status badge,
+//   and a "View Details →" link to the full issue page.
+//
+// Left sidebar:
+//   • FilterDropdown components for Category and Status.
+//   • A "Breakdown" panel showing each category with a count and progress bar.
+//     Clicking a category bar filters the map to that category only.
+//
+// Mobile: the sidebar is hidden; two inline compact dropdowns appear above the
+// map instead.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import React, { useEffect, useRef, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';

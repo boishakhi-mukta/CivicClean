@@ -1,3 +1,33 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// IssueDetailPage.jsx — Full detail view for a single issue at /explore/:id.
+//
+// The most information-dense page in the app. Shows everything about one issue:
+// photo, title, reporter info, category/priority/status badges, location,
+// description, a funding progress bar (total contributions vs. suggested
+// budget), the IssueTimeline (history of status changes), and three action
+// buttons that open modal dialogs.
+//
+// The three action modals:
+//   1. EditModal — lets the original reporter edit their issue (title, location,
+//      category, description). Only shown to the issue owner and only if the
+//      issue is still "pending". Built with React Hook Form.
+//
+//   2. BoostModal — costs 100 kr. "Boosting" an issue marks it as high-priority
+//      so it appears at the top of the All Issues list and in the citizen
+//      dashboard. Pays via /payments endpoint then refetches the issue.
+//
+//   3. ContributionModal — lets any user donate money to fund the clean-up of
+//      this issue. On success, the funding progress bar updates.
+//
+// Funding progress bar:
+//   totalFunded is the sum of all donations to this issue (from issue.donations
+//   array). The bar fills as a percentage of the suggested budget (issue.amount).
+//   It caps at 100% visually even if overfunded.
+//
+// The page also re-fetches on every load so the status + timeline are always
+// current (staleTime: 0).
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';

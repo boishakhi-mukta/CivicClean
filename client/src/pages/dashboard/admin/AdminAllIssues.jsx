@@ -1,3 +1,37 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// AdminAllIssues.jsx — Admin view of every reported issue at
+// /dashboard/admin/issues.
+//
+// The admin's primary tool for managing issues. Has the ability to:
+//   • View full details of any issue (ViewIssueModal)
+//   • Assign an issue to a staff member (AssignStaffModal)
+//   • Reject an issue with a written reason (window.prompt)
+//
+// ViewIssueModal:
+//   Opens when the admin clicks the eye icon on a row. Shows the issue photo
+//   (with an expand/fullscreen mode via imgExpanded state), all metadata in a
+//   grid (location, category, priority, date, reporter email), the rejection
+//   reason if one exists, and the IssueTimeline at the bottom showing the
+//   complete history.
+//
+// AssignStaffModal:
+//   Fetches all staff accounts (/users?role=staff) and shows them in a
+//   dropdown. Submitting sends a PATCH /issues/:id/assign request, which sets
+//   the assignedStaffEmail field and moves the issue from "pending" to the
+//   staff's queue.
+//
+// Rejection flow:
+//   The "Reject" button calls window.prompt() asking the admin to type a
+//   reason. If they type something and confirm, a PATCH request sets the issue
+//   status to "rejected" and saves the reason. If they cancel or leave it blank,
+//   nothing happens.
+//
+// Filters: search (debounced), status dropdown, category dropdown, priority
+//   dropdown — all applied client-side after the full list is fetched.
+//
+// Pagination is server-side: page number and LIMIT are sent as query params.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';

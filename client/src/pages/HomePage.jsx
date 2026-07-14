@@ -1,3 +1,41 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// HomePage.jsx — The public-facing landing page shown at /.
+//
+// This is the "shop window" of CivicClean — the first thing a visitor sees
+// before logging in. It has 8 major sections stacked vertically:
+//
+//   1. Hero Banner (slideshow) — three rotating banner slides auto-advance
+//      every 4 seconds. Each slide has a background image, headline, and a
+//      call-to-action button. The useCountUp hook animates the stat numbers
+//      (e.g., "1,200 issues resolved") when they scroll into view.
+//
+//   2. How It Works — a 3-step explainer with icons and a hover-lift card effect.
+//
+//   3. Feature Showcase (tabs) — three topic tabs (Reporting, Tracking, Community).
+//      Clicking a tab swaps the content panel. On mobile, tabs shrink to a
+//      horizontal scroll row.
+//
+//   4. Live Issue Feed — fetches the 6 most recent open issues from the API
+//      and shows them as IssueCard components. Requires the user to be logged
+//      in; if not, shows a "Sign In to View" prompt.
+//
+//   5. Top Contributors (Leaderboard preview) — fetches /users/leaderboard and
+//      shows the top 5 contributors with ranking badges.
+//
+//   6. Testimonials — static quote cards from fictional satisfied citizens.
+//
+//   7. FAQ Accordion — 8 common questions in AccordionItem components. Each
+//      item expands/collapses with an animated arrow. Clicking one question
+//      closes any previously open one (accordion behaviour).
+//
+//   8. Call-to-Action Banner — a bold full-width section prompting visitors
+//      to register.
+//
+// useCountUp(target, duration, trigger):
+//   Animates a number from 0 up to `target` over `duration` milliseconds.
+//   Only starts counting when `trigger` is true (i.e., the element is visible).
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';

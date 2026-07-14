@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// HelpPage.jsx — A categorised FAQ / help centre at /help.
+//
+// Organises frequently asked questions into topic categories:
+//   getting-started, reporting, tracking, payments, account, privacy, technical.
+//
+// Each category has a coloured icon and a list of questions. Clicking a
+// category tab (or selecting it from the mobile dropdown) filters the visible
+// questions to that category only. "All Topics" shows everything.
+//
+// Within each category, questions expand and collapse like an accordion when
+// clicked. Only one question can be open at a time per category.
+//
+// At the bottom there is a "Still need help?" card with links to Contact and
+// the Community page so users can escalate if the FAQ doesn't answer their
+// question.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {

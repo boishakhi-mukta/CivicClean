@@ -1,3 +1,23 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// MyIssuesPage.jsx — A legacy "My Reported Issues" page at the /my-issues route.
+//
+// Note: The richer, up-to-date version is CitizenMyIssues.jsx inside the citizen
+// dashboard. That version has boost support, better filtering, and the free-limit
+// guard. This page is kept for backwards compatibility.
+//
+// What this page shows:
+//   A table of all issues the current user has submitted, with columns for
+//   title, category, location, suggested budget, status, and date reported.
+//
+// Actions per row:
+//   • View — navigates to /explore/<id> to see the full issue detail page.
+//   • Edit (pencil icon) — opens UpdateIssueModal, but only for pending issues.
+//   • Delete (trash icon) — asks for confirmation then deletes the issue.
+//
+// getStatusBadge() returns a coloured pill based on the issue status.
+// getCategoryColor() returns a coloured dot colour for each category type.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';

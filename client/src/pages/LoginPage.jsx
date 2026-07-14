@@ -1,3 +1,25 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// LoginPage.jsx — The sign-in screen for CivicClean.
+//
+// Three ways to sign in:
+//   1. Email + password — the standard form on this page.
+//   2. "Try Demo" button — instantly logs in with pre-set test credentials so
+//      anyone can explore the platform without creating a real account.
+//      The selected role (Citizen / Staff / Admin) determines which demo account
+//      is used, each showing a different dashboard and permissions.
+//   3. "Continue with Google" — one-click sign-in through Google's OAuth pop-up.
+//
+// After signing in, the user is sent to the correct dashboard based on their
+// role, or back to whatever page they were trying to reach before being redirected
+// here (the "from" location saved in router state).
+//
+// getAuthErrorMessage() translates Firebase error codes (like "auth/wrong-password")
+// into plain sentences the user can understand instead of showing raw error IDs.
+//
+// ROLES array — the three demo accounts. Credentials are read from .env variables
+// so they can be changed without touching the code.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useLocation } from 'react-router-dom';

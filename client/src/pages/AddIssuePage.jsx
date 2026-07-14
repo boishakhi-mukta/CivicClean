@@ -1,3 +1,20 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// AddIssuePage.jsx — A legacy "Report an Issue" page at the /add-issue route.
+//
+// Note: The newer, richer version of this form is CitizenReportIssue.jsx inside
+// the citizen dashboard. That version enforces the free-account 3-issue limit
+// and also increments the user's issue count in the database. This page is kept
+// for backwards compatibility and direct-URL access.
+//
+// Fields on this form:
+//   Title, Category, Location, Issue Photo (PhotoUploader), Description,
+//   Suggested Fix Budget (in kr), Email (read-only, pre-filled from the logged-in
+//   user), and Status (read-only, always "pending").
+//
+// On submit, the issue is posted to the /issues API endpoint and the user is
+// redirected to the /my-issues page.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import React, { useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';

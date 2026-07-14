@@ -1,3 +1,18 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// TermsPage.jsx — The Terms & Conditions page at /terms.
+//
+// Sets out the rules users must agree to when using CivicClean: what the service
+// is, account responsibilities, acceptable use, user content ownership, the
+// premium subscription terms (1,000 kr one-time payment), intellectual property,
+// disclaimers, and the governing law (Norway).
+//
+// Structure mirrors PrivacyPolicyPage:
+//   • Hero banner with last-updated date.
+//   • Table of Contents (TOC) with anchor links to each section.
+//   • Content sections via the Section component.
+//   • Back navigation link.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiFileText, FiArrowLeft } from 'react-icons/fi';

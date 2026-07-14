@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// CitizenDashboardLayout.jsx — The shell layout wrapping all citizen dashboard
+// pages under /dashboard/citizen/*.
+//
+// Structurally identical to AdminDashboardLayout but tailored for citizen users.
+// The key difference is the nav items: citizens get Overview, My Issues, Report
+// Issue, Profile, and an "Explore" link (opens /explore in the same tab).
+// Admins get different nav items (All Issues, Manage Users/Staff, Payments).
+//
+// The same SidebarContent + mobile drawer pattern is used:
+//   • Desktop: a fixed sidebar on the left, content area on the right.
+//   • Mobile: the sidebar is hidden; a hamburger button in the top bar opens
+//     a full-screen drawer overlay with the same nav links.
+//
+// PAGE_TITLES maps each citizen dashboard route to a readable page heading
+//   shown in the top bar of the layout.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useState, useContext } from 'react';
 import { NavLink, Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import {

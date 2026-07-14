@@ -1,3 +1,34 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// CitizenProfile.jsx — The citizen's profile and account settings page at
+// /dashboard/citizen/profile.
+//
+// Three main sections:
+//
+//   1. Profile hero card — avatar, name, email, plan badge (Free/Premium), and
+//      three stat pills (Issues Reported, Payments Made, Plan).
+//
+//   2. Edit Profile form (collapsible) — name, phone, location, bio. Includes a
+//      "Change Password" section that slides open when clicked:
+//        PasswordInput — a helper component that adds a show/hide toggle eye icon
+//          to a password text field, reused for current, new, and confirm fields.
+//        isPwProvider — checks whether the citizen signed up with email/password
+//          or Google. If Google, the password section is hidden with a note
+//          saying "Use Google to manage your password."
+//
+//   3. Premium Subscription card — shows current plan. If Free, shows an
+//      "Upgrade to Premium" button that opens the SubscriptionModal.
+//
+//      SubscriptionModal (1,000 kr one-time payment):
+//        A radio button lets the user choose their payment method (card, mobile
+//        pay, bank transfer, gift card). On confirm, POST /payments creates the
+//        payment record, then PATCH /users/:id sets isPremium: true on their
+//        account. The page then shows a "Premium Member" badge instead.
+//
+//   4. Payment history table — fetches all payments the citizen has made and
+//      shows them in a table. downloadPDF() exports the full history as a
+//      formatted PDF using jsPDF.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useState, useContext, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';

@@ -1,3 +1,31 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// StaffProfile.jsx — The staff member's profile and account settings page at
+// /dashboard/staff/profile.
+//
+// Staff accounts are created by the admin and have a fixed role — staff cannot
+// change their own role or email address. This page lets them manage their
+// personal info and password.
+//
+// Three sections:
+//
+//   1. Profile hero — avatar, name, email, "Staff" role badge.
+//      Three stat pills: Total Assigned, Active (in-progress/working/ongoing
+//      issues), and Resolved.
+//
+//   2. Edit Profile form — name, phone, location, bio fields.
+//      Collapsible "Change Password" section with PasswordInput helper
+//      (same show/hide toggle pattern as CitizenProfile).
+//      Unlike citizens, staff always signed up with email/password (created
+//      by the admin), so the password section is always shown.
+//
+//   3. Account Details card (read-only) — shows:
+//        • Role badge: "Staff" in blue
+//        • Status badge: "Active" in green (staff accounts can't be blocked)
+//        • Capabilities list: a read-only bullet list of what staff are
+//          allowed to do on the platform (view, update status, resolve issues).
+//          This is informational only — it reinforces what their role can do.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useContext, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';

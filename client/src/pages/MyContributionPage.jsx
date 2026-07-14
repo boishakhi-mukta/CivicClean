@@ -1,3 +1,23 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// MyContributionPage.jsx — Shows a citizen's history of financial contributions
+// to community issue clean-ups, available at /my-contributions.
+//
+// A "contribution" is different from a "payment":
+//   Contributions are donations made through ContributionModal to help fund
+//   a specific issue's clean-up budget (the /donations endpoint).
+//   Payments (subscription or boost) are tracked separately.
+//
+// This page shows a table with each contribution's issue title, amount, and
+// date, plus a "Download" button that generates a PDF receipt using jsPDF.
+//
+// At the bottom, a summary banner shows the total number of contributions and
+// the total amount of money the citizen has donated (sum of all contribution
+// amounts).
+//
+// downloadReceipt() — generates a nicely formatted PDF with the contributor's
+// details and the issue title/amount, then saves it to the user's downloads.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import React, { useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';

@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// DashboardPage.jsx — A legacy general-purpose dashboard shown to citizens
+// who land on /dashboard without a specific sub-route.
+//
+// This is an older, simpler dashboard — the main role-specific dashboards
+// (CitizenDashboardLayout, StaffDashboardLayout, AdminDashboardLayout) are the
+// primary ones used day-to-day, each at their own /dashboard/<role> path.
+//
+// What this page shows:
+//   • The user's profile photo (or initial), name, email, and issue count.
+//   • A "Quick Actions" grid with shortcut buttons to report an issue, view
+//     their issues, explore the map, and browse all issues.
+//   • A "Recent Activity" placeholder (not yet implemented).
+//
+// Note: New citizen-facing features are being added to CitizenDashboardLayout
+// instead of this page.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import React, { useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Link } from 'react-router-dom';

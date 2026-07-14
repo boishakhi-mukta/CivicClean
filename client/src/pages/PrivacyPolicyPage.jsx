@@ -1,3 +1,19 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// PrivacyPolicyPage.jsx — The legal Privacy Policy page at /privacy.
+//
+// Explains to users what personal data CivicClean collects (name, email, photos,
+// location strings), how it is used, who it is shared with, and how long it is
+// kept. Also covers user rights (access, deletion), cookie use, and how to
+// contact the team with privacy concerns.
+//
+// Structure:
+//   • A hero banner at the top with the last-updated date.
+//   • A Table of Contents (TOC) in a sticky sidebar on desktop, or inline on
+//     mobile, linking to each section via anchor IDs.
+//   • The policy content in clearly labelled Section components.
+//   • A "Back to Home" link at the bottom.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiShield, FiArrowLeft } from 'react-icons/fi';

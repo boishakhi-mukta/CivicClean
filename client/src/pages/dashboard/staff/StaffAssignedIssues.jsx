@@ -1,3 +1,33 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// StaffAssignedIssues.jsx — The staff member's main work list at
+// /dashboard/staff/issues.
+//
+// Shows all issues assigned to this staff member and lets them advance each
+// issue through the status pipeline.
+//
+// Status pipeline (one direction only):
+//   pending → in-progress → working → resolved
+//   NEXT_STATUS map encodes this: each key maps to the next state.
+//   Status can only move forward — there is no way to revert an issue
+//   back to an earlier status (e.g., can't go from "working" back to
+//   "in-progress").
+//
+// StatusModal:
+//   Opens when the "Update Status" button is clicked on a row. Shows the
+//   current status on the left, an arrow icon, and the next status on the
+//   right. The staff member confirms before the PATCH /issues/:id/status
+//   request is sent. This extra step prevents accidental status changes.
+//
+// Boosted issues:
+//   Issues marked as boosted (by a citizen who paid 99 kr to highlight their
+//   issue) show an amber left border highlight so staff can visually prioritise
+//   them at a glance.
+//
+// Each row also has a "View" button that opens /explore/:id in a new tab so
+// the staff member can read the full description and photo without leaving
+// the dashboard.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';

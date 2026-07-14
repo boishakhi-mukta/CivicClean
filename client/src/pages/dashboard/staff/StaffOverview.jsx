@@ -1,3 +1,26 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// StaffOverview.jsx — The home page of the staff dashboard at /dashboard/staff.
+//
+// Shows a staff member's personal workload summary. Unlike the admin overview
+// (which shows all issues platform-wide), this only fetches issues that are
+// assigned to THIS staff member (/issues?assignedStaffEmail=...).
+//
+// Four stat cards:
+//   1. Total Assigned — all issues ever assigned to this staff member
+//   2. Resolved — issues with status "resolved" or "ended"
+//   3. In Progress — issues with status "in-progress", "working", or "ongoing"
+//   4. Today's Tasks — issues whose updatedAt date matches today's date
+//      (i.e., issues touched today, used as a daily workload indicator)
+//
+// PieChart:
+//   Breaks down the staff member's assigned issues by status, identical in
+//   structure to the citizen overview chart but filtered to this staff's data.
+//
+// Recent Activity list:
+//   The 5 most recently updated issues assigned to this staff member, with
+//   status badge and last-updated date. Each links to the Assigned Issues page.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {

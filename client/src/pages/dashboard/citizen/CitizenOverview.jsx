@@ -1,3 +1,29 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// CitizenOverview.jsx — The home page of the citizen dashboard at
+// /dashboard/citizen.
+//
+// A personal summary of the citizen's activity on CivicClean. Fetches the
+// citizen's own issues and their own payments in parallel, then displays:
+//
+// Five stat cards:
+//   1. Total Issues Reported — how many issues this citizen has submitted
+//   2. Pending — issues still awaiting assignment
+//   3. In Progress — issues currently being worked on
+//   4. Resolved — successfully fixed issues
+//   5. Total Contributed — sum of all contribution donations (in kr)
+//
+// PieChart:
+//   Breaks down the citizen's issues by status (pending, in-progress, resolved,
+//   etc.) so they can see at a glance how their reports are progressing. Uses
+//   the same Recharts PieChart as the admin overview, but filtered to this
+//   citizen's data only.
+//
+// Recent Issues list:
+//   The 5 most recently submitted issues are shown below the chart with their
+//   title, status badge, and date. Each item links to /explore/:id so the
+//   citizen can view the full detail and timeline.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {

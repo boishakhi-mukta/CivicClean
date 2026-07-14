@@ -1,3 +1,31 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// AdminManageStaff.jsx — Admin page for creating and managing staff accounts
+// at /dashboard/admin/staff.
+//
+// Staff accounts are the workers who get assigned issues and update their
+// status (in-progress → working → resolved). Only the admin can create, edit,
+// or delete staff accounts.
+//
+// StaffFormModal — a single modal used for both adding new staff and editing
+//   existing staff. When editing, `defaultValues` is pre-populated with the
+//   existing staff member's data:
+//   • Email is disabled in edit mode because Firebase doesn't allow email
+//     changes via our API flow — the original email must stay the same.
+//   • The password field is hidden entirely in edit mode (staff must use
+//     "Change Password" from their own profile to update it).
+//   • PhotoUploader is included so the admin can upload the staff's profile photo.
+//
+// Three mutations:
+//   • addMutation: POST /users/create-staff — creates both the Firebase Auth
+//     account and the MongoDB document for the new staff member.
+//   • editMutation: PATCH /users/:id — updates name, photo, and other fields.
+//   • deleteMutation: DELETE /users/:id — removes the staff account. A browser
+//     confirm dialog is shown first to prevent accidental deletion.
+//
+// The staff table shows name, email, photo thumbnail, join date, and action
+// buttons (edit/delete) for each staff member.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';

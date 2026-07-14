@@ -1,3 +1,21 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// AboutPage.jsx — The "About CivicClean" marketing page.
+//
+// Sections on this page (top to bottom):
+//   1. Hero banner — large headline with live animated counters that count
+//      up to the real platform stats (total users, issues reported, resolved).
+//      useCountUp() runs an animation that eases the number from 0 to the
+//      real value so it looks like a live ticking counter when you scroll past.
+//   2. Mission statement — a blockquote + four capability highlights.
+//   3. How it works — a 3-step process: Citizens Report → Admin Reviews → Staff Resolves.
+//   4. Core Values carousel — a full-width carousel showing all 6 platform values
+//      (Transparency, Community First, etc.). Auto-advances every 4.2 seconds;
+//      pauses when the mouse hovers over it. Arrow + dot navigation also work.
+//   5. Who uses CivicClean — three role cards (Citizen, Staff, Admin) listing
+//      each role's capabilities.
+//   6. CTA (call to action) — buttons to register or browse issues.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';

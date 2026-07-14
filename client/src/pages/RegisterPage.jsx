@@ -1,3 +1,25 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// RegisterPage.jsx — The account creation screen for new citizens.
+//
+// Two ways to register:
+//   1. Fill in the form — name, email, password, and a profile photo.
+//   2. "Sign up with Google" — skips the form and registers instantly using
+//      your existing Google account.
+//
+// Profile photo upload:
+//   The PhotoUploader is used with uploadOnSelect={false} which means the photo
+//   is NOT uploaded to storage immediately when picked — it stays as a local
+//   file object. The actual upload happens inside registerWithEmail() in
+//   AuthContext, so the photo and the new account are created together.
+//
+// Password requirements:
+//   A visible hint box reminds the user that the password must be at least 6
+//   characters and must contain at least one uppercase and one lowercase letter.
+//
+// After successful registration, the user is sent directly to the citizen
+// dashboard — no extra steps needed.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
