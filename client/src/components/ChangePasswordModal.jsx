@@ -1,9 +1,28 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// ChangePasswordModal.jsx — Pop-up form that lets a user change their password.
+//
+// Behaviour:
+//   • Email/password users — must enter their current password, a new password
+//     (at least 6 characters), and then confirm the new password.
+//     The eye icons next to each field toggle between hidden (••••) and visible.
+//
+//   • Google Sign-In users — they don't have a separate CivicClean password,
+//     so this modal shows a friendly message explaining that password management
+//     is handled through their Google account instead.
+//
+// Security note: before the password is changed, the user is "re-authenticated"
+// with their current password.  This is a Firebase requirement to make sure it
+// really is the account owner making the change and not someone who just left
+// their browser open.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { FiX, FiLock, FiEye, FiEyeOff, FiShield } from 'react-icons/fi';
 import { AuthContext } from '../context/AuthContext';
 
+// Translates Firebase error codes into plain-English messages the user can understand
 const getPasswordErrorMessage = (code) => {
   switch (code) {
     case 'auth/wrong-password':
@@ -20,11 +39,16 @@ const getPasswordErrorMessage = (code) => {
 
 const ChangePasswordModal = ({ onClose }) => {
   const { currentUser, changePassword } = useContext(AuthContext);
+
+  // Three separate toggles so each password field can be shown/hidden independently
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew,     setShowNew]     = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // Tracks whether the password update request is currently being sent
   const [isPending,   setIsPending]   = useState(false);
 
+  // True only for email/password accounts — Google users skip the form
   const hasEmailProvider = currentUser?.providerData?.some(p => p.providerId === 'password');
 
   const {
@@ -34,8 +58,10 @@ const ChangePasswordModal = ({ onClose }) => {
     formState: { errors },
   } = useForm();
 
+  // Watch the new password field so we can validate that confirm matches it
   const newPassword = watch('newPassword');
 
+  // Called when the user submits the form
   const onSubmit = async ({ currentPassword, newPassword }) => {
     setIsPending(true);
     try {
@@ -43,6 +69,7 @@ const ChangePasswordModal = ({ onClose }) => {
       toast.success('Password updated successfully!');
       onClose();
     } catch (err) {
+      // Show a human-readable error (e.g. "incorrect password")
       toast.error(getPasswordErrorMessage(err.code));
     } finally {
       setIsPending(false);
@@ -53,8 +80,11 @@ const ChangePasswordModal = ({ onClose }) => {
     'w-full pl-10 pr-11 py-2.5 rounded-lg border border-border bg-surface-alt text-text outline-none focus:ring-2 focus:ring-focus-ring transition text-sm';
 
   return (
+    // Dark overlay behind the modal
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/50 p-4">
       <div className="bg-surface rounded-2xl w-full max-w-md shadow-2xl">
+
+        {/* Modal header with title and close (X) button */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-border">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -64,7 +94,7 @@ const ChangePasswordModal = ({ onClose }) => {
           </div>
           <button
             onClick={onClose}
-            disabled={isPending}
+            disabled={isPending} // Prevent closing while the request is in flight
             className="p-1.5 rounded-lg text-muted hover:text-text hover:bg-surface-alt transition disabled:opacity-50"
           >
             <FiX size={18} />
@@ -72,6 +102,7 @@ const ChangePasswordModal = ({ onClose }) => {
         </div>
 
         <div className="p-6">
+          {/* ── Google users: show an explanation instead of the form ── */}
           {!hasEmailProvider ? (
             <div className="text-center py-6">
               <div className="w-14 h-14 rounded-2xl bg-surface-alt flex items-center justify-center mx-auto mb-4">
@@ -89,8 +120,10 @@ const ChangePasswordModal = ({ onClose }) => {
               </button>
             </div>
           ) : (
+            /* ── Email/password users: show the three-field form ── */
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-              {/* Current password */}
+
+              {/* Current password field */}
               <div>
                 <label htmlFor="cp-current" className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
                   Current Password
@@ -105,6 +138,7 @@ const ChangePasswordModal = ({ onClose }) => {
                     {...register('currentPassword', { required: 'Current password is required' })}
                     className={inputClass}
                   />
+                  {/* Eye icon toggles the field between ••••• and plain text */}
                   <button
                     type="button"
                     onClick={() => setShowCurrent(v => !v)}
@@ -118,7 +152,7 @@ const ChangePasswordModal = ({ onClose }) => {
                 )}
               </div>
 
-              {/* New password */}
+              {/* New password field — must be at least 6 characters */}
               <div>
                 <label htmlFor="cp-new" className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
                   New Password
@@ -149,7 +183,7 @@ const ChangePasswordModal = ({ onClose }) => {
                 )}
               </div>
 
-              {/* Confirm password */}
+              {/* Confirm password — must exactly match the new password above */}
               <div>
                 <label htmlFor="cp-confirm" className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
                   Confirm New Password
@@ -180,12 +214,14 @@ const ChangePasswordModal = ({ onClose }) => {
                 )}
               </div>
 
+              {/* Submit and cancel buttons */}
               <div className="flex gap-3 pt-1">
                 <button
                   type="submit"
                   disabled={isPending}
                   className="flex-1 py-2.5 bg-primary text-on-primary font-bold rounded-xl hover:bg-primary-hover transition disabled:opacity-60 text-sm flex items-center justify-center gap-2"
                 >
+                  {/* Spinner while saving */}
                   {isPending && (
                     <span className="w-4 h-4 rounded-full border-2 border-on-primary border-t-transparent animate-spin" />
                   )}

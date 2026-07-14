@@ -1,7 +1,23 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Footer.jsx — The footer that appears at the bottom of every public page.
+//
+// It is split into four columns:
+//   1. Brand — logo, short description, and social media icons.
+//   2. Quick Links — shortcuts to the most-visited pages.
+//   3. Categories — direct links to browse issues by type (Garbage, Road Damage…).
+//   4. Legal — Privacy Policy, Terms & Conditions, Help.
+//   5. Contact — email address and city location.
+//
+// At the very bottom there is a thin copyright bar with extra links.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { Link } from 'react-router-dom';
 import { FaXTwitter, FaFacebookF, FaInstagram, FaLinkedinIn, FaGithub } from 'react-icons/fa6';
-import { FiMail, FiMapPin, FiPhone } from 'react-icons/fi';
+import { FiMail, FiMapPin } from 'react-icons/fi';
 
+// ── Link lists defined outside the component so they are not recreated on every render ──
+
+// Main navigation shortcuts shown in the "Quick Links" column
 const QUICK_LINKS = [
   { to: '/',                                   label: 'Home' },
   { to: '/explore',                            label: 'Explore Issues' },
@@ -11,12 +27,14 @@ const QUICK_LINKS = [
   { to: '/dashboard/citizen/report-issue',     label: 'Report an Issue' },
 ];
 
+// Links to legal and support pages
 const LEGAL_LINKS = [
   { to: '/privacy', label: 'Privacy Policy' },
   { to: '/terms',   label: 'Terms & Conditions' },
   { to: '/help',    label: 'Help & Support' },
 ];
 
+// Links that filter the Explore page by issue category
 const CATEGORY_LINKS = [
   { to: '/explore?category=Garbage',                            label: 'Garbage' },
   { to: '/explore?category=Road+Damage',                        label: 'Road Damage' },
@@ -24,6 +42,7 @@ const CATEGORY_LINKS = [
   { to: '/explore?category=Illegal+Construction',               label: 'Illegal Construction' },
 ];
 
+// Social media profiles with their corresponding icons
 const SOCIAL_LINKS = [
   { href: 'https://twitter.com',   Icon: FaXTwitter,   label: 'Twitter / X' },
   { href: 'https://facebook.com',  Icon: FaFacebookF,  label: 'Facebook' },
@@ -35,11 +54,11 @@ const SOCIAL_LINKS = [
 const Footer = () => (
   <footer className="bg-surface-alt border-t border-border transition-colors duration-200">
 
-    {/* Main grid */}
+    {/* Main content grid — stacks into a single column on phones */}
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
 
-        {/* Brand */}
+        {/* Column 1 — Brand + description + social icons */}
         <div className="sm:col-span-2 lg:col-span-1 space-y-5">
           <Link to="/" className="flex items-center gap-2">
             <span className="text-2xl">🌿</span>
@@ -49,7 +68,7 @@ const Footer = () => (
             Empowering communities to report, track, and resolve local infrastructure issues. Together we build cleaner, safer neighbourhoods.
           </p>
 
-          {/* Social icons */}
+          {/* Social media icon buttons */}
           <div className="flex items-center gap-2 pt-1">
             {SOCIAL_LINKS.map(({ href, Icon, label }) => (
               <a
@@ -66,7 +85,7 @@ const Footer = () => (
           </div>
         </div>
 
-        {/* Quick Links */}
+        {/* Column 2 — Quick Links */}
         <div>
           <h3 className="text-xs font-bold uppercase tracking-widest text-text mb-5">Quick Links</h3>
           <ul className="space-y-3">
@@ -83,7 +102,7 @@ const Footer = () => (
           </ul>
         </div>
 
-        {/* Categories */}
+        {/* Column 3 — Browse by issue category */}
         <div>
           <h3 className="text-xs font-bold uppercase tracking-widest text-text mb-5">Categories</h3>
           <ul className="space-y-3">
@@ -100,7 +119,7 @@ const Footer = () => (
           </ul>
         </div>
 
-        {/* Legal */}
+        {/* Column 4 — Legal pages */}
         <div>
           <h3 className="text-xs font-bold uppercase tracking-widest text-text mb-5">Legal</h3>
           <ul className="space-y-3">
@@ -114,10 +133,11 @@ const Footer = () => (
           </ul>
         </div>
 
-        {/* Contact */}
+        {/* Column 5 — Contact details */}
         <div>
           <h3 className="text-xs font-bold uppercase tracking-widest text-text mb-5">Contact Us</h3>
           <ul className="space-y-4">
+            {/* Clicking the email address opens the user's email client */}
             <li>
               <a
                 href="mailto:bgmukta11@gmail.com"
@@ -139,9 +159,10 @@ const Footer = () => (
       </div>
     </div>
 
-    {/* Bottom bar */}
+    {/* Bottom copyright bar */}
     <div className="border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+        {/* Year updates automatically — no manual edits needed */}
         <p className="text-xs text-muted">
           &copy; {new Date().getFullYear()} CivicClean. All rights reserved.
         </p>
