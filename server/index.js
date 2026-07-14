@@ -1,3 +1,29 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// index.js — The main entry point of the CivicClean backend server.
+//
+// This file does three things:
+//   1. Sets up the Express web server with the middleware it needs (CORS so the
+//      browser can talk to the API, JSON body parsing up to 10 MB for photos).
+//   2. Connects to the MongoDB database via Mongoose. The connectDB function
+//      checks if there is already an open connection before trying to open a
+//      new one — this prevents duplicate connections on Vercel which re-uses
+//      the same Node process across requests (serverless warm starts).
+//   3. Registers all the API route groups under /api/*, then starts listening
+//      on a port (locally) or exports the app for Vercel's serverless runtime.
+//
+// Special routes in this file (not in route modules):
+//   GET /api/stats — returns platform-wide totals (users, issues, resolved,
+//     total donations) used by the HomePage stats counter animation.
+//   GET /health — a simple ping endpoint to check if the server is alive and
+//     whether the database is connected. Useful for monitoring tools.
+//
+// The error handler middleware is added LAST intentionally — Express only
+// routes unhandled errors to it if it is registered after all other middleware.
+//
+// SECURITY NOTE: MONGODB_URI and all Firebase credentials are loaded from
+// environment variables (.env) and must NEVER be hardcoded in this file.
+// ─────────────────────────────────────────────────────────────────────────────
+
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');

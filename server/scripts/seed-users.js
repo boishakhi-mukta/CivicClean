@@ -1,3 +1,25 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// scripts/seed-users.js — A one-time setup script that pre-creates the demo
+// admin, staff, and citizen accounts in both Firebase Auth and MongoDB.
+//
+// Run this once after first deployment:
+//   node scripts/seed-users.js
+//
+// What it does:
+//   For each user in the USERS array (admin, staff, citizen):
+//   1. Tries to create a Firebase Auth account with the given email + password.
+//      If the account already exists in Firebase, it fetches the existing one.
+//   2. Creates (or updates) the matching MongoDB document with the correct role.
+//   Prints a summary table of all created accounts (email, password, MongoDB ID)
+//   to the terminal so you can log in immediately after seeding.
+//
+// Safe to re-run — existing Firebase accounts and MongoDB documents are updated
+// in-place rather than duplicated or overwritten destructively.
+//
+// SECURITY NOTE: The demo passwords printed to the console should be changed
+// immediately in a production environment. Never commit real admin credentials.
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
  * One-time seed script: creates one admin and one staff user.
  * Run with: node scripts/seed-users.js

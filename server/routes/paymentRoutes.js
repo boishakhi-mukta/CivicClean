@@ -1,3 +1,26 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// routes/paymentRoutes.js — Handles payment creation and retrieval for
+// subscription upgrades and issue boosts.
+//
+// Route summary:
+//   GET  /api/payments/mine  — logged in; returns the current user's payments
+//   GET  /api/payments       — admin only; returns all payments (filterable by type)
+//   POST /api/payments       — logged in; creates a new payment record
+//
+// POST /api/payments logic (the most complex route):
+//   1. Validates the amount, type ("boost" or "subscription"), and paymentMethod.
+//   2. Generates a unique transactionId (TXN-timestamp-random).
+//   3. For "boost": verifies the issue exists and isn't already boosted.
+//   4. For "subscription": verifies the user exists and isn't already premium.
+//   5. Saves the Payment document to the database.
+//   6. For "boost": sets issue.isBoosted = true, issue.priority = "high",
+//      and appends a timeline entry to the issue.
+//   7. For "subscription": sets user.isPremium = true.
+//
+// GET /api/payments/mine must be registered BEFORE GET /api/payments to prevent
+// Express from routing "mine" as a query parameter to the admin endpoint.
+// ─────────────────────────────────────────────────────────────────────────────
+
 const express = require('express');
 const router = express.Router();
 const Payment = require('../models/Payment');

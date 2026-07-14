@@ -1,3 +1,35 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// controllers/userController.js — Business logic for user account operations.
+//
+// upsertUser — called every time a user logs in. Finds the existing MongoDB
+//   document by email and updates it if name/avatar changed, or creates a new
+//   citizen document if this is the user's first login. The "manual:" prefix
+//   on firebase_uid is used as a placeholder when a user was created manually
+//   in the database before linking their Firebase account.
+//
+// createStaff — admin-only. Creates both the Firebase Auth account AND the
+//   MongoDB document for a new staff member:
+//   1. Tries to create a Firebase user with the given email/password.
+//   2. If the email already exists in Firebase, fetches the existing UID.
+//   3. Finds or creates the MongoDB document with role="staff".
+//   The dual creation is needed because login requires Firebase, but role/profile
+//   data is stored in MongoDB.
+//
+// getUsers — admin-only. Returns citizens only by default (excludes admin and
+//   staff), unless a specific role is passed in the query string.
+//
+// incrementIssueCount — called by the frontend AFTER a successful issue
+//   submission. Uses $inc to atomically add 1 to issueCount so there are no
+//   race conditions if a user submits two issues quickly.
+//
+// toggleBlock — flips the isBlocked boolean. Reads the current value first
+//   and sends the opposite, so one endpoint handles both blocking and unblocking.
+//
+// updateProfile — allows a user to update their own name, avatar_url, and
+//   tNumber. If the request comes from a different user, it checks whether the
+//   requestor is an admin (admins can update anyone's profile).
+// ─────────────────────────────────────────────────────────────────────────────
+
 const User = require('../models/User');
 
 /* ── POST /api/users — upsert user on first login ── */

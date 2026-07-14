@@ -1,3 +1,29 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// routes/issueRoutes.js — Defines all HTTP routes for /api/issues/*.
+//
+// This file maps URL patterns to controller functions and applies the right
+// authentication/authorisation middleware to each route.
+//
+// Route summary:
+//   GET    /api/issues          — public; list issues with optional filters
+//   GET    /api/issues/:id      — public; get one issue by ID
+//   POST   /api/issues          — logged in; create a new issue
+//   PUT    /api/issues/:id      — no auth check (owner verified in controller)
+//   DELETE /api/issues/:id      — no auth check (owner verified in controller)
+//   PATCH  /api/issues/:id/upvote  — logged in; upvote an issue
+//   PATCH  /api/issues/:id/assign  — admin only; assign to a staff member
+//   PATCH  /api/issues/:id/status  — staff or admin; advance status pipeline
+//   PATCH  /api/issues/:id/reject  — admin only; reject with a reason
+//
+// Legacy routes (kept for backwards compatibility):
+//   PUT    /api/issues/:id/status — old clients used PUT instead of PATCH
+//   POST   /api/issues/:id/upvote — old clients used POST instead of PATCH
+//
+// Route ordering matters in Express: more specific paths (like /assigned) must
+// be defined before parameterised paths (like /:id) so Express doesn't treat
+// "assigned" as an ID value.
+// ─────────────────────────────────────────────────────────────────────────────
+
 const express      = require('express');
 const router       = express.Router();
 const issueCtrl    = require('../controllers/issueController');

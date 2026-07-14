@@ -1,3 +1,43 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// controllers/issueController.js — All the business logic for issue operations.
+//
+// Each exported function handles one specific API action. The route file
+// (issueRoutes.js) maps HTTP methods + URLs to these functions.
+//
+// getIssues — the most complex function. Builds a dynamic MongoDB query from
+//   up to 6 optional query parameters (category, status, priority, search,
+//   email, assignedStaffEmail). The search parameter does a case-insensitive
+//   regex match on title, category, and location simultaneously.
+//   Results are sorted so boosted issues always appear first (isBoosted: -1),
+//   then by newest date (-1). Paginated with page + limit query params.
+//   LEGACY_STATUS_MAP handles old status strings (e.g. "Open" → "pending")
+//   that may have been stored by earlier versions of the app.
+//
+// createIssue — checks two guards before saving:
+//   1. isBlocked — blocked citizens cannot report issues.
+//   2. Free plan limit — free citizens are capped at 3 issues (issueCount >= 3
+//      and not isPremium). If the limit is reached, returns 403.
+//   Automatically adds the first timeline entry ("Issue reported by citizen").
+//
+// updateIssue — lets the reporter edit their own issue. Verifies ownership by
+//   matching the email or reported_by ID from the request body against the
+//   stored issue values before allowing changes.
+//
+// deleteIssue — same ownership check as updateIssue before deleting.
+//
+// upvoteIssue — prevents self-upvoting (can't upvote your own issue) and
+//   duplicate upvoting (email already in upvotes array).
+//
+// assignIssue — admin-only. Sets assignedStaff and adds a timeline entry.
+//   Returns 400 if staff is already assigned.
+//
+// updateIssueStatus — staff-only. Validates the new status is in VALID_STATUSES,
+//   then updates status and pushes a timeline entry.
+//
+// rejectIssue — admin-only. Sets status to "rejected", saves the reason text,
+//   and pushes a timeline entry with the reason.
+// ─────────────────────────────────────────────────────────────────────────────
+
 const Issue = require('../models/Issue');
 const User  = require('../models/User');
 

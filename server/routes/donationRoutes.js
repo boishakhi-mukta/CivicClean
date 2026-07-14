@@ -1,3 +1,23 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// routes/donationRoutes.js — Handles community donation (contribution) records
+// for /api/donations.
+//
+// Donations are the crowdfunding feature: citizens donate money toward the
+// clean-up budget of a specific issue. These are separate from payments
+// (which are for subscriptions and boosts).
+//
+// Routes:
+//   GET  /api/donations — returns donations filtered by issueId and/or email.
+//     • ?issueId=<id>   → all donations to that issue (used by IssueDetailPage
+//                          to calculate the funding progress bar)
+//     • ?email=<email>  → all donations by a citizen (used by MyContributionPage)
+//     • No filter       → all donations (admin use)
+//
+//   POST /api/donations — creates a new donation record.
+//     Requires issueId, amount, name, and email in the request body.
+//     No auth token needed — donations are open to anyone (even guests).
+// ─────────────────────────────────────────────────────────────────────────────
+
 const express = require('express');
 const router = express.Router();
 const Donation = require('../models/Donation');

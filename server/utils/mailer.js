@@ -1,3 +1,26 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// utils/mailer.js — Email sending utility using Nodemailer + Gmail.
+//
+// Nodemailer is a Node.js library for sending emails. This file configures it
+// once and exposes a single function for sending contact form notifications.
+//
+// getTransporter():
+//   Creates the Gmail SMTP connection lazily (only when first needed) and
+//   caches it in the module-level `transporter` variable. Re-using the same
+//   transporter avoids the overhead of creating a new SMTP connection for
+//   every email. The Gmail credentials come from environment variables:
+//     MAIL_USER — the Gmail address to send FROM (e.g. hello@civicclean.com)
+//     MAIL_PASS — a Gmail App Password (not your regular Gmail password; you
+//                 must generate one in Google Account → Security → App Passwords)
+//
+// sendContactNotification({ name, email, subject, message }):
+//   Sends a styled HTML email to the admin inbox (MAIL_TO env variable, or
+//   falls back to MAIL_USER). The email's Reply-To header is set to the
+//   visitor's email so the admin can reply directly from their email client.
+//   Returns early silently if MAIL_TO/MAIL_USER is not configured (e.g. in
+//   a development environment without email set up).
+// ─────────────────────────────────────────────────────────────────────────────
+
 const nodemailer = require('nodemailer');
 
 let transporter = null;

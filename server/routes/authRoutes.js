@@ -1,3 +1,24 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// routes/authRoutes.js — Handles the initial user registration/sync route.
+//
+// POST /api/auth/verify:
+//   Called by the React frontend right after a successful Firebase login
+//   (whether email/password or Google). The frontend sends the user's Firebase
+//   UID, email, name, and avatar URL.
+//
+//   The server finds or creates the matching MongoDB document:
+//     • If no document exists for this UID → creates a new citizen account.
+//     • If a document exists → updates the name/avatar if they have changed
+//       (e.g. the user updated their Google profile photo).
+//
+//   This "upsert on login" pattern keeps the MongoDB user record in sync with
+//   Firebase Auth without requiring a separate registration step.
+//
+//   The route does NOT require a Firebase token header because at this point
+//   the user has just logged in and we trust the UID passed in the request body
+//   (the real security gate is Firebase Auth on the client side).
+// ─────────────────────────────────────────────────────────────────────────────
+
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
